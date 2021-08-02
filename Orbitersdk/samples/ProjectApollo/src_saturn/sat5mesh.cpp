@@ -36,12 +36,10 @@
 #include "toggleswitch.h"
 #include "apolloguidance.h"
 #include "csmcomputer.h"
-#include "lemcomputer.h"
 
 #include "saturn.h"
 #include "saturnv.h"
 #include "tracer.h"
-#include "LEM.h"
 
 #include "sivb.h"
 #include "sii.h"

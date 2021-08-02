@@ -28,7 +28,6 @@
 #include "ProjectApolloMFDButtons.h"
 
 class Saturn;
-class LEM;
 class Crawler;
 
 ///
@@ -132,7 +131,6 @@ protected:
 	//We can link to the Saturn OR the Crawler.  Only the Saturn has full funcionality.  The Crawler can ONLY read the mission time.
 	Saturn *saturn;
 	Crawler *crawler;
-	LEM *lem;
 	int screen;
 	bool debug_frozen;
 	bool isSaturnV;

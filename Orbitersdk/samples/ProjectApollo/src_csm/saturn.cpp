@@ -41,8 +41,6 @@
 #include "tracer.h"
 #include "sm.h"
 #include "sivb.h"
-#include "lemcomputer.h"
-#include "LEM.h"
 #include "papi.h"
 #include "mcc.h"
 #include "mccvessel.h"
@@ -61,11 +59,6 @@ extern "C" {
 //
 // Random functions from Yaagc.
 //
-
-extern "C" {
-	void srandom (unsigned int x);
-	long int random ();
-}
 
 //extern FILE *PanelsdkLogFile;
 
@@ -156,12 +149,15 @@ BOOL CALLBACK EnumAxesCallback( const DIDEVICEOBJECTINSTANCE* pdidoi, VOID* pSat
 
 Saturn::Saturn(OBJHANDLE hObj, int fmodel) : ProjectApolloConnectorVessel (hObj, fmodel), 
 
-	agc(soundlib, dsky, dsky2, imu, scdu, tcdu, Panelsdk),
-	dsky(soundlib, agc, 015),
-	dsky2(soundlib, agc, 016), 
+	agc(soundlib, dsky, dsky2, imu, scdu, tcdu, ogcdu, igcdu, mgcdu, Panelsdk),
+	dsky(soundlib, agc, 04),
+	dsky2(soundlib, agc, 04),
 	imu(agc, Panelsdk),
-	scdu(agc, RegOPTX, 0140, 2),
-	tcdu(agc, RegOPTY, 0141, 2),
+	scdu(agc, 052, 0140, 2),
+	tcdu(agc, 053, 0141, 2),
+	ogcdu(agc, IMUX, 047),
+	igcdu(agc, IMUY, 050),
+	mgcdu(agc, IMUZ, 051),
 	cws(SMasterAlarm, Bclick, Panelsdk),
 	dockingprobe(0, SDockingCapture, SDockingLatch, SDockingExtend, SUndock, CrashBumpS, Panelsdk),
 	MissionTimerDisplay(Panelsdk),
@@ -236,8 +232,6 @@ Saturn::Saturn(OBJHANDLE hObj, int fmodel) : ProjectApolloConnectorVessel (hObj,
 	sivbCommandConnector(this),
 	lemECSConnector(this),
 	payloadCommandConnector(this),
-	CSM_RRTto_LM_RRConnector(this, &RRTsystem),
-	csm_vhfto_lm_vhfconnector(this, &vhftransceiver, &vhfranging),
 	CSMToLEMPowerConnector(this),
 	cdi(this),
 	checkControl(soundlib),
@@ -349,8 +343,6 @@ Saturn::Saturn(OBJHANDLE hObj, int fmodel) : ProjectApolloConnectorVessel (hObj,
 	RegisterConnector(VIRTUAL_CONNECTOR_PORT, &cdi);
 	RegisterConnector(0, &CSMToLEMConnector);
 	RegisterConnector(0, &lemECSConnector);
-	RegisterConnector(VIRTUAL_CONNECTOR_PORT, &CSM_RRTto_LM_RRConnector);
-	RegisterConnector(VIRTUAL_CONNECTOR_PORT, &csm_vhfto_lm_vhfconnector);
 }
 
 Saturn::~Saturn()
@@ -587,8 +579,6 @@ void Saturn::initSaturn()
 
 	iuCommandConnector.SetSaturn(this);
 	sivbCommandConnector.SetSaturn(this);
-	CSM_RRTto_LM_RRConnector.SetSaturn(this);
-	csm_vhfto_lm_vhfconnector.SetSaturn(this);
 
 
 	CSMToLEMConnector.SetType(CSM_LEM_DOCKING);
@@ -596,8 +586,6 @@ void Saturn::initSaturn()
 	lemECSConnector.SetType(LEM_CSM_ECS);
 	payloadCommandConnector.SetType(CSM_PAYLOAD_COMMAND);
 	CSMToLEMPowerConnector.SetPowerDrain(&CSMToLEMPowerDrain);
-	CSM_RRTto_LM_RRConnector.SetType(RADAR_RF_SIGNAL);
-	csm_vhfto_lm_vhfconnector.SetType(VHF_RNG);
 
 
 	//
@@ -1246,6 +1234,9 @@ void Saturn::clbkPostStep (double simt, double simdt, double mjd)
 		imu.Timestep(simdt);
 		tcdu.Timestep(simdt);
 		scdu.Timestep(simdt);
+		igcdu.Timestep(simdt);
+		ogcdu.Timestep(simdt);
+		mgcdu.Timestep(simdt);
 		ems.TimeStep(simdt);
 		CrewStatus.Timestep(simdt);
 
@@ -1512,9 +1503,7 @@ void Saturn::clbkSaveState(FILEHANDLE scn)
 	usb.SaveState(scn);
 	if (pMission->CSMHasHGA()) hga.SaveState(scn);
 	vhftransceiver.SaveState(scn);
-	if (pMission->CSMHasVHFRanging()) vhfranging.SaveState(scn);
 	dataRecorder.SaveState(scn);
-	RRTsystem.SaveState(scn);
 
 	Panelsdk.Save(scn);	
 
@@ -2209,15 +2198,9 @@ bool Saturn::ProcessConfigFileLine(FILEHANDLE scn, char *line)
 		else if (!strnicmp(line, "VHFTRANSCEIVER", 14)) {
 			vhftransceiver.LoadState(line);
 		}
-		else if (!strnicmp(line, "VHFRANGING", 10)) {
-			vhfranging.LoadState(line);
-		}
 	    else if (!strnicmp (line, "DATARECORDER", 12)) {
 		    dataRecorder.LoadState(line);
 	    }
-		else if (!strnicmp(line, "RNDZXPDRSystem", 14)) {
-			RRTsystem.LoadState(line);
-		}
 		else if (!strnicmp(line, CMOPTICS_START_STRING, sizeof(CMOPTICS_START_STRING))) {
 			optics.LoadState(scn);
 		} 
@@ -2379,7 +2362,7 @@ void Saturn::GetScenarioState (FILEHANDLE scn, void *vstatus)
 	// find.
 	//
 
-	srandom(VehicleNo + (int) vstatus + (int) time(0));
+	//srandom(VehicleNo + (int) vstatus + (int) time(0));
 
 	//
 	// At some point we should reorder these checks by length, to minimise the chances
@@ -3101,22 +3084,22 @@ int Saturn::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 					dsky.NumberPressed(0);
 					break;
 				case OAPI_KEY_W: // Minimum impulse controller, pitch down
-					agc.SetInputChannelBit(032, MinusPitchMinImpulse,1);
+					//agc.SetInputChannelBit(032, MinusPitchMinImpulse,1);
 					break;
 				case OAPI_KEY_S: // Minimum impulse controller, pitch up
-					agc.SetInputChannelBit(032, PlusPitchMinImpulse,1);
+					//agc.SetInputChannelBit(032, PlusPitchMinImpulse,1);
 					break;
 				case OAPI_KEY_A: // Minimum impulse controller, yaw left
-					agc.SetInputChannelBit(032, MinusYawMinimumImpulse,1);
+					//agc.SetInputChannelBit(032, MinusYawMinimumImpulse,1);
 					break;
 				case OAPI_KEY_D: // Minimum impulse controller, yaw right
-					agc.SetInputChannelBit(032, PlusYawMinimumImpulse,1);
+					//agc.SetInputChannelBit(032, PlusYawMinimumImpulse,1);
 					break;
 				case OAPI_KEY_Q: // Minimum impulse controller, roll left
-					agc.SetInputChannelBit(032, MinusRollMinimumImpulse,1);
+					//agc.SetInputChannelBit(032, MinusRollMinimumImpulse,1);
 					break;
 				case OAPI_KEY_E: // Minimum impulse controller, roll right
-					agc.SetInputChannelBit(032, PlusRollMinimumImpulse,1);
+					//agc.SetInputChannelBit(032, PlusRollMinimumImpulse,1);
 					break;
 				case OAPI_KEY_K:
 					//kill rotation
@@ -3130,22 +3113,22 @@ int Saturn::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 					dsky.ProgReleased();
 					break;
 				case OAPI_KEY_W: // Minimum impulse controller, pitch down
-					agc.SetInputChannelBit(032, MinusPitchMinImpulse, 0);
+					//agc.SetInputChannelBit(032, MinusPitchMinImpulse, 0);
 					break;
 				case OAPI_KEY_S: // Minimum impulse controller, pitch up
-					agc.SetInputChannelBit(032, PlusPitchMinImpulse, 0);
+					//agc.SetInputChannelBit(032, PlusPitchMinImpulse, 0);
 					break;
 				case OAPI_KEY_A: // Minimum impulse controller, yaw left
-					agc.SetInputChannelBit(032, MinusYawMinimumImpulse, 0);
+					//agc.SetInputChannelBit(032, MinusYawMinimumImpulse, 0);
 					break;
 				case OAPI_KEY_D: // Minimum impulse controller, yaw right
-					agc.SetInputChannelBit(032, PlusYawMinimumImpulse, 0);
+					//agc.SetInputChannelBit(032, PlusYawMinimumImpulse, 0);
 					break;
 				case OAPI_KEY_Q: // Minimum impulse controller, roll left
-					agc.SetInputChannelBit(032, MinusRollMinimumImpulse, 0);
+					//agc.SetInputChannelBit(032, MinusRollMinimumImpulse, 0);
 					break;
 				case OAPI_KEY_E: // Minimum impulse controller, roll right
-					agc.SetInputChannelBit(032, PlusRollMinimumImpulse, 0);
+					//agc.SetInputChannelBit(032, PlusRollMinimumImpulse, 0);
 					break;
 			}
 		}
@@ -3171,10 +3154,10 @@ int Saturn::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 				optics.OpticsManualMovement |= 0x08; 
 				return 1;
 			case OAPI_KEY_Q: // Optics Mark
-				agc.SetInputChannelBit(016, Mark,1);
+				//agc.SetInputChannelBit(016, Mark,1);
 				return 1;
 			case OAPI_KEY_E: // Optics Mark Reject
-				agc.SetInputChannelBit(016, MarkReject,1);
+				//agc.SetInputChannelBit(016, MarkReject,1);
 				return 1;
 			case OAPI_KEY_V: // Change Sextant View Mode to DualView
 				optics.SextDualView = !optics.SextDualView;
@@ -3201,10 +3184,10 @@ int Saturn::clbkConsumeBufferedKey(DWORD key, bool down, char *kstate) {
 				optics.OpticsManualMovement &= 0xF7; 
 				return 1;
 			case OAPI_KEY_Q: 
-				agc.SetInputChannelBit(016,Mark,0);
+				//agc.SetInputChannelBit(016,Mark,0);
 				return 1;
 			case OAPI_KEY_E: 
-				agc.SetInputChannelBit(016,MarkReject,0);
+				//agc.SetInputChannelBit(016,MarkReject,0);
 				return 1;
 		}
 	}
@@ -4666,24 +4649,24 @@ void Saturn::SetAPSAttitudeEngine(int n, bool on)
 
 bool Saturn::GetCMCSIVBTakeover()
 {
-	if (LVGuidanceSwitch.GetState() == THREEPOSSWITCH_DOWN && agc.GetInputChannelBit(012, EnableSIVBTakeover))
-		return true;
+	//if (LVGuidanceSwitch.GetState() == THREEPOSSWITCH_DOWN && agc.GetInputChannelBit(012, EnableSIVBTakeover))
+	//	return true;
 
 	return false;
 }
 
 bool Saturn::GetCMCSIVBIgnitionSequenceStart()
 {
-	if (LVGuidanceSwitch.GetState() == THREEPOSSWITCH_DOWN && agc.GetInputChannelBit(012, SIVBIgnitionSequenceStart))
-		return true;
+	//if (LVGuidanceSwitch.GetState() == THREEPOSSWITCH_DOWN && agc.GetInputChannelBit(012, SIVBIgnitionSequenceStart))
+	//	return true;
 
 	return false;
 }
 
 bool Saturn::GetCMCSIVBCutoff()
 {
-	if (LVGuidanceSwitch.GetState() == THREEPOSSWITCH_DOWN && agc.GetInputChannelBit(012, SIVBCutoff))
-		return true;
+	//if (LVGuidanceSwitch.GetState() == THREEPOSSWITCH_DOWN && agc.GetInputChannelBit(012, SIVBCutoff))
+	//	return true;
 
 	return false;
 }
@@ -4739,11 +4722,6 @@ void Saturn::TLI_Begun()
 void Saturn::TLI_Ended()
 {
 	eventControl.TLI_DONE = MissionTime;
-}
-
-void Saturn::VHFRangingReturnSignal() //DELETE ME WHEN YOU ADD THE CONNECTOR
-{
-	if (pMission->CSMHasVHFRanging()) vhfranging.RangingReturnSignal();
 }
 
 void Saturn::StartSeparationPyros()
@@ -4846,7 +4824,7 @@ int Saturn::Lua_GetAGCChannel(int ch) {
 }
 
 void Saturn::Lua_SetAGCErasable(int page, int addr, int value) {
-	agc.SetErasable(page, addr, value);
+	agc.SetErasable(addr, value);
 	agc.GenerateUprupt();	
 }
 

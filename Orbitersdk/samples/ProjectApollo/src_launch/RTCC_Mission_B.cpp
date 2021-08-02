@@ -26,7 +26,6 @@ See http://nassp.sourceforge.net/license/ for more details.
 #include "soundlib.h"
 #include "apolloguidance.h"
 #include "saturn.h"
-#include "LEM.h"
 #include "../src_rtccmfd/OrbMech.h"
 #include "mcc.h"
 #include "rtcc.h"
@@ -81,7 +80,7 @@ bool RTCC::CalculationMTP_B(int fcn, LPVOID &pad, char * upString, char * upDesc
 
 		double GET, SVMJD;
 		SVMJD = oapiGetSimMJD();
-		GET = mcc->lm->GetMissionTime();
+		//GET = mcc->lm->GetMissionTime();
 		opt.GETbase = SVMJD - GET / 24.0 / 3600.0;
 
 		opt.dV_LVLH = _V(1.0, 0.0, -1.0);
@@ -89,7 +88,7 @@ bool RTCC::CalculationMTP_B(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.HeadsUp = true;
 		opt.REFSMMAT = REFSMMAT;
 		opt.TIG = OrbMech::HHMMSSToSS(8, 52, 44);
-		opt.vessel = mcc->lm;
+		//opt.vessel = mcc->lm;
 		opt.csmlmdocked = 0;
 
 		AP11LMManeuverPAD(&opt, manpad);
@@ -171,7 +170,7 @@ bool RTCC::CalculationMTP_B(int fcn, LPVOID &pad, char * upString, char * upDesc
 
 		double GET, SVMJD;
 		SVMJD = oapiGetSimMJD();
-		GET = mcc->lm->GetMissionTime();
+		//GET = mcc->lm->GetMissionTime();
 		opt.GETbase = SVMJD - GET / 24.0 / 3600.0;
 
 		opt.dV_LVLH = _V(0.0, 1.0, 0.0);
@@ -179,7 +178,7 @@ bool RTCC::CalculationMTP_B(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.HeadsUp = true;
 		opt.REFSMMAT = REFSMMAT;
 		opt.TIG = OrbMech::HHMMSSToSS(9, 40, 20);
-		opt.vessel = mcc->lm;
+		//opt.vessel = mcc->lm;
 		opt.csmlmdocked = 0;
 
 		AP11LMManeuverPAD(&opt, manpad);
@@ -227,7 +226,7 @@ bool RTCC::CalculationMTP_B(int fcn, LPVOID &pad, char * upString, char * upDesc
 
 		double GET, SVMJD;
 		SVMJD = oapiGetSimMJD();
-		GET = mcc->lm->GetMissionTime();
+		//GET = mcc->lm->GetMissionTime();
 		opt.GETbase = SVMJD - GET / 24.0 / 3600.0;
 
 		opt.dV_LVLH = _V(1.0, 0.0, 0.0);
@@ -235,7 +234,7 @@ bool RTCC::CalculationMTP_B(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.HeadsUp = true;
 		opt.REFSMMAT = REFSMMAT;
 		opt.TIG = OrbMech::HHMMSSToSS(12, 52, 18);
-		opt.vessel = mcc->lm;
+		//opt.vessel = mcc->lm;
 		opt.csmlmdocked = 0;
 
 		AP11LMManeuverPAD(&opt, manpad);

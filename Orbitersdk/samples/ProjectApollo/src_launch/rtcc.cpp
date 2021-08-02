@@ -31,8 +31,6 @@ See http://nassp.sourceforge.net/license/ for more details.
 #include "csmcomputer.h"
 #include "papi.h"
 #include "saturn.h"
-#include "LEMcomputer.h"
-#include "LEM.h"
 #include "sivb.h"
 #include "../src_rtccmfd/OrbMech.h"
 #include "../src_rtccmfd/EntryCalculations.h"
@@ -4253,15 +4251,15 @@ void RTCC::LMDAPUpdate(VESSEL *v, AP10DAPDATA &pad, bool asc)
 
 	if (asc)
 	{
-		if (!stricmp(v->GetClassName(), "ProjectApollo\\LEM") ||
-			!stricmp(v->GetClassName(), "ProjectApollo/LEM")) {
-			LEM *lem = (LEM *)v;
-			LMmass = lem->GetAscentStageMass();
-		}
-		else
-		{
+		//if (!stricmp(v->GetClassName(), "ProjectApollo\\LEM") ||
+		//	!stricmp(v->GetClassName(), "ProjectApollo/LEM")) {
+		//	LEM *lem = (LEM *)v;
+		//	LMmass = lem->GetAscentStageMass();
+		//}
+		//else
+		//{
 			LMmass = v->GetMass();
-		}
+		//}
 	}
 	else
 	{
@@ -4607,7 +4605,7 @@ void RTCC::LunarEntryPAD(LunarEntryPADOpt *opt, AP11ENT &pad)
 	pad.VLMin[0] = 0.0;
 }
 
-MATRIX3 RTCC::GetREFSMMATfromAGC(agc_t *agc, bool cmc)
+MATRIX3 RTCC::GetREFSMMATfromAGC(agcBlock1_t *agc, bool cmc)
 {
 	MATRIX3 REFSMMAT;
 	char Buffer[100];
@@ -4624,24 +4622,24 @@ MATRIX3 RTCC::GetREFSMMATfromAGC(agc_t *agc, bool cmc)
 	}
 
 	unsigned short REFSoct[20];
-	REFSoct[2] = agc->Erasable[0][REFSaddr];
-	REFSoct[3] = agc->Erasable[0][REFSaddr + 1];
-	REFSoct[4] = agc->Erasable[0][REFSaddr + 2];
-	REFSoct[5] = agc->Erasable[0][REFSaddr + 3];
-	REFSoct[6] = agc->Erasable[0][REFSaddr + 4];
-	REFSoct[7] = agc->Erasable[0][REFSaddr + 5];
-	REFSoct[8] = agc->Erasable[0][REFSaddr + 6];
-	REFSoct[9] = agc->Erasable[0][REFSaddr + 7];
-	REFSoct[10] = agc->Erasable[0][REFSaddr + 8];
-	REFSoct[11] = agc->Erasable[0][REFSaddr + 9];
-	REFSoct[12] = agc->Erasable[0][REFSaddr + 10];
-	REFSoct[13] = agc->Erasable[0][REFSaddr + 11];
-	REFSoct[14] = agc->Erasable[0][REFSaddr + 12];
-	REFSoct[15] = agc->Erasable[0][REFSaddr + 13];
-	REFSoct[16] = agc->Erasable[0][REFSaddr + 14];
-	REFSoct[17] = agc->Erasable[0][REFSaddr + 15];
-	REFSoct[18] = agc->Erasable[0][REFSaddr + 16];
-	REFSoct[19] = agc->Erasable[0][REFSaddr + 17];
+	REFSoct[2] = agc->memory[REFSaddr];
+	REFSoct[3] = agc->memory[REFSaddr + 1];
+	REFSoct[4] = agc->memory[REFSaddr + 2];
+	REFSoct[5] = agc->memory[REFSaddr + 3];
+	REFSoct[6] = agc->memory[REFSaddr + 4];
+	REFSoct[7] = agc->memory[REFSaddr + 5];
+	REFSoct[8] = agc->memory[REFSaddr + 6];
+	REFSoct[9] = agc->memory[REFSaddr + 7];
+	REFSoct[10] = agc->memory[REFSaddr + 8];
+	REFSoct[11] = agc->memory[REFSaddr + 9];
+	REFSoct[12] = agc->memory[REFSaddr + 10];
+	REFSoct[13] = agc->memory[REFSaddr + 11];
+	REFSoct[14] = agc->memory[REFSaddr + 12];
+	REFSoct[15] = agc->memory[REFSaddr + 13];
+	REFSoct[16] = agc->memory[REFSaddr + 14];
+	REFSoct[17] = agc->memory[REFSaddr + 15];
+	REFSoct[18] = agc->memory[REFSaddr + 16];
+	REFSoct[19] = agc->memory[REFSaddr + 17];
 	for (int i = 2; i < 20; i++)
 	{
 		sprintf(Buffer, "%05o", REFSoct[i]);
@@ -4661,16 +4659,16 @@ MATRIX3 RTCC::GetREFSMMATfromAGC(agc_t *agc, bool cmc)
 	return mul(REFSMMAT, OrbMech::J2000EclToBRCS(SystemParameters.AGCEpoch));
 }
 
-double RTCC::GetClockTimeFromAGC(agc_t *agc)
+double RTCC::GetClockTimeFromAGC(agcBlock1_t *agc)
 {
-	return agc->Erasable[AGC_BANK(025)][AGC_ADDR(025)] + agc->Erasable[AGC_BANK(024)][AGC_ADDR(024)] * pow((double) 2., (double) 14.);
+	return agc->memory[AGC_ADDR(025)] + agc->memory[AGC_ADDR(024)] * pow((double) 2., (double) 14.);
 }
 
-double RTCC::GetTEPHEMFromAGC(agc_t *agc)
+double RTCC::GetTEPHEMFromAGC(agcBlock1_t *agc)
 {
-	return agc->Erasable[AGC_BANK(01710)][AGC_ADDR(01710)] +
-		agc->Erasable[AGC_BANK(01707)][AGC_ADDR(01707)] * pow((double) 2., (double) 14.) +
-		agc->Erasable[AGC_BANK(01706)][AGC_ADDR(01706)] * pow((double) 2., (double) 28.);
+	return agc->memory[AGC_ADDR(01710)] +
+		agc->memory[AGC_ADDR(01707)] * pow((double) 2., (double) 14.) +
+		agc->memory[AGC_ADDR(01706)] * pow((double) 2., (double) 28.);
 }
 
 void RTCC::navcheck(VECTOR3 R, VECTOR3 V, double MJD, OBJHANDLE gravref, double &lat, double &lng, double &alt)
@@ -11929,18 +11927,18 @@ void RTCC::MPTMassUpdate(VESSEL *vessel, MED_M50 &med1, MED_M55 &med2)
 				hLM = vessel->GetDockStatus(dock);
 				lm = oapiGetVesselInterface(hLM);
 
-				LEM *lem = (LEM *)lm;
-				lm_ascent_mass = lem->GetAscentStageMass();
+				//LEM *lem = (LEM *)lm;
+				//lm_ascent_mass = lem->GetAscentStageMass();
 
 				//TBD: Make this better
-				if (lem->GetStage() < 2)
-				{
-					cfg = "CL";
-				}
-				else
-				{
-					cfg = "CA";
-				}
+				//if (lem->GetStage() < 2)
+				//{
+				//	cfg = "CL";
+				//}
+				//else
+				//{
+				//	cfg = "CA";
+				//}
 
 
 			}
@@ -11955,9 +11953,9 @@ void RTCC::MPTMassUpdate(VESSEL *vessel, MED_M50 &med1, MED_M55 &med2)
 		LEM *lem = (LEM *)vessel;
 
 		lmmass = vessel->GetMass();
-		lm_ascent_mass = lem->GetAscentStageMass();
+		//lm_ascent_mass = lem->GetAscentStageMass();
 
-		if (lem->GetStage() < 2)
+		/*if (lem->GetStage() < 2)
 		{
 			if (cmmass = GetDockedVesselMass(vessel))
 			{
@@ -11978,7 +11976,7 @@ void RTCC::MPTMassUpdate(VESSEL *vessel, MED_M50 &med1, MED_M55 &med2)
 			{
 				cfg = "A";
 			}
-		}
+		}*/
 	}
 	else
 	{
@@ -33587,7 +33585,7 @@ bool RTCC::QMGEPH(double gmtbase, double HOURS)
 	return false;
 }
 
-bool RTCC::CalculateAGSKFactor(agc_t *agc, ags_t *aea, double &KFactor)
+/*bool RTCC::CalculateAGSKFactor(agc_t *agc, ags_t *aea, double &KFactor)
 {
 	//This function only works in a thread
 	uint32_t tim_old, TA1, TA2;
@@ -33611,7 +33609,7 @@ bool RTCC::CalculateAGSKFactor(agc_t *agc, ags_t *aea, double &KFactor)
 	KFactor = t_agc - t_aea;
 
 	return true;
-}
+}*/
 
 void RTCC::RMMYNI(const RMMYNIInputTable &in, RMMYNIOutputTable &out)
 {

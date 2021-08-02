@@ -38,9 +38,7 @@
 #include "toggleswitch.h"
 #include "apolloguidance.h"
 #include "csmcomputer.h"
-#include "lemcomputer.h"
 #include "saturn.h"
-#include "LEM.h"
 #include "Crawler.h"
 #include "papi.h"
 #include <stdio.h>

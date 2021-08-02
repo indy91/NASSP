@@ -31,7 +31,6 @@
 #include "nasspdefs.h"
 #include "checklistController.h"
 #include "saturn.h"
-#include "LEM.h"
 
 //Code to make the compiler shut up.
 #pragma warning ( push )
@@ -110,7 +109,6 @@ bool ChecklistDataInterface::getVariable(int index, char * value) {
 bool ChecklistDataInterface::ReceiveMessage(Connector *from, ConnectorMessage &m) {
 	int index = 0;
 	char * value = NULL;
-	int vessel_type = 0;
 
 	//
 	// Sanity checks
@@ -128,20 +126,9 @@ bool ChecklistDataInterface::ReceiveMessage(Connector *from, ConnectorMessage &m
 		return false; // Go away
 	}
 
-	if (!stricmp(vessel->GetClassName(), "ProjectApollo\\Saturn5") ||
-		!stricmp(vessel->GetClassName(), "ProjectApollo/Saturn5") ||
-		!stricmp(vessel->GetClassName(), "ProjectApollo\\Saturn1b") ||
-		!stricmp(vessel->GetClassName(), "ProjectApollo/Saturn1b")) {
-		vessel_type = 1;
-	}
-	else if (!stricmp(vessel->GetClassName(), "ProjectApollo\\LEM") ||
-		!stricmp(vessel->GetClassName(), "ProjectApollo/LEM")) {
-		vessel_type = 2;
-	}
-
 	switch (messageType) {
 	case CDI_GET_VARIABLE:
-		sprintf(oapiDebugString(), "REQUEST TO GET VARIABLE, VTYPE %d", vessel_type);
+		//sprintf(oapiDebugString(), "REQUEST TO GET VARIABLE, VTYPE %d", vessel_type);
 		// Index in val1
 		index = m.val1.iValue;
 		// Pointer in val2
@@ -149,15 +136,9 @@ bool ChecklistDataInterface::ReceiveMessage(Connector *from, ConnectorMessage &m
 		// Make it happen
 		value[0] = 0; // Default
 		return true;
-		if (vessel_type == 1) {
-			// CSM
+		{
 			Saturn * csm = (Saturn *)vessel;
 			strncpy(value, csm->Checklist_Variable[index], 32);
-		}
-		if (vessel_type == 2) {
-			// LEM
-			LEM * lem = (LEM *)vessel;
-			strncpy(value, lem->Checklist_Variable[index], 32);
 		}
 		// All others disregarded
 		return true;
@@ -169,15 +150,9 @@ bool ChecklistDataInterface::ReceiveMessage(Connector *from, ConnectorMessage &m
 		// Pointer in val2
 		value = (char *)m.val2.pValue;
 		// Make it happen
-		if (vessel_type == 1) {
-			// CSM
+		{
 			Saturn * csm = (Saturn *)vessel;
-			strncpy(csm->Checklist_Variable[index], value, 32);			
-		}
-		if (vessel_type == 2) {
-			// LEM
-			LEM * lem = (LEM *)vessel;
-			strncpy(lem->Checklist_Variable[index], value, 32);			
+			strncpy(csm->Checklist_Variable[index], value, 32);
 		}
 		// All others disregarded
 		return true;

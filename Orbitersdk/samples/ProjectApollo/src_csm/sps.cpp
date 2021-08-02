@@ -546,13 +546,13 @@ void SPSEngine::Timestep(double simt, double simdt) {
 	}
 
 	// SPS ready signal to CMC
-	if (saturn->GetStage() <= CSM_LEM_STAGE  && (saturn->dVThrust1Switch.Voltage() > SP_MIN_DCVOLTAGE || saturn->dVThrust2Switch.Voltage() > SP_MIN_DCVOLTAGE)) {
+	/*if (saturn->GetStage() <= CSM_LEM_STAGE  && (saturn->dVThrust1Switch.Voltage() > SP_MIN_DCVOLTAGE || saturn->dVThrust2Switch.Voltage() > SP_MIN_DCVOLTAGE)) {
 		if (!saturn->agc.GetInputChannelBit(030, SPSReady))
 			saturn->agc.SetInputChannelBit(030, SPSReady, true);
 	} else {
 		if (saturn->agc.GetInputChannelBit(030, SPSReady))
 			saturn->agc.SetInputChannelBit(030, SPSReady, false);
-	}
+	}*/
 
 	//
 	// Thrust on/off logic

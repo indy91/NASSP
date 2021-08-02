@@ -35,7 +35,6 @@
 #include "soundlib.h"
 
 #include "toggleswitch.h"
-#include "LEM.h"
 
 #include "lrv.h"
 #include "lrv_console.h"
@@ -195,7 +194,7 @@ void LRV::init()
 	vccRange100Angle = 0.0;
 	vccSpeedAngle = 0.0;
 	for (int i=0; i<8; i++)
-		vccNeedleAngle[i] = - Radians(VCC_NEEDLE_MINPOS[i]);
+		vccNeedleAngle[i] = -0; //Radians(VCC_NEEDLE_MINPOS[i]);
 	vccInitialized = false;
 	vccInitLat = 0.0;
 	vccInitLong = 0.0;
@@ -318,7 +317,7 @@ void LRV::SetRoverStage ()
 	//////////////////////////////////////////////////////////////////////////
     // Compass rose rotation
 	mgtRotCompass.P.rotparam.ref = LRV_COMPASS_PIVOT;
-	mgtRotCompass.P.rotparam.axis = Normalize(LRV_COMPASS_AXIS);
+	mgtRotCompass.P.rotparam.axis = _V(0,0,0); // Normalize(LRV_COMPASS_AXIS);
 	mgtRotCompass.P.rotparam.angle = 0.0;  // dummy value
 	mgtRotCompass.nmesh = vccMeshIdx;
 	mgtRotCompass.ngrp = GEOM_COMPASS;
@@ -332,14 +331,14 @@ void LRV::SetRoverStage ()
 	mgtRotDrums.transform = MESHGROUP_TRANSFORM::ROTATE;
     // Speed dial rotation
 	mgtRotSpeed.P.rotparam.ref = LRV_SPEED_PIVOT;
-	mgtRotSpeed.P.rotparam.axis = Normalize(LRV_SPEED_AXIS);
+	mgtRotSpeed.P.rotparam.axis = _V(0, 0, 0);// Normalize(LRV_SPEED_AXIS);
 	mgtRotSpeed.P.rotparam.angle = 0.0;  // dummy value
 	mgtRotSpeed.nmesh = vccMeshIdx;
 	mgtRotSpeed.ngrp = GEOM_SPEEDDIAL;
 	mgtRotSpeed.transform = MESHGROUP_TRANSFORM::ROTATE;
     // Power/temp gauge needles
 	mgtRotGauges.P.rotparam.ref = LRV_GAUGE_PIVOT;
-	mgtRotGauges.P.rotparam.axis = Normalize(LRV_DRUM_AXIS);  // same axis as drums
+	mgtRotGauges.P.rotparam.axis = _V(0, 0, 0);  // same axis as drums
 	mgtRotGauges.P.rotparam.angle = 0.0;  // dummy value
 	mgtRotGauges.nmesh = vccMeshIdx;
 	mgtRotGauges.ngrp = GEOM_NEEDLE_A;  // dummy value
@@ -440,7 +439,7 @@ void LRV::MoveLRV(double SimDT, VESSELSTATUS *eva, double heading)
 		// calculate turn radius for center of LRV based on inner wheel deflection 
 		//
 		double turn_angle;
-        double inner_angle_rad = Radians(fabs(steering) * MAX_WHEEL_TURN_INNER_DEG);
+		double inner_angle_rad = 0;//Radians(fabs(steering) * MAX_WHEEL_TURN_INNER_DEG);
 		// how far along the full circle does the LRV move (angle, not distance)?
 		if (inner_angle_rad <= PI/1000.0) // avoid singularity at 0.0 ...
 			turn_angle = 0.0;
@@ -687,7 +686,7 @@ void LRV::SetNeedleAngle(int idx, double val, double min_val, double max_val)
 	// Move one of the 8 needles of the 4 power/temp gauges
 	//
 	double pos = __min(1.0, __max(0.0, (val - min_val) / (max_val - min_val)));  // position in [0 .. 1]
-	double needle_rad = Radians(pos * (VCC_NEEDLE_MAXPOS[idx] - VCC_NEEDLE_MINPOS[idx]));
+	double needle_rad =0 ; // Radians(pos * (VCC_NEEDLE_MAXPOS[idx] - VCC_NEEDLE_MINPOS[idx]));
 
 	mgtRotGauges.P.rotparam.angle = float(needle_rad - vccNeedleAngle[idx]);
 	mgtRotGauges.ngrp = VCC_NEEDLE_GROUPS[idx];		
@@ -779,7 +778,7 @@ void LRV::clbkPreStep (double SimT, double SimDT, double mjd)
 
 		// Rotate the speed dial.
 		double abs_speed_kmh = fabs(speed * 3.6);  // absolute speed in km/h
-		double speed_dial_rad = -(abs_speed_kmh - 10.0) * Radians(31.25) / 10.0;
+		double speed_dial_rad = -(abs_speed_kmh - 10.0) * 0.0 / 10.0;
 		mgtRotSpeed.P.rotparam.angle = float(speed_dial_rad - vccSpeedAngle);
 		vccSpeedAngle = speed_dial_rad;
 		MeshgroupTransform(vccVis, mgtRotSpeed);
@@ -821,7 +820,7 @@ void LRV::clbkPreStep (double SimT, double SimDT, double mjd)
 
 		if (vccInitialized) {  // we need the reference lat and long for this ...
 			// Display bearing to last reference point (usually the LM)
-			double bearing = Degree(CalcSphericalBearing(_V(vccInitLong, vccInitLat, 0.0), evaV.vdata[0]));
+			double bearing = 0.0;// Degree(CalcSphericalBearing(_V(vccInitLong, vccInitLat, 0.0), evaV.vdata[0]));
 			bearing = bearing - 90.0;  // correct bearing to local North
 			while (bearing < 0.0) bearing += 360.0;
 			digit = floor(bearing/100.0);  // hundreds
@@ -847,7 +846,7 @@ void LRV::clbkPreStep (double SimT, double SimDT, double mjd)
 			MeshgroupTransform(vccVis, mgtRotDrums);
 
 			// Display range (in km) to last reference point (usually the LM)
-			double range = CalcSphericalDistance(_V(vccInitLong, vccInitLat, 0.0), evaV.vdata[0], oapiGetSize(evaV.rbody))/1000.0;
+			double range = 0.0;//CalcSphericalDistance(_V(vccInitLong, vccInitLat, 0.0), evaV.vdata[0], oapiGetSize(evaV.rbody)) / 1000.0;
 			if (range < 0.0) range = -range;
 			while (range > 100.0) range = range - 100.0;
 			digit = floor(range/10.0);  // tens
@@ -942,8 +941,8 @@ void LRV::UpdateAnimations (double SimDT)
 	}
 	else
 	{
-		inner_angle_rad = Radians(fabs(steering) * MAX_WHEEL_TURN_INNER_DEG);
-		outer_angle_rad = Radians(fabs(outer_steering) * MAX_WHEEL_TURN_INNER_DEG);
+		inner_angle_rad = 0.0;//Radians(fabs(steering) * MAX_WHEEL_TURN_INNER_DEG);
+		outer_angle_rad = 0.0;// Radians(fabs(outer_steering) * MAX_WHEEL_TURN_INNER_DEG);
 		turn_radius_center_cm = get_turn_radius_for_center(inner_angle_rad);
 		turn_radius_inner_cm = 0.5 * WHEEL_BASE_CM / cos(PI05 - inner_angle_rad);
 		turn_radius_outer_cm = 0.5 * WHEEL_BASE_CM / cos(PI05 - outer_angle_rad);;
@@ -1026,7 +1025,7 @@ void LRV::clbkVisualDestroyed (VISHANDLE vis, int refcount)
 	vccRange010Angle = 0.0;
 	vccSpeedAngle = 0.0;
 	for (int i=0; i<8; i++)
-		vccNeedleAngle[i] = - Radians(VCC_NEEDLE_MINPOS[i]);
+		vccNeedleAngle[i] = -0.0;//Radians(VCC_NEEDLE_MINPOS[i]);
 }
 
 typedef union {

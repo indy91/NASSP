@@ -35,7 +35,6 @@
 #include "soundlib.h"
 
 #include "toggleswitch.h"
-#include "LEM.h"
 
 #include "leva.h"
 #include "LRV.h"
@@ -230,7 +229,7 @@ void LEVA::MoveEVA(double SimDT, VESSELSTATUS *eva, double heading)
 
 	double lat;
 	double lon;
-	double turn_spd = Radians(SimDT * (Astro ? ASTRO_TURN_DEG_PER_SEC : ROVER_TURN_DEG_PER_SEC));
+	double turn_spd = 0;//Radians(SimDT * (Astro ? ASTRO_TURN_DEG_PER_SEC : ROVER_TURN_DEG_PER_SEC));
 	double move_spd;
 
 	// limit time acceleration (todo: turn limit off if no movement occurs)
@@ -603,25 +602,6 @@ void LEVA::clbkPreStep (double SimT, double SimDT, double mjd)
 	//
 	// Get reference lat and long for the VC console, as soon as we have "landed" status
 	//
-
-	if (hMaster){
-		LEM *lmvessel = (LEM *) oapiGetVesselInterface(hMaster);					
-		oapiGetRelativePos (GetHandle() ,hMaster, &posr);
-		oapiGetRelativeVel (GetHandle() ,hMaster , &rvel);
-		lmvessel->GetStatus(csmV);
-		GlobalRot (posr, RelRot);
-		dist = sqrt(posr.x * posr.x + posr.y * posr.y + posr.z * posr.z);
-		Vel = sqrt(rvel.x * rvel.x + rvel.y * rvel.y + rvel.z * rvel.z);
-		if (GoDock1) {						
-			if (lmvessel->IsForwardHatchOpen() && dist <= 6.00550) {
-				GoDock1 = false;
-				lmvessel->StopEVA();
-				oapiSetFocusObject(hMaster);
-				oapiDeleteVessel(GetHandle());
-				return;
-			}
-		}
-	}
 
 	MoveEVA(SimDT, &evaV, heading);
 

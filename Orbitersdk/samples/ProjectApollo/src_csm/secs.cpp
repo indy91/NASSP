@@ -111,11 +111,11 @@ void RCSC::Timestep(double simdt)
 
 	if (RCSCCMSMTransferA)
 	{
-		Sat->agc.SetInputChannelBit(030, CMSMSeperate, true);
+		Sat->agc.SetInputChannelBit(06, CMSMSeperate, true);
 	}
 	else
 	{
-		Sat->agc.SetInputChannelBit(030, CMSMSeperate, false);
+		Sat->agc.SetInputChannelBit(06, CMSMSeperate, false);
 	}
 
 	if (Sat->secs.MESCB.GetCMSMDeadFace())
@@ -805,11 +805,11 @@ void MESC::Timestep(double simdt)
 	{
 		if (UllageRelay)
 		{
-			Sat->agc.SetInputChannelBit(030, SIVBSeperateAbort, true);
+			Sat->agc.SetInputChannelBit(06, SIVBSeperateAbort, true);
 		}
 		else
 		{
-			Sat->agc.SetInputChannelBit(030, SIVBSeperateAbort, false);
+			Sat->agc.SetInputChannelBit(06, SIVBSeperateAbort, false);
 		}
 	}
 

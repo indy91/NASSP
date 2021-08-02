@@ -63,8 +63,7 @@ void ApolloGuidance::ProcessChannel10(ChannelValue val)
 void ApolloGuidance::ProcessChannel11Bit(int bit, bool val)
 
 {
-	dsky.ProcessChannel11Bit(bit, val);
-	if (dsky2) dsky2->ProcessChannel11Bit(bit, val);
+
 }
 
 void ApolloGuidance::ProcessChannel11(ChannelValue val)

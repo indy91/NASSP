@@ -54,7 +54,7 @@ bool RTCC::CalculationMTP_C(int fcn, LPVOID &pad, char * upString, char * upDesc
 
 		//Get TEPHEM
 		TEPHEM0 = 40038.;
-		tephem_scal = GetTEPHEMFromAGC(&cm->agc.vagc);
+		tephem_scal = GetTEPHEMFromAGC(cm->agc.vagc);
 		double LaunchMJD = (tephem_scal / 8640000.) + TEPHEM0;
 		LaunchMJD = (LaunchMJD - SystemParameters.GMTBASE)*24.0;
 
@@ -85,7 +85,7 @@ bool RTCC::CalculationMTP_C(int fcn, LPVOID &pad, char * upString, char * upDesc
 		GMGMED(Buff);
 
 		//Get actual liftoff REFSMMAT from telemetry
-		BZSTLM.CMC_REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+		BZSTLM.CMC_REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		BZSTLM.CMCRefsPresent = true;
 		EMSGSUPP(1, 1);
 		//Make telemetry matrix current
@@ -127,7 +127,7 @@ bool RTCC::CalculationMTP_C(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.enginetype = RTCC_ENGINETYPE_CSMRCSMINUS4;
 		opt.HeadsUp = false;
 		opt.sxtstardtime = 0;
-		opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+		opt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		opt.navcheckGET = 0;
 
 		AP7ManeuverPAD(&opt, *form);
@@ -261,7 +261,7 @@ bool RTCC::CalculationMTP_C(int fcn, LPVOID &pad, char * upString, char * upDesc
 			opt.enginetype = SPSRCSDecision(SPS_THRUST / calcParams.src->GetMass(), res.dV_LVLH);
 			opt.HeadsUp = true;
 			opt.sxtstardtime = 0;
-			opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+			opt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 			opt.navcheckGET = 0;
 
 			AP7ManeuverPAD(&opt, *form);
@@ -352,7 +352,7 @@ bool RTCC::CalculationMTP_C(int fcn, LPVOID &pad, char * upString, char * upDesc
 		}
 		else
 		{
-			opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+			opt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 			opt.navcheckGET = 25 * 60 * 60 + 42 * 60;
 			sprintf(form->remarks, "posigrade, heads up");
 		}
@@ -430,7 +430,7 @@ bool RTCC::CalculationMTP_C(int fcn, LPVOID &pad, char * upString, char * upDesc
 			opt.enginetype = enginetype;
 			opt.HeadsUp = false;
 			opt.sxtstardtime = 0;
-			opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+			opt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 			opt.navcheckGET = 0;
 
 			AP7ManeuverPAD(&opt, *form);
@@ -482,7 +482,7 @@ bool RTCC::CalculationMTP_C(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.enginetype = RTCC_ENGINETYPE_CSMSPS;
 		opt.HeadsUp = false;
 		opt.sxtstardtime = 0;
-		opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+		opt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		opt.navcheckGET = 27 * 60 * 60 + 17 * 60;
 
 		AP7ManeuverPAD(&opt, *form);
@@ -550,7 +550,7 @@ bool RTCC::CalculationMTP_C(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.GETbase = CalcGETBase();
 		opt.HeadsUp = false;
 		opt.navcheckGET = 0;
-		opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+		opt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		opt.sxtstardtime = 0;
 		opt.TIG = OrbMech::HHMMSSToSS(30.0, 20.0, 0.0);
 		opt.vessel = calcParams.src;
@@ -1414,7 +1414,7 @@ bool RTCC::CalculationMTP_C(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.lat = SplashLatitude;
 		opt.lng = SplashLongitude;
 		opt.P30TIG = TimeofIgnition;
-		opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+		opt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		opt.preburn = false;
 		opt.sv0 = StateVectorCalc(calcParams.src);
 

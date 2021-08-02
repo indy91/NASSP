@@ -2089,7 +2089,7 @@ void Saturn::SetSwitches(int panel) {
 	//
 
 	LVRow.Init(AID_LV_SWITCHES, MainPanel);
-	LVGuidanceSwitch.Init	  ( 1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], LVRow, &agc);
+	LVGuidanceSwitch.Init	  ( 1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], LVRow, NULL);
 	LVGuidanceSwitch.InitGuard( 0,  0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69], 180);
 	LVGuidanceSwitch.SetChannelData(030, 9, false);
 
@@ -4013,16 +4013,16 @@ void Saturn::PanelSwitchToggled(TwoPositionSwitch *s) {
 
 	} else if (s == &OpticsMarkButton) {
 		if (s->GetState() == 1) {
-			agc.SetInputChannelBit(016, Mark, 1);
+			//agc.SetInputChannelBit(016, Mark, 1);
 		} else {
-			agc.SetInputChannelBit(016, Mark, 0);
+			//agc.SetInputChannelBit(016, Mark, 0);
 		}
 
 	} else if (s == &OpticsMarkRejectButton) {
 		if (s->GetState() == 1) {
-			agc.SetInputChannelBit(016, MarkReject, 1);
+			//agc.SetInputChannelBit(016, MarkReject, 1);
 		} else {
-			agc.SetInputChannelBit(016, MarkReject, 0);
+			//agc.SetInputChannelBit(016, MarkReject, 0);
 		}
 	} else if (s == &OpticsModeSwitch || s == &OpticsZeroSwitch) {
 		optics.OpticsSwitchToggled();

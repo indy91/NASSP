@@ -37,7 +37,7 @@
 
 #include "ioChannels.h"
 #include "IMU.h"
-#include "yaAGC/agc_engine.h"
+#include "yaAGCb1/yaAGCb1.h"
 
 #include "toggleswitch.h"
 #include "saturn.h"
@@ -137,7 +137,7 @@ void IMU::SetCaged(bool val)
 {
 	if (Caged != val) {
 		Caged = val;
-		agc.SetInputChannelBit(030, IMUCage, val);
+		//agc.SetInputChannelBit(030, IMUCage, val);
 
 		if (val) {
 			DoZeroIMUGimbals();
@@ -154,9 +154,9 @@ void IMU::TurnOn()
 {
 	if (!Operate) {
 		SetCaged(false);
-		agc.SetInputChannelBit(030, ISSTurnOnRequest, true);
+		//agc.SetInputChannelBit(030, ISSTurnOnRequest, true);
 		// Clear IMUFail
-		agc.SetInputChannelBit(030, IMUFail, false);
+		agc.SetInputChannelBit(06, IMUFail, false);
 		Operate = true;
 	}
 }
@@ -165,13 +165,13 @@ void IMU::TurnOff()
 
 {
 	if (Operate) {
-		agc.SetInputChannelBit(030, ISSTurnOnRequest, false);
+		//agc.SetInputChannelBit(030, ISSTurnOnRequest, false);
 
 		// The IMU is monitored by a separate "IMU Fail Detect Logic",
 		// which sets the IMUFail and IMUCDUFail bits of channel 030
 		// under certain conditions, see CSM systems handbook 8.1 H9.
 		// For now we just raise an IMUFail in case of an turn off.
-		agc.SetInputChannelBit(030, IMUFail, true);
+		agc.SetInputChannelBit(06, IMUFail, true);
 
 		Operate = false;
 		TurnedOn = false;
@@ -180,9 +180,105 @@ void IMU::TurnOff()
 }
 
 void IMU::ChannelOutput(int address, ChannelValue value) 
-
 {
-	TRACESETUP("CHANNEL OUTPUT PROCESS");
+	if (!TurnedOn) {
+		return;
+	}
+
+	if (address == 012)
+	{
+		/*if (agc.GetIMUCoarseAlign() && value[IMUCDU])
+		{
+			int sign = (040000 - agc.vagc->memory[042]);
+			if (sign > 384)
+			{
+				sign = 384;
+			}
+			//Dampening
+			//sign = sign / 8;
+			if (value[IMUPlus])
+			{
+			}
+			else if (value[IMUMinus])
+			{
+				sign = 040000 + sign;
+			}
+			else
+			{
+				sign = 0;
+			}
+
+			if (value[IMUX])
+			{
+				DriveCDUX(sign);
+				sprintf(oapiDebugString(), "IMU CDU X %o %o", sign, agc.vagc->memory[042]);
+			}
+			else if (value[IMUY])
+			{
+				DriveCDUY(sign);
+				sprintf(oapiDebugString(), "IMU CDU Y %o %o", sign, agc.vagc->memory[042]);
+			}
+			else if (value[IMUZ])
+			{
+				DriveCDUZ(sign);
+				sprintf(oapiDebugString(), "IMU CDU Z %o %o", sign, agc.vagc->memory[042]);
+			}
+			agc.vagc->memory[042] = 0;
+		}*/
+
+		if (value[IMUGyro])
+		{
+			double delta;
+			MATRIX3 t;
+			VECTOR3 newAngles;
+			int sign;
+			if (value[IMUPlus])
+			{
+				sign = 1;
+			}
+			else if (value[IMUMinus])
+			{
+				sign = -1;
+			}
+			else
+			{
+				sign = 0;
+			}
+			delta = gyroPulsesToRad(sign);
+
+			// gyro torquing is done in stable member coordinates
+			if (value[IMUX]) {
+				t = getRotationMatrixZ(delta);
+				sprintf(oapiDebugString(), "IMU Gyro X %d", sign);
+			}
+			else if (value[IMUY]) {
+				t = getRotationMatrixY(delta);
+				sprintf(oapiDebugString(), "IMU Gyro Y %d", sign);
+			}
+			else if (value[IMUZ]) {
+				t = getRotationMatrixX(delta);
+				sprintf(oapiDebugString(), "IMU Gyro Z %d", sign);
+			}
+
+			// transformation to navigation base coordinates
+			// CAUTION: gimbal angles are left-handed
+			t = mul(getRotationMatrixY(-Gimbal.Y), t);
+			t = mul(getRotationMatrixZ(-Gimbal.Z), t);
+			t = mul(getRotationMatrixX(-Gimbal.X), t);
+
+			// calculate the new gimbal angles
+			newAngles = getRotationAnglesXZY(t);
+
+			// drive gimabals to new angles
+			// CAUTION: gimbal angles are left-handed			
+			DriveGimbalX(-newAngles.x - Gimbal.X);
+			DriveGimbalY(-newAngles.y - Gimbal.Y);
+			DriveGimbalZ(-newAngles.z - Gimbal.Z);
+			SetOrbiterAttitudeReference();
+		}
+	}
+
+	/*TRACESETUP("CHANNEL OUTPUT PROCESS");
 
 	char buffers[80];
 	sprintf(buffers,"CHANNEL OUTPUT %o %o", address,value.to_ulong());
@@ -194,28 +290,14 @@ void IMU::ChannelOutput(int address, ChannelValue value)
   	VECTOR3 newAngles;
     ChannelValue val12;
 	
-	if (address != 07 && address != 033 /*&& address != 010*/) {  	  
+	if (address != 07 && address != 033 /*&& address != 010) {  	  
     	LogState(address, "out", value.to_ulong());
 	}
 
   	if (address == 012) {
     	val12 = value;
 
-		if (val12[ISSTurnOnDelayComplete]) 
-		{
-			if(!TurnedOn)
-			{
-			    agc.SetInputChannelBit(030, ISSTurnOnRequest, false);
-			    TurnedOn = true;
-			}
-		}
-    
-    	if (val12[ZeroIMUCDUs]) {
-			DoZeroIMUCDUs();
-			agc.ProcessIMUCDUReadCount(RegCDUX, 0);
-			agc.ProcessIMUCDUReadCount(RegCDUY, 0);
-			agc.ProcessIMUCDUReadCount(RegCDUZ, 0);
-		}
+
 	}
     	 
 	if (!TurnedOn) {
@@ -225,7 +307,7 @@ void IMU::ChannelOutput(int address, ChannelValue value)
 	// coarse align 
 	val12 = agc.GetOutputChannel(012);
 
-	if(val12[CoarseAlignEnable]) {
+	/*if(val12[CoarseAlignEnable]) {
 		if (address == 0174) {
 			DriveCDUX(value.to_ulong());
 		}
@@ -277,7 +359,7 @@ void IMU::ChannelOutput(int address, ChannelValue value)
 		DriveGimbalZ(-newAngles.z - Gimbal.Z);
 		SetOrbiterAttitudeReference();
 	}
-
+	*/
 }
 
 bool IMU::IsPowered()
@@ -327,11 +409,11 @@ void IMU::Timestep(double simdt)
 
 	//ISS Temperature Alarm Module
 
-	bool tempBit = agc.GetInputChannelBit(030, TempInLimits);
+	bool tempBit = false; //agc.GetInputChannelBit(030, TempInLimits);
 
 	if (DCHeaterPower.Voltage() < SP_MIN_DCVOLTAGE)
 	{
-		if (tempBit) agc.SetInputChannelBit(030, TempInLimits, false);
+		//if (tempBit) agc.SetInputChannelBit(030, TempInLimits, false);
 	}
 	else
 	{
@@ -346,11 +428,11 @@ void IMU::Timestep(double simdt)
 
 		if (IMUTempF > 126.0 && IMUTempF < 134.0)
 		{
-			if (!tempBit) agc.SetInputChannelBit(030, TempInLimits, true);
+			//if (!tempBit) agc.SetInputChannelBit(030, TempInLimits, true);
 		}
 		else
 		{
-			if (tempBit) agc.SetInputChannelBit(030, TempInLimits, false);
+			//if (tempBit) agc.SetInputChannelBit(030, TempInLimits, false);
 		}
 	}
 
@@ -359,11 +441,11 @@ void IMU::Timestep(double simdt)
 
 	if (Powered)
 	{
-		agc.SetInputChannelBit(030, IMUOperate, true);
+		//agc.SetInputChannelBit(030, IMUOperate, true);
 	}
 	else
 	{
-		agc.SetInputChannelBit(030, IMUOperate, false);
+		//agc.SetInputChannelBit(030, IMUOperate, false);
 	}
 	
 	if (!Operate) {
@@ -375,6 +457,15 @@ void IMU::Timestep(double simdt)
 	else if (!Powered) {
 		TurnOff();
 		return;
+	}
+
+	if (agc.GetIMUTurnedOn())
+	{
+		if (!TurnedOn)
+		{
+			//agc.SetInputChannelBit(030, ISSTurnOnRequest, false);
+			TurnedOn = true;
+		}
 	}
 
 	//
@@ -448,13 +539,23 @@ void IMU::Timestep(double simdt)
 		// orbiter earth rotation
 		//imuState->Orbiter.Y = imuState->Orbiter.Y + (deltaTime * TwoPI / 86164.09);
 
-		// Process channel bits				
-		val12 = agc.GetOutputChannel(012);
-		if (val12[ZeroIMUCDUs]) {
+		// Process channel bits		
+
+		/*if (agc.GetZeroEncoderMode()) {
 			DoZeroIMUCDUs();
-		}
-		else if (val12[CoarseAlignEnable]) {
+			agc.ProcessIMUCDUReadCount(047, 0);
+			agc.ProcessIMUCDUReadCount(050, 0);
+			agc.ProcessIMUCDUReadCount(051, 0);
+		}*/
+		if (agc.GetIMUCoarseAlign()) {
 			TRACE("CHANNEL 12 COARSE");
+
+			DriveGimbal(0, -0.5*agc.ogcdu.Resolver1xOutput()*simdt);
+			DriveGimbal(1, -0.5*agc.igcdu.Resolver1xOutput()*simdt);
+			DriveGimbal(2, -0.5*agc.mgcdu.Resolver1xOutput()*simdt);
+
+			//sprintf(oapiDebugString(), "%lf %lf %lf", agc.ogcdu.Resolver1xOutput()*simdt, agc.igcdu.Resolver1xOutput()*simdt, agc.mgcdu.Resolver1xOutput()*simdt);
+
 			SetOrbiterAttitudeReference();
 		}
 		else if (Caged) {
@@ -487,15 +588,15 @@ void IMU::Timestep(double simdt)
 
 			// pulse PIPAs
 			pulses = RemainingPIPA.X + (accel.x * LastSimDT / pipaRate);
-			PulsePIPA(RegPIPAX, (int) pulses);
+			PulsePIPA(044, (int) pulses);
 			RemainingPIPA.X = pulses - (int) pulses;
 
 			pulses = RemainingPIPA.Y + (accel.y * LastSimDT / pipaRate);
-			PulsePIPA(RegPIPAY, (int) pulses);
+			PulsePIPA(045, (int) pulses);
 			RemainingPIPA.Y = pulses - (int) pulses;
 
 			pulses = RemainingPIPA.Z + (accel.z * LastSimDT / pipaRate);
-			PulsePIPA(RegPIPAZ, (int) pulses);
+			PulsePIPA(046, (int) pulses);
 			RemainingPIPA.Z = pulses - (int) pulses;			
 		}
 		LastSimDT = simdt;
@@ -539,39 +640,38 @@ void IMU::PulsePIPA(int RegPIPA, int pulses)
 void IMU::DriveGimbals(double x, double y, double z) 
 
 {
-	DriveGimbal(0, RegCDUX, x - Gimbal.X);
-	DriveGimbal(1, RegCDUY, y - Gimbal.Y);
-	DriveGimbal(2, RegCDUZ, z - Gimbal.Z);
+	DriveGimbal(0, x - Gimbal.X);
+	DriveGimbal(1, y - Gimbal.Y);
+	DriveGimbal(2, z - Gimbal.Z);
 	SetOrbiterAttitudeReference();
 }
 
 void IMU::DriveGimbalX(double angle) 
 
 {
-	DriveGimbal(0, RegCDUX, angle);
+	DriveGimbal(0, angle);
 }
 
 void IMU::DriveGimbalY(double angle) 
 
 {
-	DriveGimbal(1, RegCDUY, angle);
+	DriveGimbal(1, angle);
 }
 
 void IMU::DriveGimbalZ(double angle) 
 
 {
-	DriveGimbal(2, RegCDUZ, angle);
+	DriveGimbal(2, angle);
 }
 
-void IMU::DriveGimbal(int index, int RegCDU, double angle) 
+void IMU::DriveGimbal(int index, double angle) 
 
 {
-	TRACESETUP("DRIVE GIMBAL");
-  	int  pulses; //i, delta;
-	double OldGimbal;
-	double delta;
+	//TRACESETUP("DRIVE GIMBAL");
+	//double OldGimbal;
+	//double delta;
 	
-	OldGimbal = Gimbals[index];
+	//OldGimbal = Gimbals[index];
 	Gimbals[index] += angle;
 	if (Gimbals[index] >= TWO_PI) {
 		Gimbals[index] -= TWO_PI;
@@ -579,38 +679,38 @@ void IMU::DriveGimbal(int index, int RegCDU, double angle)
 	if (Gimbals[index] < 0) {
 		Gimbals[index] += TWO_PI;
 	}
-	delta = Gimbals[index] - OldGimbal;
-	if(delta > PI)
-		delta -= TWO_PI;
-	if(delta < - PI)
-		delta += TWO_PI;
+	//delta = Gimbals[index] - OldGimbal;
+	//if(delta > PI)
+	//	delta -= TWO_PI;
+	//if(delta < - PI)
+	//	delta += TWO_PI;
 	
 	// Gyro pulses to CDU pulses
-	pulses = (int)(((double)radToGyroPulses(Gimbals[index])) / 64.0);	
-	agc.ProcessIMUCDUReadCount(RegCDU, (pulses & 077777));
+	//pulses = (int)(((double)radToGyroPulses(Gimbals[index])) / 64.0);	
+	//agc.ProcessIMUCDUReadCount(RegCDU, (pulses & 077777));
 
-	char buffers[80];
-	sprintf(buffers,"DRIVE GIMBAL index %o REGCDU %o angle %f pulses %o",index,RegCDU,angle,pulses);
-	if (pulses)
-		TRACE(buffers);
+	//char buffers[80];
+	//sprintf(buffers,"DRIVE GIMBAL index %o angle %f",index,angle);
+	//if (pulses)
+	//	TRACE(buffers);
 }
 
-void IMU::DriveCDUX(int cducmd) 
+/*void IMU::DriveCDUX(int cducmd) 
 
 {
-    DriveCDU(0, RegCDUX, cducmd);
+    DriveCDU(0, 047, cducmd);
 }
 
 void IMU::DriveCDUY(int cducmd) 
 
 {
-    DriveCDU(1, RegCDUY, cducmd);
+    DriveCDU(1, 050, cducmd);
 }
 
 void IMU::DriveCDUZ(int cducmd) 
 
 {
-	DriveCDU(2, RegCDUZ, cducmd);
+	DriveCDU(2, 051, cducmd);
 }
 
 void IMU::DriveCDU(int index, int RegCDU, int cducmd) 
@@ -631,7 +731,7 @@ void IMU::DriveCDU(int index, int RegCDU, int cducmd)
 	
 	DriveGimbal(index, RegCDU, gyroPulsesToRad(pulses));
 	SetOrbiterAttitudeReference();
-}
+}*/
 
 void IMU::SetOrbiterAttitudeReference() 
 {

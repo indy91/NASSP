@@ -19,10 +19,8 @@
 #include "soundlib.h"
 #include "apolloguidance.h"
 #include "csmcomputer.h"
-#include "lemcomputer.h"
 #include "saturn.h"
 #include "saturnv.h"
-#include "LEM.h"
 
 class ApolloRTCCMFD: public MFD2 {
 public:

@@ -13,11 +13,11 @@
       <UniqueIdentifier>{6665b1a5-2ef5-43b2-ba33-76eef1853b1f}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
-    <Filter Include="yaAGC">
-      <UniqueIdentifier>{0af792c1-c158-41a0-ab32-d7efe000754c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="IMFD">
       <UniqueIdentifier>{100899c2-ed1a-489d-bf47-d93b4712d124}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="yaAGCb1">
+      <UniqueIdentifier>{3330f94a-20fe-450a-a77b-a143fee0a0b8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -144,21 +144,6 @@
     <ClCompile Include="..\..\src_aux\tracer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src_sys\yaAGC\agc_engine.c">
-      <Filter>yaAGC</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src_sys\yaAGC\agc_engine_init.c">
-      <Filter>yaAGC</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src_sys\yaAGC\Backtrace.c">
-      <Filter>yaAGC</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src_sys\yaAGC\random.c">
-      <Filter>yaAGC</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src_sys\yaAGC\rfopen.c">
-      <Filter>yaAGC</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src_aux\IMFD\IMFD_Client.cpp">
       <Filter>IMFD</Filter>
     </ClCompile>
@@ -237,8 +222,17 @@
     <ClCompile Include="..\..\src_aux\vesim.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-	<ClCompile Include="..\..\src_aux\animations.cpp">
+    <ClCompile Include="..\..\src_aux\animations.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src_sys\yaAGCb1\executeOneInstruction.c">
+      <Filter>yaAGCb1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src_sys\yaAGCb1\loadYul.c">
+      <Filter>yaAGCb1</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src_sys\yaAGCb1\fromYaAGC.c">
+      <Filter>yaAGCb1</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -371,12 +365,6 @@
     <ClInclude Include="..\..\src_aux\tracer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src_sys\yaAGC\agc_engine.h">
-      <Filter>yaAGC</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src_sys\yaAGC\yaAGC.h">
-      <Filter>yaAGC</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src_aux\IMFD\IMFD_IPC_com.h">
       <Filter>IMFD</Filter>
     </ClInclude>
@@ -464,8 +452,11 @@
     <ClInclude Include="..\..\src_aux\vesim.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-	<ClInclude Include="..\..\src_aux\animations.h">
+    <ClInclude Include="..\..\src_aux\animations.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src_sys\yaAGCb1\yaAGCb1.h">
+      <Filter>yaAGCb1</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

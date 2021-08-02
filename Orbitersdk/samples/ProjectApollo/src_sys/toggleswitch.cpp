@@ -4993,7 +4993,7 @@ bool AGCIOSwitch::SwitchTo(int newState, bool dontspring)
 bool CMCModeHoldFreeSwitch::SwitchTo(int newState, bool dontspring)
 {
 	if (AGCThreePoswitch::SwitchTo(newState,dontspring)) {
-		if (agc) {
+		/*if (agc) {
 			bool Hold = false;
 			bool Free = false;
 
@@ -5006,7 +5006,7 @@ bool CMCModeHoldFreeSwitch::SwitchTo(int newState, bool dontspring)
 
 			agc->SetInputChannelBit(031, HoldFunction, Hold);
 			agc->SetInputChannelBit(031, FreeFunction, Free);
-		}
+		}*/
 		return true;
 	}
 

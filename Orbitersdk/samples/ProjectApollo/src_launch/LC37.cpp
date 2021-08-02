@@ -41,8 +41,6 @@
 #include "nasspdefs.h"
 #include "toggleswitch.h"
 #include "apolloguidance.h"
-#include "LEMcomputer.h"
-#include "LEM.h"
 #include "sivbsystems.h"
 #include "s1b.h"
 #include "sivb.h"

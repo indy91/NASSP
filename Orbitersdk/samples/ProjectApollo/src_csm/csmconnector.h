@@ -109,37 +109,6 @@ public:
 	void StopSeparationPyros();
 };
 
-class RNDZXPDRSystem;
-
-class CSM_RRTto_LM_RRConnector : public SaturnConnector
-{
-public:
-	CSM_RRTto_LM_RRConnector(Saturn *s, RNDZXPDRSystem *rrt); //constructor
-	~CSM_RRTto_LM_RRConnector(); //descructor
-
-	void SendRF(double freq, double XMITpow, double XMITgain, double Phase);
-	bool ReceiveMessage(Connector *from, ConnectorMessage &m);
-
-protected:
-	RNDZXPDRSystem* csm_rrt; //pointer to the instance of the RR that's doing the sending
-};
-
-class VHFRangingSystem;
-class VHFAMTransceiver;
-
-class CSM_VHFto_LM_VHFConnector : public SaturnConnector
-{
-public:
-	CSM_VHFto_LM_VHFConnector(Saturn *s, VHFAMTransceiver *VHFxcvr, VHFRangingSystem *vhf_system);
-	~CSM_VHFto_LM_VHFConnector();
-
-	void SendRF(double freq, double XMITpow, double XMITgain, double XMITphase, bool RangeTone);
-	bool ReceiveMessage(Connector *from, ConnectorMessage &m);
-protected:
-	VHFRangingSystem *pVHFRngSys;
-	VHFAMTransceiver *pVHFxcvr;
-};
-
 class PowerDrainConnectorObject;
 
 ///

@@ -26,6 +26,7 @@
 #define _PA_CSMCOMPUTER_H
 
 #include "thread.h"
+#include "DelayTimer.h"
 
 class PanelSwitchItem;
 
@@ -81,6 +82,7 @@ class IU;
 class CSMToIUConnector;
 class CSMToSIVBControlConnector;
 class CDU;
+class BlockICDU;
 
 //
 // Class definition.
@@ -110,7 +112,7 @@ public:
 	/// \param i The launch vehicle Instrument Unit connector for the launch vehicle autopilot.
 	/// \param sivb The CSM to SIVb command connector (e.g. for fuel venting).
 	///
-	CSMcomputer(SoundLib &s, DSKY &display, DSKY &display2, IMU &im, CDU &sc, CDU &tc, PanelSDK &p);
+	CSMcomputer(SoundLib &s, DSKY &display, DSKY &display2, IMU &im, CDU &sc, CDU &tc, BlockICDU &og, BlockICDU &ig, BlockICDU &mg, PanelSDK &p);
 	virtual ~CSMcomputer();
 
 	bool ReadMemory(unsigned int loc, int &val);
@@ -129,7 +131,24 @@ public:
 
 	void SetMissionInfo(std::string ProgramName, char *OtherVessel = 0);
 
+	///
+	/// \brief Save AGC state to scenario file.
+	/// \param scn Scenario file to save to.
+	///
+	void SaveState(FILEHANDLE scn);
+
+	///
+	/// \brief Load AGC state from scenario file.
+	/// \param scn Scenario file to load from.
+	///
+	void LoadState(FILEHANDLE scn);
+
 	VESSEL *GetLM();
+
+	bool GetZeroEncoderMode() { return KRelays[0]; }
+	bool GetIMUTurnedOn() { return KRelays[5]; }
+	bool GetIMUCoarseAlign() { return KRelays[1]; }
+	bool GetIMUFineAlign() { return KRelays[3]; }
 protected:
 
 	void ProcessChannel5(ChannelValue val);
@@ -156,6 +175,9 @@ protected:
 	DSKY &dsky2;
 
 	Saturn *sat;
+
+	bool KRelays[13];
+	DelayTimer IMUTurnOnDelayTimer;
 };
 
 class Saturn;

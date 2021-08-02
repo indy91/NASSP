@@ -40,12 +40,10 @@
 
 #include "toggleswitch.h"
 #include "apolloguidance.h"
-#include "lemcomputer.h"
 
 #include "payload.h"
 #include "sivb.h"
 #include "astp.h"
-#include "lem.h"
 #include "LVDC.h"
 
 #include <stdio.h>
@@ -1764,7 +1762,7 @@ void SIVB::CreatePayload() {
 		// PAD load.
 		//
 
-		LEM *lmvessel = static_cast<LEM *> (payloadvessel);
+		/*LEM *lmvessel = static_cast<LEM *> (payloadvessel);
 
 		if (LMPad && LMPadCount > 0)
 		{
@@ -1780,7 +1778,7 @@ void SIVB::CreatePayload() {
 			for (i = 0; i < AEAPadCount; i++) {
 				lmvessel->AEAPadLoad(AEAPad[i * 2], AEAPad[i * 2 + 1]);
 			}
-		}
+		}*/
 	}
 	break;
 

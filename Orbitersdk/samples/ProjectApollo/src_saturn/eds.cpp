@@ -405,15 +405,15 @@ void EDS::Timestep(double simdt)
 
 	//Guidance Reference Release
 	if (iu->ESEGetGuidanceReferenceRelease())
-		iu->GetCommandConnector()->SetAGCInputChannelBit(030, GuidanceReferenceRelease, true);
+		iu->GetCommandConnector()->SetAGCInputChannelBit(06, GuidanceReferenceRelease, true);
 	else
-		iu->GetCommandConnector()->SetAGCInputChannelBit(030, GuidanceReferenceRelease, false);
+		iu->GetCommandConnector()->SetAGCInputChannelBit(06, GuidanceReferenceRelease, false);
 
 	//Liftoff
 	if (LiftoffRelay)
-		iu->GetCommandConnector()->SetAGCInputChannelBit(030, LiftOff, false);
+		iu->GetCommandConnector()->SetAGCInputChannelBit(06, LiftOff, false);
 	else
-		iu->GetCommandConnector()->SetAGCInputChannelBit(030, LiftOff, true);
+		iu->GetCommandConnector()->SetAGCInputChannelBit(06, LiftOff, true);
 }
 
 void EDS::AutoAbortCircuits()
@@ -979,9 +979,9 @@ void EDSSV::Timestep(double simdt)
 
 	//CMC Ullage Thrust Indication
 	if (UllageThrustIndicate)
-		iu->GetCommandConnector()->SetAGCInputChannelBit(030, UllageThrust, true);
+		iu->GetCommandConnector()->SetAGCInputChannelBit(06, UllageThrust, true);
 	else
-		iu->GetCommandConnector()->SetAGCInputChannelBit(030, UllageThrust, false);
+		iu->GetCommandConnector()->SetAGCInputChannelBit(06, UllageThrust, false);
 
 	//sprintf(oapiDebugString(), "%f", PlatformFailureTime);
 }

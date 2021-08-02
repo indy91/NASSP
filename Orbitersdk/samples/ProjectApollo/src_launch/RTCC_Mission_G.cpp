@@ -29,7 +29,6 @@ See http://nassp.sourceforge.net/license/ for more details.
 #include "saturnv.h"
 #include "LVDC.h"
 #include "iu.h"
-#include "LEM.h"
 #include "../src_rtccmfd/OrbMech.h"
 #include "mcc.h"
 #include "rtcc.h"
@@ -109,7 +108,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 
 		//Get TEPHEM
 		TEPHEM0 = 40403.;
-		tephem_scal = GetTEPHEMFromAGC(&cm->agc.vagc);
+		tephem_scal = GetTEPHEMFromAGC(cm->agc.vagc);
 		double LaunchMJD = (tephem_scal / 8640000.) + TEPHEM0;
 		LaunchMJD = (LaunchMJD - SystemParameters.GMTBASE)*24.0;
 
@@ -143,7 +142,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		GMGMED(Buff);
 
 		//Get actual liftoff REFSMMAT from telemetry
-		BZSTLM.CMC_REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+		BZSTLM.CMC_REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		BZSTLM.CMCRefsPresent = true;
 		EMSGSUPP(1, 1);
 		//Make telemetry matrix current
@@ -243,7 +242,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.enginetype = RTCC_ENGINETYPE_CSMSPS;
 		opt.GETbase = GETbase;
 		opt.HeadsUp = true;
-		opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+		opt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		opt.TIG = res.P30TIG;
 		opt.vessel = calcParams.src;
 		opt.vesseltype = 0;
@@ -346,7 +345,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.enginetype = RTCC_ENGINETYPE_CSMSPS;
 		opt.GETbase = CalcGETBase();
 		opt.HeadsUp = true;
-		opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+		opt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		opt.TIG = calcParams.TLI + 1.0*3600.0 + 50.0*60.0;
 		opt.vessel = calcParams.src;
 		opt.vesseltype = 1;
@@ -516,7 +515,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 				manopt.enginetype = SPSRCSDecision(SPS_THRUST / (CSMmass + LMmass), dV_LVLH);
 				manopt.GETbase = GETbase;
 				manopt.HeadsUp = false;
-				manopt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+				manopt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 				manopt.TIG = P30TIG;
 				manopt.vessel = calcParams.src;
 				manopt.vesseltype = 1;
@@ -600,7 +599,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 			manopt.enginetype = engine;
 			manopt.GETbase = GETbase;
 			manopt.HeadsUp = false;
-			manopt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+			manopt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 			manopt.TIG = P30TIG;
 			manopt.vessel = calcParams.src;
 			manopt.vesseltype = 1;
@@ -655,7 +654,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.enginetype = SPSRCSDecision(SPS_THRUST / (calcParams.src->GetMass() + calcParams.tgt->GetMass()), res.dV_LVLH);
 		opt.GETbase = GETbase;
 		opt.HeadsUp = false;
-		opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+		opt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		opt.TIG = res.P30TIG;
 		opt.vessel = calcParams.src;
 		opt.vesseltype = 1;
@@ -784,7 +783,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 			manopt.enginetype = engine;
 			manopt.GETbase = GETbase;
 			manopt.HeadsUp = false;
-			manopt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+			manopt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 			manopt.TIG = P30TIG;
 			manopt.vessel = calcParams.src;
 			manopt.vesseltype = 1;
@@ -919,7 +918,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 			manopt.enginetype = engine;
 			manopt.GETbase = GETbase;
 			manopt.HeadsUp = false;
-			manopt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+			manopt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 			manopt.TIG = P30TIG;
 			manopt.vessel = calcParams.src;
 			manopt.vesseltype = 1;
@@ -1052,7 +1051,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		manopt.enginetype = RTCC_ENGINETYPE_CSMSPS;
 		manopt.GETbase = GETbase;
 		manopt.HeadsUp = false;
-		manopt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+		manopt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		manopt.TIG = P30TIG;
 		manopt.vessel = calcParams.src;
 		manopt.vesseltype = 1;
@@ -1107,7 +1106,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		manopt.enginetype = RTCC_ENGINETYPE_CSMSPS;
 		manopt.GETbase = GETbase;
 		manopt.HeadsUp = false;
-		manopt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+		manopt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		manopt.sxtstardtime = -40.0*60.0;
 		manopt.TIG = P30TIG;
 		manopt.vessel = calcParams.src;
@@ -1221,9 +1220,9 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		csmn20.y = calcParams.src->imu.Gimbal.Y;
 		csmn20.z = calcParams.src->imu.Gimbal.Z;
 
-		lmn20.x = lem->imu.Gimbal.X;
-		lmn20.y = lem->imu.Gimbal.Y;
-		lmn20.z = lem->imu.Gimbal.Z;
+		//lmn20.x = lem->imu.Gimbal.X;
+		//lmn20.y = lem->imu.Gimbal.Y;
+		//lmn20.z = lem->imu.Gimbal.Z;
 
 		V42angles = OrbMech::LMDockedFineAlignment(lmn20, csmn20);
 
@@ -1298,7 +1297,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.enginetype = RTCC_ENGINETYPE_CSMRCSPLUS4;
 		opt.GETbase = GETbase;
 		opt.HeadsUp = true;
-		opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+		opt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		opt.TIG = t_Sep;
 		opt.vessel = calcParams.src;
 		opt.vesseltype = 0;
@@ -1356,7 +1355,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.enginetype = RTCC_ENGINETYPE_LMDPS;
 		opt.GETbase = GETbase;
 		opt.HeadsUp = true;
-		opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->lm->agc.vagc, false);
+		//opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->lm->agc.vagc, false);
 		opt.TIG = TimeofIgnition;
 		opt.vessel = calcParams.tgt;
 
@@ -1468,7 +1467,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.enginetype = RTCC_ENGINETYPE_CSMSPS;
 		opt.GETbase = GETbase;
 		opt.HeadsUp = false;
-		opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+		opt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		opt.RV_MCC = sv1;
 		opt.TIG = res.P30TIG;
 		opt.useSV = true;
@@ -1638,7 +1637,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.GETbase = GETbase;
 		opt.HeadsUp = false;
 		opt.P30TIG = TimeofIgnition;
-		opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->lm->agc.vagc, false);
+		//opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->lm->agc.vagc, false);
 		opt.R_LS = OrbMech::r_from_latlong(BZLAND.lat[RTCC_LMPOS_BEST], BZLAND.lng[RTCC_LMPOS_BEST], BZLAND.rad[RTCC_LMPOS_BEST]);
 		opt.sv0 = sv;
 		opt.t_land = CZTDTGTU.GETTD;
@@ -1734,7 +1733,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		manopt.enginetype = RTCC_ENGINETYPE_LMDPS;
 		manopt.GETbase = GETbase;
 		manopt.HeadsUp = false;
-		manopt.REFSMMAT = GetREFSMMATfromAGC(&mcc->lm->agc.vagc, false);
+		//manopt.REFSMMAT = GetREFSMMATfromAGC(&mcc->lm->agc.vagc, false);
 		manopt.RV_MCC = sv_DOI;
 		manopt.TIG = P30TIG;
 		manopt.useSV = true;
@@ -1760,8 +1759,8 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		GETbase = CalcGETBase();
 		sv_CSM = StateVectorCalc(calcParams.src);
 		
-		LEM *l = (LEM*)calcParams.tgt;
-		m0 = l->GetAscentStageMass();
+		//LEM *l = (LEM*)calcParams.tgt;
+		//m0 = l->GetAscentStageMass();
 
 		v_LH = 5515.2*0.3048;
 		v_LV = 19.6*0.3048;
@@ -1951,8 +1950,8 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		GETbase = CalcGETBase();
 		sv_CSM = StateVectorCalc(calcParams.src);
 
-		LEM *l = (LEM*)calcParams.tgt;
-		m0 = l->GetAscentStageMass();
+		//LEM *l = (LEM*)calcParams.tgt;
+		//m0 = l->GetAscentStageMass();
 		calcParams.tgt->GetRotationMatrix(Rot);
 		oapiGetRotationMatrix(sv_CSM.gravref, &Rot2);
 
@@ -2051,7 +2050,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		opt.enginetype = RTCC_ENGINETYPE_LMRCSPLUS4;
 		opt.GETbase = GETbase;
 		opt.KFactor = 90.0*3600.0;
-		opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->lm->agc.vagc, false);
+		//opt.REFSMMAT = GetREFSMMATfromAGC(&mcc->lm->agc.vagc, false);
 		opt.sv0 = calcParams.SVSTORE1;
 		opt.t_CSI = calcParams.CSI;
 		opt.t_TPI = calcParams.TPI;
@@ -2074,8 +2073,8 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		GETbase = CalcGETBase();
 		sv_CSM = StateVectorCalc(calcParams.src);
 
-		LEM *l = (LEM*)calcParams.tgt;
-		m0 = l->GetAscentStageMass();
+		//LEM *l = (LEM*)calcParams.tgt;
+		//m0 = l->GetAscentStageMass();
 
 		//Set all the options
 		opt.I_BURN = 1;
@@ -2239,7 +2238,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 			manopt.enginetype = RTCC_ENGINETYPE_CSMSPS;
 			manopt.GETbase = CalcGETBase();
 			manopt.HeadsUp = false;
-			manopt.REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+			manopt.REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 			manopt.TIG = TimeofIgnition;
 			manopt.vessel = calcParams.src;
 			manopt.vesseltype = 0;
@@ -2299,8 +2298,8 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		GETbase = CalcGETBase();
 		sv_CSM = StateVectorCalc(calcParams.src);
 
-		LEM *l = (LEM*)calcParams.tgt;
-		m0 = l->GetAscentStageMass();
+		//LEM *l = (LEM*)calcParams.tgt;
+		//m0 = l->GetAscentStageMass();
 
 		//Rev 24 is the nominal for this update. Nominal TPI time is about 24.5 hours after PDI
 		t_TPI_guess = calcParams.PDI + 24.5*3600.0 + 23.0*60.0 + 2.0*3600.0*(double)(mcc->MoonRev - 24);
@@ -2431,8 +2430,8 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 		sv_CSM = StateVectorCalc(calcParams.src);
 		R_LS = OrbMech::r_from_latlong(BZLAND.lat[RTCC_LMPOS_BEST], BZLAND.lng[RTCC_LMPOS_BEST], BZLAND.rad[RTCC_LMPOS_BEST]);
 
-		LEM *l = (LEM*)calcParams.tgt;
-		m0 = l->GetAscentStageMass();
+		//LEM *l = (LEM*)calcParams.tgt;
+		//m0 = l->GetAscentStageMass();
 		calcParams.tgt->GetRotationMatrix(Rot);
 		oapiGetRotationMatrix(sv_CSM.gravref, &Rot2);
 
@@ -2582,7 +2581,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 			}
 			else
 			{
-				REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+				REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 			}
 
 			if (scrubbed)
@@ -2738,7 +2737,7 @@ bool RTCC::CalculationMTP_G(int fcn, LPVOID &pad, char * upString, char * upDesc
 
 		if (fcn == 118)
 		{
-			REFSMMAT = GetREFSMMATfromAGC(&mcc->cm->agc.vagc, true);
+			REFSMMAT = GetREFSMMATfromAGC(mcc->cm->agc.vagc, true);
 		}
 		else
 		{

@@ -5629,18 +5629,7 @@ void ApolloRTCCMFD::menuChangeVesselType()
 
 	if (G->vesseltype == 2 || G->vesseltype == 3)
 	{
-		if (!stricmp(G->vessel->GetClassName(), "ProjectApollo\\LEM") ||
-			!stricmp(G->vessel->GetClassName(), "ProjectApollo/LEM")) {
-			LEM *lem = (LEM *)G->vessel;
-			if (lem->GetStage() < 2)
-			{
-				G->lemdescentstage = true;
-			}
-			else
-			{
-				G->lemdescentstage = false;
-			}
-		}
+
 	}
 }
 
@@ -5676,19 +5665,14 @@ void ApolloRTCCMFD::menuUpdateLiftoffTime()
 	{
 		saturn = (Saturn *)G->vessel;
 
-		double tephem = saturn->agc.vagc.Erasable[0][01710] +
-			saturn->agc.vagc.Erasable[0][01707] * pow((double) 2., (double) 14.) +
-			saturn->agc.vagc.Erasable[0][01706] * pow((double) 2., (double) 28.);
+		double tephem = saturn->agc.vagc->memory[01710] +
+			saturn->agc.vagc->memory[01707] * pow((double) 2., (double) 14.) +
+			saturn->agc.vagc->memory[01706] * pow((double) 2., (double) 28.);
 		LaunchMJD = (tephem / 8640000.) + TEPHEM0;
 	}
 	else
 	{
-		lem = (LEM *)G->vessel;
 
-		double tephem = lem->agc.vagc.Erasable[0][01710] +
-			lem->agc.vagc.Erasable[0][01707] * pow((double) 2., (double) 14.) +
-			lem->agc.vagc.Erasable[0][01706] * pow((double) 2., (double) 28.);
-		LaunchMJD = (tephem / 8640000.) + TEPHEM0;
 	}
 
 	double GMTBase = floor(LaunchMJD);
@@ -5804,20 +5788,18 @@ void ApolloRTCCMFD::GetREFSMMATfromAGC()
 {
 	if (G->vesseltype == 4) return;
 
-	agc_t* vagc;
+	agcBlock1_t* vagc;
 	bool cmc;
 
 	if (G->vesseltype < 2)
 	{
 		saturn = (Saturn *)G->vessel;
-		vagc = &saturn->agc.vagc;
+		vagc = saturn->agc.vagc;
 		cmc = true;
 	}
 	else
 	{
-		lem = (LEM *)G->vessel;
-		vagc = &lem->agc.vagc;
-		cmc = false;
+
 	}
 
 	MATRIX3 REFSMMAT = GC->rtcc->GetREFSMMATfromAGC(vagc, cmc);
@@ -5853,14 +5835,14 @@ void ApolloRTCCMFD::GetEntryTargetfromAGC()
 		//}
 		//else
 		//{
-			unsigned short Entryoct[6];
+			/*unsigned short Entryoct[6];
 			Entryoct[2] = saturn->agc.vagc.Erasable[0][03400];
 			Entryoct[3] = saturn->agc.vagc.Erasable[0][03401];
 			Entryoct[4] = saturn->agc.vagc.Erasable[0][03402];
 			Entryoct[5] = saturn->agc.vagc.Erasable[0][03403];
 
 			G->EntryLatcor = OrbMech::DecToDouble(Entryoct[2], Entryoct[3])*PI2;
-			G->EntryLngcor = OrbMech::DecToDouble(Entryoct[4], Entryoct[5])*PI2;
+			G->EntryLngcor = OrbMech::DecToDouble(Entryoct[4], Entryoct[5])*PI2;*/
 			//G->EntryPADLat = G->EntryLatcor;
 			//G->EntryPADLng = G->EntryLngcor;
 		//}

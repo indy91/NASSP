@@ -8,7 +8,6 @@
 #include "saturnv.h"
 #include "iu.h"
 #include "LVDC.h"
-#include "LEM.h"
 #include "sivb.h"
 #include "mccvessel.h"
 #include "mcc.h"
@@ -494,18 +493,7 @@ ARCore::ARCore(VESSEL* v, AR_GCore* gcin)
 	g_Data.uplinkState = 0;
 	if (vesseltype >= 2)
 	{
-		if (!stricmp(vessel->GetClassName(), "ProjectApollo\\LEM") ||
-			!stricmp(vessel->GetClassName(), "ProjectApollo/LEM")) {
-			LEM *lem = (LEM *)vessel;
-			if (lem->GetStage() < 2)
-			{
-				lemdescentstage = true;
-			}
-			else
-			{
-				lemdescentstage = false;
-			}
-		}
+
 	}
 	for (int i = 0; i < 24; i++)
 	{
@@ -1366,7 +1354,7 @@ void ARCore::GetStateVectorFromIU()
 
 void ARCore::GetStateVectorsFromAGS()
 {
-	//Are we a LM?
+	/*//Are we a LM?
 	if (vesseltype < 2 || vesseltype == 4) return;
 
 	//0-6: pos and vel
@@ -1449,26 +1437,26 @@ void ARCore::GetStateVectorsFromAGS()
 
 	//Save in telemetry table
 	GC->rtcc->BZSTLM.HighSpeedAGSCSMVector = sv_CSM;
-	GC->rtcc->BZSTLM.HighSpeedAGSLEMVector = sv_LM;
+	GC->rtcc->BZSTLM.HighSpeedAGSLEMVector = sv_LM;*/
 }
 
 void ARCore::GetStateVectorFromAGC(bool csm)
 {
 	if (vesseltype == 4) return;
 
-	agc_t* vagc;
+	agcBlock1_t* vagc;
 
 	if (vesseltype < 2)
 	{
 		Saturn *saturn = (Saturn *)vessel;
 
-		vagc = &saturn->agc.vagc;
+		vagc = saturn->agc.vagc;
 	}
 	else
 	{
-		LEM *lem = (LEM *)vessel;
+		//LEM *lem = (LEM *)vessel;
 
-		vagc = &lem->agc.vagc;
+		//vagc = &lem->agc.vagc;
 	}
 
 	unsigned short SVoct[16];
@@ -1489,12 +1477,12 @@ void ARCore::GetStateVectorFromAGC(bool csm)
 
 	for (int i = 0;i < 14;i++)
 	{
-		SVoct[i] = vagc->Erasable[0][SVadd + i];
+		SVoct[i] = vagc->memory[SVadd + i];
 	}
-	SVoct[14] = vagc->Erasable[0][SVadd + 38];
-	SVoct[15] = vagc->Erasable[0][SVadd + 39];
+	SVoct[14] = vagc->memory[SVadd + 38];
+	SVoct[15] = vagc->memory[SVadd + 39];
 
-	MoonFlag = (vagc->Erasable[0][0104] & (1 << MoonBit));
+	MoonFlag = (vagc->memory[0104] & (1 << MoonBit));
 
 	MATRIX3 Rot;
 	VECTOR3 R, V;
@@ -3668,8 +3656,8 @@ int ARCore::subThread()
 				break;
 			}
 			sv_CSM = GC->rtcc->StateVectorCalc(target);
-			LEM *l = (LEM *)vessel;
-			m0 = l->GetAscentStageMass();
+			//LEM *l = (LEM *)vessel;
+			//m0 = l->GetAscentStageMass();
 		}
 
 		R_LS = OrbMech::r_from_latlong(GC->rtcc->BZLAND.lat[RTCC_LMPOS_BEST], GC->rtcc->BZLAND.lng[RTCC_LMPOS_BEST], GC->rtcc->BZLAND.rad[RTCC_LMPOS_BEST]);
@@ -3749,7 +3737,7 @@ int ARCore::subThread()
 				break;
 			}
 
-			opt.W_TAPS = l->GetAscentStageMass();
+			//opt.W_TAPS = l->GetAscentStageMass();
 			opt.W_TDRY = opt.sv_A.mass - vessel->GetPropellantMass(vessel->GetPropellantHandleByIndex(0));
 
 			sv_LM = GC->rtcc->StateVectorCalc(vessel);
@@ -4131,12 +4119,12 @@ int ARCore::subThread()
 		LEM *l = (LEM*)vessel;
 
 		double KFactor;
-		bool res = GC->rtcc->CalculateAGSKFactor(&l->agc.vagc, &l->aea.vags, KFactor);
-		if (res)
-		{
-			//TBD: Use MED P15 instead
-			GC->rtcc->SystemParameters.MCGZSS = GC->rtcc->SystemParameters.MCGZSL + KFactor / 3600.0;
-		}
+		//bool res = GC->rtcc->CalculateAGSKFactor(&l->agc.vagc, &l->aea.vags, KFactor);
+		//if (res)
+		//{
+		//	//TBD: Use MED P15 instead
+		//	GC->rtcc->SystemParameters.MCGZSS = GC->rtcc->SystemParameters.MCGZSL + KFactor / 3600.0;
+		//}
 
 		Result = 0;
 	}

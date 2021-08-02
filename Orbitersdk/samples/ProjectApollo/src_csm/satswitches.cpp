@@ -1351,13 +1351,13 @@ double SaturnSystemTestAttenuator::GetValue()
 		switch (right)
 		{
 		case 0:	
-			val = Sat->RRTsystem.GetScaledRFPower();
+			val = 0;//Sat->RRTsystem.GetScaledRFPower();
 			break;
 		case 1:	
-			val = Sat->RRTsystem.GetScaledAGCPower();
+			val = 0;//Sat->RRTsystem.GetScaledAGCPower();
 			break;
 		case 2:	
-			val = Sat->RRTsystem.GetScaledFreqLock();
+			val = 0;//Sat->RRTsystem.GetScaledFreqLock();
 			break;
 		}
 	}
@@ -1725,11 +1725,11 @@ bool THCRotarySwitch::SwitchTo(int newState)
 
 void SaturnSCControlSetter::SetSCControl(Saturn *sat)
 {
-	if (sat->SCContSwitch.IsUp() && !sat->THCRotary.IsClockwise()) {
+	/*if (sat->SCContSwitch.IsUp() && !sat->THCRotary.IsClockwise()) {
 		sat->agc.SetInputChannelBit(031, GNAutopilotControl, true);
 	} else {
 		sat->agc.SetInputChannelBit(031, GNAutopilotControl, false);
-	}
+	}*/
 }
 
 void SaturnEMSDvDisplay::Init(SURFHANDLE digits, SwitchRow &row, Saturn *s)

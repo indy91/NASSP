@@ -74,7 +74,7 @@ void IMU::LogState(int channel, char *device, int value)
 	
 	intToBinaryString(buffer1, value);
 
-		fprintf(logFile, "%.8s.%03hu Ch %03o %s %s PIPA %o %o %o CDUCMD %o %o %o GYRO %o IMU %.2f %.2f %.2f\n", buffer, tstruct.millitm, channel, device, buffer1,
+		/*fprintf(logFile, "%.8s.%03hu Ch %03o %s %s PIPA %o %o %o CDUCMD %o %o %o GYRO %o IMU %.2f %.2f %.2f\n", buffer, tstruct.millitm, channel, device, buffer1,
 		    agc.GetErasable(0, RegPIPAX), 
 		    agc.GetErasable(0, RegPIPAY), 
 			agc.GetErasable(0, RegPIPAZ), 
@@ -87,7 +87,7 @@ void IMU::LogState(int channel, char *device, int value)
 			agc.GetErasable(0, RegGYROCTR),
 			radToDeg(Gimbal.X),
 			radToDeg(Gimbal.Y),
-			radToDeg(Gimbal.Z));
+			radToDeg(Gimbal.Z));*/
 			
 	fflush(logFile);
 #endif

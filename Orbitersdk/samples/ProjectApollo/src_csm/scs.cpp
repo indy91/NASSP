@@ -2383,7 +2383,8 @@ void EDA::Timestep(double simdt)
 	VECTOR3 bmag1rates = sat->bmag1.GetRates();
 	VECTOR3 bmag2rates = sat->bmag2.GetRates();
 	VECTOR3 imuatt = sat->imu.GetTotalAttitude();
-	VECTOR3 cmcerr = _V(sat->gdc.fdai_err_x, sat->gdc.fdai_err_y, sat->gdc.fdai_err_z) * 5.0 / 0.3 / 384.0*RAD;	//Converted from -384/384 to radians (-16.66°/16.66°)
+	//VECTOR3 cmcerr = _V(sat->gdc.fdai_err_x, sat->gdc.fdai_err_y, sat->gdc.fdai_err_z) * 5.0 / 0.3 / 384.0*RAD;	//Converted from -384/384 to radians (-16.66°/16.66°)
+	VECTOR3 cmcerr = _V(sat->ogcdu.Resolver1xOutput(), sat->igcdu.Resolver1xOutput(), sat->mgcdu.Resolver1xOutput());
 
 	double rate, err;
 
@@ -5093,7 +5094,7 @@ void EMS::TimeStep(double simdt) {
 			if ((TenSecTimer -= simdt) < 0.0) LiftVectLightOn = 1;
 			break;
 		case EMS_STATUS_VHFRNG:
-			dVRangeCounter = sat->vhfranging.GetRange();
+			dVRangeCounter = 0.0;
 			break;
 	}
 

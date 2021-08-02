@@ -27,8 +27,7 @@ See http://nassp.sourceforge.net/license/ for more details.
 #include <vector>
 #include <deque>
 #include <bitset>
-#include "../src_sys/yaAGC/agc_engine.h"
-#include "../src_lm/yaAGS/aea_engine.h"
+#include "../src_sys/yaAGCb1/yaAGCb1.h"
 #include "../src_rtccmfd/OrbMech.h"
 #include "../src_rtccmfd/LDPP.h"
 #include "../src_rtccmfd/EntryCalculations.h"
@@ -2664,8 +2663,8 @@ public:
 	bool GETEval2(double get);
 	bool PDIIgnitionAlgorithm(SV sv, double GETbase, VECTOR3 R_LS, double TLAND, SV &sv_IG, double &t_go, double &CR, VECTOR3 &U_IG, MATRIX3 &REFSMMAT);
 	bool PoweredDescentAbortProgram(PDAPOpt opt, PDAPResults &res);
-	MATRIX3 GetREFSMMATfromAGC(agc_t *agc, bool cmc);
-	bool CalculateAGSKFactor(agc_t *agc, ags_t *aea, double &KFactor);
+	MATRIX3 GetREFSMMATfromAGC(agcBlock1_t *agc, bool cmc);
+	//bool CalculateAGSKFactor(agc_t *agc, ags_t *aea, double &KFactor);
 
 	//Actual RTCC Subroutines
 
@@ -4606,8 +4605,8 @@ public:
 
 private:
 	void AP7ManeuverPAD(AP7ManPADOpt *opt, AP7MNV &pad);
-	double GetClockTimeFromAGC(agc_t *agc);
-	double GetTEPHEMFromAGC(agc_t *agc);
+	double GetClockTimeFromAGC(agcBlock1_t *agc);
+	double GetTEPHEMFromAGC(agcBlock1_t *agc);
 	void navcheck(VECTOR3 R, VECTOR3 V, double MJD, OBJHANDLE gravref, double &lat, double &lng, double &alt);
 	void AP7BlockData(AP7BLKOpt *opt, AP7BLK &pad);
 	void AP11BlockData(AP11BLKOpt *opt, P37PAD &pad);

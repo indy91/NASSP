@@ -150,7 +150,6 @@ public:
 	void RenderKeys(SURFHANDLE surf, SURFHANDLE keys, int xoffset = 0, int yoffset = 0);
 	void ProcessChannel10(ChannelValue val);
 	void ProcessChannel13(ChannelValue val);
-	void ProcessChannel11Bit(int bit, bool val);
 	void ProcessChannel11(ChannelValue val);
 	void ProcessChannel163(ChannelValue val);
 
@@ -158,6 +157,8 @@ public:
 	void LoadState(FILEHANDLE scn, char *end_str);
 
 	char *GetProg() { return Prog; };
+
+	bool GetCRelay(int relay) { return CRelays[relay]; }
 
 protected:
 
@@ -249,6 +250,11 @@ protected:
 	int	EnterPos;
 	int EnterVal;
 
+	bool CRelays[33];
+
+	bool FlashOn;
+	double LastFlashTime;
+
 	//
 	// AGC we're connected to.
 	//
@@ -277,7 +283,7 @@ protected:
 
 	char ValueChar(unsigned val);
 	void KeyClick();
-	void ResetKeyDown();
+	void ResetKeyDown(bool sendagc = true);
 
 	void DSKYLightBlt(SURFHANDLE surf, SURFHANDLE lights, int dstx, int dsty, bool lit, int xOffset, int yOffset);
 	void DSKYKeyBlt(SURFHANDLE surf, SURFHANDLE keys, int dstx, int dsty, int srcx, int srcy, bool lit, int xOffset, int yOffset); 

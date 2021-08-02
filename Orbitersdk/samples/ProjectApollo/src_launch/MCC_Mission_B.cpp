@@ -26,7 +26,6 @@ See http://nassp.sourceforge.net/license/ for more details.
 #include "soundlib.h"
 #include "saturn.h"
 #include "sivb.h"
-#include "LEM.h"
 #include "mcc.h"
 #include "rtcc.h"
 #include "MCC_Mission_B.h"
@@ -60,10 +59,10 @@ void MCC::MissionSequence_B()
 			setSubState(2);
 			break;
 		case 2:
-			if (lm->PCM.mcc_size == 0)
-			{
+			//if (lm->PCM.mcc_size == 0)
+			//{
 				setSubState(3);
-			}
+			//}
 			break;
 		case 3:
 			if (rtcc->GETEval2(0.0))

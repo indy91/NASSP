@@ -147,6 +147,7 @@
 #include "ioChannels.h"
 
 #include "nasspdefs.h"
+#include "papi.h"
 
 static char TwoSpace[] = "  ";
 static char SixSpace[] = "      ";
@@ -158,7 +159,7 @@ DSKY::DSKY(SoundLib &s, ApolloGuidance &computer, int IOChannel) : soundlib(s), 
 {
 	DimmerRotationalSwitch = NULL;
 	Reset();
-	ResetKeyDown();
+	ResetKeyDown(false);
 	KeyCodeIOChannel = IOChannel;
 }
 
@@ -194,6 +195,14 @@ void DSKY::Reset()
 	VerbFlashing = false;
 	NounFlashing = false;
 	ELOff = false;
+	FlashOn = false;
+
+	//
+	// LastFlashTime needs to be set a long way back in the past so
+	// that it will flash the digits prior to launch.
+	//
+
+	LastFlashTime = MINUS_INFINITY;
 }
 
 DSKY::~DSKY()
@@ -232,6 +241,11 @@ void DSKY::Timestep(double simt)
 		FirstTimeStep = false;
 	    soundlib.LoadSound(Sclick, BUTTON_SOUND);
 	}
+
+	if (simt > (LastFlashTime + 0.5)) {
+		LastFlashTime = simt;
+		FlashOn = !FlashOn;
+	}
 }
 
 void DSKY::SystemTimestep(double simdt)
@@ -254,8 +268,8 @@ void DSKY::SystemTimestep(double simdt)
 	if (UplinkLit()) LightsLit++;
 	if (NoAttLit()) LightsLit++;
 	if (StbyLit()) LightsLit++;
-	if (KbRelLit()) LightsLit++;
-	if (OprErrLit()) LightsLit++;
+	if (KbRelLit() && FlashOn) LightsLit++;
+	if (OprErrLit() && FlashOn) LightsLit++;
 	if (TempLit()) LightsLit++;
 	if (GimbalLockLit()) LightsLit++;
 	if (ProgLit()) LightsLit++;
@@ -291,8 +305,11 @@ void DSKY::KeyClick()
 }
 
 void DSKY::SendKeyCode(int val)
-
 {
+	if (val != 0)
+	{
+		val = val | 040;
+	}
 	agc.SetInputChannel(KeyCodeIOChannel, val);
 }
 
@@ -352,13 +369,13 @@ void DSKY::ProgPressed()
 {
 	KeyClick();
 
-	agc.SetInputChannelBit(032, Proceed, true);
+	//agc.SetInputChannelBit(032, Proceed, true);
 }
 
 void DSKY::ProgReleased()
 
 {
-	agc.SetInputChannelBit(032, Proceed, false);
+	//agc.SetInputChannelBit(032, Proceed, false);
 }
 
 void DSKY::ResetPressed()
@@ -461,8 +478,8 @@ void DSKY::RenderLights(SURFHANDLE surf, SURFHANDLE lights, int xOffset, int yOf
 	DSKYLightBlt(surf, lights, 0, 0,  UplinkLit(), xOffset, yOffset);
 	DSKYLightBlt(surf, lights, 0, 25, NoAttLit(), xOffset, yOffset);
 	DSKYLightBlt(surf, lights, 0, 49, StbyLit(), xOffset, yOffset);
-	DSKYLightBlt(surf, lights, 0, 73, KbRelLit(), xOffset, yOffset);
-	DSKYLightBlt(surf, lights, 0, 97, OprErrLit(), xOffset, yOffset);
+	DSKYLightBlt(surf, lights, 0, 73, KbRelLit() && FlashOn, xOffset, yOffset);
+	DSKYLightBlt(surf, lights, 0, 97, OprErrLit() && FlashOn, xOffset, yOffset);
 
 	DSKYLightBlt(surf, lights, 52, 0,  TempLit(), xOffset, yOffset);
 	DSKYLightBlt(surf, lights, 52, 25, GimbalLockLit(), xOffset, yOffset);
@@ -606,7 +623,7 @@ void DSKY::ProcessKeyRelease(int mx, int my)
 	ResetKeyDown();
 }
 
-void DSKY::ResetKeyDown() 
+void DSKY::ResetKeyDown(bool sendagc) 
 
 {
 	// Reset KeyDown-flags
@@ -629,6 +646,7 @@ void DSKY::ResetKeyDown()
 	KeyDown_KeyRel = false;
 	KeyDown_Enter = false;
 	KeyDown_Reset = false;
+	if (sendagc) SendKeyCode(0);
 }
 
 void DSKY::RenderTwoDigitDisplay(SURFHANDLE surf, SURFHANDLE digits, int dstx, int dsty, char *Str, bool Flash, bool Off)
@@ -636,7 +654,7 @@ void DSKY::RenderTwoDigitDisplay(SURFHANDLE surf, SURFHANDLE digits, int dstx, i
 {
 	int Curdigit;
 
-	if (Flash || Off)
+	if (Flash && !FlashOn)
 		return;
 
 	if (Str[0] >= '0' && Str[0] <= '9') {
@@ -655,7 +673,7 @@ int DSKY::TwoDigitDisplaySegmentsLit(char *Str, bool Flash, bool Off)
 {
 	int Curdigit, s = 0;
 
-	if (Flash || Off)
+	if (Flash && !FlashOn)
 		return s;
 
 	if (Str[0] >= '0' && Str[0] <= '9') {
@@ -875,6 +893,9 @@ void DSKY::SaveState(FILEHANDLE scn, char *start_str, char *end_str)
 	state.u.PrioDispLight = PrioDispLight;
 
 	oapiWriteScenario_int (scn, "STATE", state.word);
+	papiWriteScenario_boolarr(scn, "CRELAYS1", CRelays, 11);
+	papiWriteScenario_boolarr(scn, "CRELAYS2", CRelays + 11, 11);
+	papiWriteScenario_boolarr(scn, "CRELAYS3", CRelays + 22, 11);
 
 	oapiWriteLine(scn, end_str);
 }
@@ -931,6 +952,9 @@ void DSKY::LoadState(FILEHANDLE scn, char *end_str)
 			PrioDispLight = (state.u.PrioDispLight != 0);
 			NoDAPLight = (state.u.NoDAPLight != 0);
 		}
+		papiReadScenario_boolarr(line, "CRELAYS1", CRelays, 11);
+		papiReadScenario_boolarr(line, "CRELAYS2", CRelays + 11, 11);
+		papiReadScenario_boolarr(line, "CRELAYS3", CRelays + 22, 11);
 	}
 }
 
@@ -945,10 +969,11 @@ void DSKY::ProcessChannel11(ChannelValue val)
 	ChannelValue val11;
 
 	val11 = val;
-	SetCompActy(val11[LightComputerActivity]);
-	SetUplink(val11[LightUplink]);
+	SetProg(val11[ProgramAlarm]);
+	SetCompActy(val11[ComputerActivity]);
+	SetKbRel(val11[KeyRelease]);
+	//SetUplink(val11[LightUplink]);
 	//SetTemp(val11[LightTempCaution]);
-	//SetKbRel(val11[LightKbRel]);
 	//SetOprErr(val11[LightOprErr]);
 
 	/*if (val11[FlashVerbNoun]) {
@@ -991,54 +1016,6 @@ void DSKY::ProcessChannel163(ChannelValue val)
 	}
 }
 
-void DSKY::ProcessChannel11Bit(int bit, bool val)
-
-{
-	//
-	// Channel 011 has bits to control the lights on the DSKY.
-	//
-
-	switch (bit) {
-
-	// 2 - Comp Acty
-	case 2:
-		SetCompActy(val);
-		break;
-
-	// 3 - Uplink
-	case 3:
-		SetUplink(val);
-		break;
-
-	// 4 - Temp caution
-	case 4:
-		SetTemp(val);
-		break;
-/*
-	// 5 - Kbd Rel
-	case 5:
-		SetKbRel(val);
-		break;
-
-	// 6 - flash verb and noun
-	case 6:
-		if (val) {
-			SetVerbDisplayFlashing();
-			SetNounDisplayFlashing();
-		}
-		else {
-			ClearVerbDisplayFlashing();
-			ClearNounDisplayFlashing();
-		}
-		break;
-
-	// 7 - Opr Err
-	case 7:
-		SetOprErr(val);
-		break;*/
-	}
-}
-
 void DSKY::ProcessChannel10(ChannelValue val){
 	ChannelValue10 out_val;
 	char	C1, C2;
@@ -1056,6 +1033,16 @@ void DSKY::ProcessChannel10(ChannelValue val){
 		break;
 
 	case 10:
+		if (out_val.Bits.b != 0)
+		{
+			SetVerbDisplayFlashing();
+			SetNounDisplayFlashing();
+		}
+		else
+		{
+			ClearVerbDisplayFlashing();
+			ClearNounDisplayFlashing();
+		}
 		Verb[0] = C1;
 		Verb[1] = C2;
 		break;
@@ -1067,6 +1054,7 @@ void DSKY::ProcessChannel10(ChannelValue val){
 	
 	case 8:
 		R1[1] = C2;
+		SetUplink(out_val.Bits.b != 0);
 		break;
 
 	case 7:
@@ -1140,17 +1128,35 @@ void DSKY::ProcessChannel10(ChannelValue val){
 		}
 		break;
 
-	// 12 - set light states.
+	// 12 - set C-relay states.
 	case 12:
-		SetPrioDisp((out_val.Value & (1 << 0)) != 0);
-		SetNoDAP((out_val.Value & (1 << 1)) != 0);
-		SetVel((out_val.Value & (1 << 2)) != 0);
-		SetNoAtt((out_val.Value & (1 << 3)) != 0);
-		SetAlt((out_val.Value & (1 << 4)) != 0);
-		SetGimbalLock((out_val.Value & (1 << 5)) != 0);
-		SetTracker((out_val.Value & (1 << 7)) != 0);
-		SetProg((out_val.Value & (1 << 8)) != 0);
+		for (int i = 0;i < 11;i++)
+		{
+			CRelays[i] = (out_val.Value & (1 << i)) != 0;
+		}
 		break;
+	case 13:
+		for (int i = 0;i < 11;i++)
+		{
+			CRelays[i + 11] = (out_val.Value & (1 << i)) != 0;
+		}
+		break;
+	case 14:
+		for (int i = 0;i < 11;i++)
+		{
+			CRelays[i + 22] = (out_val.Value & (1 << i)) != 0;
+		}
+		break;
+
+		//SetPrioDisp((out_val.Value & (1 << 0)) != 0);
+		//SetNoDAP((out_val.Value & (1 << 1)) != 0);
+		//SetVel((out_val.Value & (1 << 2)) != 0);
+		//SetNoAtt((out_val.Value & (1 << 3)) != 0);
+		//SetAlt((out_val.Value & (1 << 4)) != 0);
+		//SetGimbalLock((out_val.Value & (1 << 5)) != 0);
+		//SetTracker((out_val.Value & (1 << 7)) != 0);
+		
+		
 	}
 }
 // Callbacks to handle button presses from the panel.

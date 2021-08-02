@@ -34,7 +34,6 @@
 #include "apolloguidance.h"
 #include "csmcomputer.h"
 #include "saturn.h"
-#include "LEM.h"
 #include "ioChannels.h"
 #include "tracer.h"
 #include "Mission.h"
@@ -1377,50 +1376,12 @@ void VHFAMTransceiver::Init(Saturn *vessel, ThreePosSwitch *vhfASw, ThreePosSwit
 
 	RCVDRangeTone = false;
 	XMITRangeTone = false;
-
-	if (!lem) {
-		VESSEL *lm = sat->agc.GetLM(); // Replace me with multi-lem code
-		if (lm) {
-			lem = (static_cast<LEM*>(lm));
-			sat->csm_vhfto_lm_vhfconnector.ConnectTo(GetVesselConnector(lem, VIRTUAL_CONNECTOR_PORT, VHF_RNG));
-		}
-	}
 }
 
 void VHFAMTransceiver::Timestep()
 {
 	//this block of code checks to see if the LEM has somehow been deleted mid sceneriao, and sets the lem pointer to null
 	bool isLem = false;
-
-	for (unsigned int i = 0; i < oapiGetVesselCount(); i++)
-	{
-		OBJHANDLE hVessel = oapiGetVesselByIndex(i);
-		VESSEL* pVessel = oapiGetVesselInterface(hVessel);
-		if (!_strnicmp(pVessel->GetClassName(), "ProjectApollo/LEM", 17))
-		{
-			isLem = true;
-		}
-	}
-
-	if (!isLem)
-	{
-		lem = NULL;
-		sat->csm_vhfto_lm_vhfconnector.Disconnect();
-	}
-	//
-
-	if (!lem)
-	{
-		VESSEL *lm = sat->agc.GetLM(); 
-		if (lm) {
-			lem = (static_cast<LEM*>(lm)); 
-		}
-	}
-
-	if (!sat->csm_vhfto_lm_vhfconnector.connectedTo && lem)
-	{
-		sat->csm_vhfto_lm_vhfconnector.ConnectTo(GetVesselConnector(lem, VIRTUAL_CONNECTOR_PORT, VHF_RNG));
-	}
 
 	if (antSelectorSw->GetState() == 0)
 	{
@@ -1513,7 +1474,7 @@ void VHFAMTransceiver::Timestep()
 
 	if (lem)
 	{
-		oapiGetRelativePos(lem->GetHandle(), sat->GetHandle(), &R); //vector to the LM
+		//oapiGetRelativePos(lem->GetHandle(), sat->GetHandle(), &R); //vector to the LM
 		U_R = unit(R); //normalize it
 		sat->GetRotationMatrix(Rot);
 		U_R_LOCAL = tmul(Rot, U_R); // rotate U_R into the global coordinate system
@@ -1521,53 +1482,7 @@ void VHFAMTransceiver::Timestep()
 
 	//sprintf(oapiDebugString(), "Distance from CSM to LM: %lf m", length(R));
 
-	//if we're connected, have a pointer to the LEM, and have a non NULL antenna selected, receive RF power.
-	if ((sat->csm_vhfto_lm_vhfconnector.connectedTo) && lem && activeAntenna)
-	{
-		if (receiveA)
-		{
-			RCVDinputPowRCVR_A = RFCALC_rcvdPower(RCVDpowRCVR_A, RCVDgainRCVR_A, activeAntenna->getPolarGain(U_R_LOCAL), RCVDfreqRCVR_A, length(R));
-		}
-		else
-		{
-			RCVDinputPowRCVR_A = RF_ZERO_POWER_DBM;
-		}
-
-		if (receiveB)
-		{
-			RCVDinputPowRCVR_B = RFCALC_rcvdPower(RCVDpowRCVR_B, RCVDgainRCVR_B, activeAntenna->getPolarGain(U_R_LOCAL), RCVDfreqRCVR_B, length(R));
-		}
-		else
-		{
-			RCVDinputPowRCVR_B = RF_ZERO_POWER_DBM;
-		}
-	}
-
 	//sprintf(oapiDebugString(), "RCVR A: %lf dbm     RCVR B: %lf dBm", RCVDinputPowRCVR_A, RCVDinputPowRCVR_B);
-
-	//send RF properties to the connector
-	if (lem && activeAntenna)
-	{
-		if (transmitA)
-		{
-			sat->csm_vhfto_lm_vhfconnector.SendRF(freqXCVR_A, xmitPower, activeAntenna->getPolarGain(U_R_LOCAL), 0.0, false); //XCVR A
-		}
-		else
-		{
-			sat->csm_vhfto_lm_vhfconnector.SendRF(freqXCVR_B, 0.0, 0.0, 0.0, false);
-		}
-
-		if (transmitB)
-		{
-			sat->csm_vhfto_lm_vhfconnector.SendRF(freqXCVR_B, xmitPower, activeAntenna->getPolarGain(U_R_LOCAL), 0.0, XMITRangeTone); //XCVR B
-		}
-		else
-		{
-			sat->csm_vhfto_lm_vhfconnector.SendRF(freqXCVR_B, 0.0, 0.0, 0.0, false);
-		}
-
-		//sprintf(oapiDebugString(), "VHF ANTENNA GAIN = %lf dBi", activeAntenna->getPolarGain(U_R_LOCAL));
-	}
 
 	XMITRangeTone = false;
 	//sprintf(oapiDebugString(), "%d %d %d %d %d %d", K1, K2, transmitA, transmitB, receiveA, receiveB);
@@ -1598,197 +1513,6 @@ void VHFAMTransceiver::SaveState(FILEHANDLE scn) {
 	sprintf(buffer, "%d %d %d %d %d %d", K1, K2, transmitA, transmitB, receiveA, receiveB);
 
 	oapiWriteScenario_string(scn, "VHFTRANSCEIVER", buffer);
-}
-
-VHFRangingSystem::VHFRangingSystem()
-{
-	sat = NULL;
-	powercb = NULL;
-	powerswitch = NULL;
-	resetswitch = NULL;
-	dataGood = false;
-	range = 0.0;
-	isRanging = false;
-	lem = NULL;
-	phaseLockTimer = 0.0;
-	hasLock = 0;
-
-	rangeTone = false;
-}
-
-void VHFRangingSystem::Init(Saturn *vessel, CircuitBrakerSwitch *cb, ToggleSwitch *powersw, ToggleSwitch *resetsw, VHFAMTransceiver *transc)
-{
-	sat = vessel;
-	powercb = cb;
-	powerswitch = powersw;
-	resetswitch = resetsw;
-	transceiver =  transc;
-}
-
-void VHFRangingSystem::RangingReturnSignal()
-{
-	hasLock = 3;
-}
-
-void VHFRangingSystem::TimeStep(double simdt)
-{
-	ChannelValue val33;
-
-	val33 = sat->agc.GetInputChannel(033);
-	dataGood = false;
-	range = 0.0;
-
-	if (!IsPowered())
-	{
-		val33[RangeUnitDataGood] = 0;
-		sat->agc.SetInputChannel(033, val33);
-		hasLock = 0;
-		isRanging = false;
-		return;
-	}
-
-	//this block of code checks to see if the LEM has somehow been deleted mid sceneriao, and sets the lem pointer to null
-	bool isLem = false;
-
-	for (unsigned int i = 0; i < oapiGetVesselCount(); i++)
-	{
-		OBJHANDLE hVessel = oapiGetVesselByIndex(i);
-		VESSEL* pVessel = oapiGetVesselInterface(hVessel);
-		if (!_strnicmp(pVessel->GetClassName(), "ProjectApollo/LEM", 17))
-		{
-			isLem = true;
-		}
-	}
-
-	if (!isLem)
-	{
-		lem = NULL;
-	}
-	//
-
-	if (!lem)
-	{
-		lem = sat->agc.GetLM(); //############################ FIXME ################################
-	}
-
-	if (resetswitch->IsUp())
-	{
-		isRanging = true;
-	}
-
-	if (isRanging && transceiver->IsVHFRangingConfig())
-	{
-		if (lem)
-		{
-			transceiver->sendRanging(); //turn transcever range tone on
-
-			VECTOR3 R;
-			double newrange;
-
-			oapiGetRelativePos(sat->GetHandle(), lem->GetHandle(), &R);
-			newrange = length(R);
-
-			if (abs(internalrange - newrange) < 1800.0*0.3048*simdt)
-			{
-				//Specification is 200NM range, but during the flights up to 320NM was achieved
-				if (newrange > 500.0*0.3048)
-				{		
-					if(transceiver->RCVDinputPowRCVR_A > -122.0 && transceiver->GetActiveAntenna() && transceiver->RCVDRangeTone)
-					{
-						RangingReturnSignal();
-					}
-				}
-			}
-
-			internalrange = newrange;
-
-			if (hasLock)
-			{
-				if (phaseLockTimer < 13.0)
-				{
-					phaseLockTimer += simdt;
-				}
-			}
-			else
-			{
-				phaseLockTimer = 0.0;
-			}
-
-			if (phaseLockTimer > 13.0)
-			{
-				range = internalrange;
-				dataGood = true;
-			}
-		}
-	}
-
-	ChannelValue val13;
-	val13 = sat->agc.GetInputChannel(013);
-
-	if (dataGood == 1 && val33[RangeUnitDataGood] == 0) { val33[RangeUnitDataGood] = 1; sat->agc.SetInputChannel(033, val33); }
-	if (dataGood == 0 && val33[RangeUnitDataGood] == 1) { val33[RangeUnitDataGood] = 0; sat->agc.SetInputChannel(033, val33); }
-
-	if (val13[RangeUnitActivity] == 1) {
-		int radarBits = 0;
-		if (val13[RangeUnitSelectA] == 1) { radarBits |= 1; }
-		if (val13[RangeUnitSelectB] == 1) { radarBits |= 2; }
-		if (val13[RangeUnitSelectC] == 1) { radarBits |= 4; }
-
-		switch (radarBits) {
-		case 4:
-			// Docs says this should be 0.01 NM/bit, or 18.52 meters/bit
-			sat->agc.vagc.Erasable[0][RegRNRAD] = (int16_t)fmod(range / 18.52, 32768.0);
-			sat->agc.SetInputChannelBit(013, RangeUnitActivity, 0);
-			sat->agc.GenerateRadarupt();
-			break;
-		default:
-			break;
-		}
-	}
-
-	//sprintf(oapiDebugString(), "%d %d %d %f %f %o", isRanging, hasLock, dataGood, range, phaseLockTimer, sat->agc.vagc.Erasable[0][RegRNRAD]);
-
-	//Reset after the timestep
-	if (hasLock) hasLock--;
-}
-
-void VHFRangingSystem::SystemTimestep(double simdt)
-{
-	if (IsPowered())
-	{
-		powercb->DrawPower(10.0);
-	}
-}
-
-bool VHFRangingSystem::IsPowered()
-{
-	// Do we have a VHF Ranging System?
-	if (!sat->pMission->CSMHasVHFRanging()) return false;
-
-	if (powerswitch->IsUp() && powercb && powercb->IsPowered())
-	{
-		return true;
-	}
-
-	return false;
-}
-
-// Load
-void VHFRangingSystem::LoadState(char *line) {
-	int one, two;
-
-	sscanf(line + 10, "%d %d %d %lf %lf %lf", &one, &two, &hasLock, &internalrange, &range, &phaseLockTimer);
-	dataGood = (one != 0);
-	isRanging = (two != 0);
-}
-
-// Save
-void VHFRangingSystem::SaveState(FILEHANDLE scn) {
-	char buffer[256];
-
-	sprintf(buffer, "%d %d %d %lf %lf %lf", dataGood, isRanging, hasLock, internalrange, range, phaseLockTimer);
-
-	oapiWriteScenario_string(scn, "VHFRANGING", buffer);
 }
 
 // Socket registration method (registers sockets to be deinitialized
@@ -3240,7 +2964,7 @@ void PCM::generate_stream_lbr(){
 			ChannelValue ch13;
 			ch13 = sat->agc.GetOutputChannel(013);
 			data = (sat->agc.GetOutputChannel(034) & 077400) >> 8;
-			if (ch13[DownlinkWordOrderCodeBit]) { data |= 0200; } // WORD ORDER BIT
+			//if (ch13[DownlinkWordOrderCodeBit]) { data |= 0200; } // WORD ORDER BIT
 			/*
 			sprintf(oapiDebugString(),"CMC DATA: %o (%lo %lo)",data,sat->agc.GetOutputChannel(034),
 				sat->agc.GetOutputChannel(035));
@@ -3960,7 +3684,7 @@ void PCM::generate_stream_hbr(){
 			ChannelValue ch13;
 			ch13 = sat->agc.GetOutputChannel(013);
 			data = (sat->agc.GetOutputChannel(034) & 077400) >> 8;
-			if (ch13[DownlinkWordOrderCodeBit]) { data |= 0200; } // WORD ORDER BIT
+			//if (ch13[DownlinkWordOrderCodeBit]) { data |= 0200; } // WORD ORDER BIT
 			/*
 			sprintf(oapiDebugString(),"CMC DATA: %o (%lo %lo)",data,sat->agc.GetOutputChannel(034),
 				sat->agc.GetOutputChannel(035));
@@ -4954,7 +4678,7 @@ void PCM::handle_uplink() {
 			rx_offset = 0; uplink_state = 0; break;
 		}
 		// Move to INLINK
-		sat->agc.vagc.Erasable[0][045] = cmc_uplink_wd;
+		sat->agc.vagc->memory[045] = cmc_uplink_wd;
 		// Cause UPRUPT
 		sat->agc.GenerateUprupt();
 
@@ -5332,326 +5056,4 @@ void DSE::SaveState(FILEHANDLE scn) {
 
 	sprintf(buffer, "%lf %lf %lf %i %lf", tapeSpeedInchesPerSecond, desiredTapeSpeed, tapeMotion, state, lastEventTime); 
 	oapiWriteScenario_string(scn, "DATARECORDER", buffer);
-}
-
-// Rendezvous Radar Transponder System
-// there is a connector, CSM_RRTto_LM_RRConnector, which is a member of the saturn class, that is recieving the radar RF properties from the LEM which is doing the sending.
-
-RNDZXPDRSystem::RNDZXPDRSystem()
-{
-	sat = NULL;
-	lem = NULL;
-	TestOperateSwitch = NULL;
-	HeaterPowerSwitch = NULL;
-	RRT_LeftSystemTestRotarySwitch = NULL;
-	RRT_RightSystemTestRotarySwitch = NULL;
-	RRT_FLTBusCB = NULL;
-}
-
-RNDZXPDRSystem::~RNDZXPDRSystem()
-{
-	sat->CSM_RRTto_LM_RRConnector.Disconnect();
-}
-
-void RNDZXPDRSystem::Init(Saturn *vessel, CircuitBrakerSwitch *PowerCB, ToggleSwitch *RNDZXPDRSwitch, ThreePosSwitch *Panel100RNDZXPDRSwitch, RotationalSwitch *LeftSystemTestRotarySwitch, RotationalSwitch *RightSystemTestRotarySwitch)
-{
-	sat = vessel;
-	if (!lem){
-		VESSEL *lm = sat->agc.GetLM();
-		if (lm) {
-			lem = (static_cast<LEM*>(lm));
-		}
-	}
-
-	TestOperateSwitch = RNDZXPDRSwitch;
-	HeaterPowerSwitch = Panel100RNDZXPDRSwitch;
-	RRT_LeftSystemTestRotarySwitch = LeftSystemTestRotarySwitch;
-	RRT_RightSystemTestRotarySwitch = LeftSystemTestRotarySwitch;
-	RRT_FLTBusCB = PowerCB;
-
-	RCVDfreq = 0.0;
-	RCVDpow = 0.0;
-	RCVDgain = 0.0;
-	RCVDPhase = 0.0;
-
-	XPDRon = false;
-	XPDRheaterOn = false;
-
-	RadarDist = 0.0;
-
-	RCVDPowerdB = 0.0;
-	XMITpower = 0.240; //watts
-
-	if (!(sat->CSM_RRTto_LM_RRConnector.connectedTo))
-	{
-		sat->CSM_RRTto_LM_RRConnector.ConnectTo(GetVesselConnector(lem, VIRTUAL_CONNECTOR_PORT, RADAR_RF_SIGNAL));
-	}
-}
-
-unsigned char RNDZXPDRSystem::GetScaledRFPower()
-{
-	const double min_value = -122.0;
-	const double max_value = -18.0;
-	
-	if(XPDRon && (haslock == LOCKED))
-	{ 
-		return static_cast<unsigned char>(((RCVDPowerdB - min_value) / (max_value - min_value) * 148) + 107); //2.1 to 5.0V, scalled to 0x00 to 0xFF range
-	}
-	else
-	{
-		return NULL;
-	}	
-}
-
-unsigned char RNDZXPDRSystem::GetScaledAGCPower()
-{
-	const double min_value = 18.0;
-	const double max_value = 122.0;
-
-	if (XPDRon && (haslock == LOCKED))
-	{
-		return static_cast<unsigned char>((abs(RCVDPowerdB)-min_value)/(max_value - min_value)*229); //0.0 to 4.5V, scalled to 0x00 to 0xFF range
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-unsigned char RNDZXPDRSystem::GetScaledFreqLock()
-{
-	if (XPDRon && (haslock == LOCKED))
-	{
-		return static_cast<unsigned char>((lockTimer/1.3)*229); //0.0 to 4.5V, scalled to 0x00 to 0xFF range
-	}
-	else if (XPDRon && (haslock == UNLOCKED))
-	{
-		return static_cast<unsigned char>(20.0); //Signal Search Mode.
-	}
-	else
-	{
-		return NULL;
-	}
-}
-
-double RNDZXPDRSystem::GetCSMGain(double theta, double phi)
-{
-
-	//values from AOH LM volume 2
-
-	const double gainMin = -32.0;
-	const double gainMax = 6.0;
-
-	const double ThetaXPDR = 85.0*RAD; //15 deg forward
-	const double PhiXPDR = 141.8*RAD; //
-
-	double gain;
-
-	double AngleMap = sqrt(((theta - ThetaXPDR)*(theta - ThetaXPDR)) + ((phi - PhiXPDR)*(phi - PhiXPDR))); 
-	
-	gain = cos(AngleMap/2*RAD)*cos(AngleMap / 2 * RAD); //close enough
-
-	gain = gain * (gainMax - gainMin) + gainMin;
-
-
-
-
-	return gain;
-}
-
-void RNDZXPDRSystem::SendRF()
-{
-	if (XPDRon && (haslock == LOCKED))//act like a transponder
-	{
-		sat->CSM_RRTto_LM_RRConnector.SendRF(RCVDfreq*(240.0 / 241.0), XMITpower, RNDZXPDRGain, 0.0);
-	}
-	else //act like a radar reflector, this is also a function of orientation and skin temperature of the CSM, but this should work.
-	{
-		sat->CSM_RRTto_LM_RRConnector.SendRF(RCVDfreq, (pow(10.0, RCVDPowerdB / 10.0) / 1000)*0.85*((sin(theta*RAD) + 1) / 2), 12.0, 0.0); //should give a radar cross section of ~5m^2 side on, ~=5kM range
-	}
-}
-
-void RNDZXPDRSystem::TimeStep(double simdt)
-{
-	//this block of code checks to see if the LEM has somehow been deleted mid sceneriao, and sets the lem pointer to null
-	bool isLem = false;
-
-	for (unsigned int i = 0; i < oapiGetVesselCount(); i++)
-	{
-		OBJHANDLE hVessel = oapiGetVesselByIndex(i);
-		VESSEL* pVessel = oapiGetVesselInterface(hVessel);
-		if (!_strnicmp(pVessel->GetClassName(), "ProjectApollo/LEM", 17))
-		{
-			isLem = true;
-		}
-	}
-
-	if (!isLem)
-	{
-		lem = NULL;
-		haslock = UNLOCKED;
-		sat->CSM_RRTto_LM_RRConnector.Disconnect();
-	}
-	//
-
-	//get a pointer to the lem
-	if (!lem){
-		VESSEL *lm = sat->agc.GetLM();
-		if (lm) {
-			lem = (static_cast<LEM*>(lm));
-		}
-	}
-
-	///
-	/// TODO: make heater heat, should be on for 15min before switching RRT on.
-	///
-
-	//make sure the power's on to the heater and the transponder
-	if (RRT_FLTBusCB->Voltage() > 25.0) //spec minimum for the RRT system
-	{
-		if ((HeaterPowerSwitch->GetState() == THREEPOSSWITCH_CENTER))
-		{
-		XPDRon = false;
-		XPDRheaterOn = false;
-		XPDRtest = false;
-		}
-		else if ((HeaterPowerSwitch->GetState() == THREEPOSSWITCH_UP) && (TestOperateSwitch->GetState() == TOGGLESWITCH_DOWN)) 
-		{
-			XPDRon = true;
-			XPDRheaterOn = true;
-			XPDRtest = false;
-		}
-		else if ((HeaterPowerSwitch->GetState() == THREEPOSSWITCH_UP) && (TestOperateSwitch->GetState() == TOGGLESWITCH_UP))
-		{
-			XPDRon = false;
-			XPDRheaterOn = true;
-			XPDRtest = true;
-		}
-		else if (HeaterPowerSwitch->GetState() == THREEPOSSWITCH_DOWN)
-		{
-			XPDRon = false;
-			XPDRheaterOn = true;
-			XPDRtest = false;
-		}
-	}
-	else
-	{
-		XPDRon = false;
-		XPDRheaterOn = false;
-		XPDRtest = false;
-	}
-
-	if (!XPDRon)
-	{
-		haslock = UNLOCKED;
-		lockTimer = 0.0;
-	}
-
-	//sprintf(oapiDebugString(), "RRT_FLTBusCB Current = %lf A; Voltage = %lf V", RRT_FLTBusCB->Current(), RRT_FLTBusCB->Voltage());
-
-	if (lem) //do transpondery things
-	{
-		if (!(sat->CSM_RRTto_LM_RRConnector.connectedTo))
-		{
-			sat->CSM_RRTto_LM_RRConnector.ConnectTo(GetVesselConnector(lem, VIRTUAL_CONNECTOR_PORT, RADAR_RF_SIGNAL));
-		}
-
-		//sprintf(oapiDebugString(),"Frequency Received: %lf MHz", RCVDfreq);
-		//sprintf(oapiDebugString(), "LEM RR Gain Received: %lf", RCVDgain);
-
-		sat->GetGlobalPos(csmPos);
-		sat->GetRotationMatrix(CSMRot);
-		lem->GetGlobalPos(lemPos);
-
-		R = csmPos - lemPos;
-		U_R = unit(R);
-
-		U_R_RR = unit(tmul(CSMRot, -U_R)); // calculate the pointing vector from the CSM to the LM in the CSM's local frame
-		U_R_RR = _V(U_R_RR.z, U_R_RR.x, -U_R_RR.y); //swap out Orbiter's axes for the Apollo CSM's
-
-		theta = acos(U_R_RR.x); //calculate the azmuth about the csm local frame
-		phi = atan2(U_R_RR.y, -U_R_RR.z); //calculate the elevation about the csm local frame
-
-		if (phi < 0)
-		{
-			phi += RAD * 360;
-		}
-		//sprintf(oapiDebugString(), "Theta: %lf, Phi: %lf", theta*DEG, phi*DEG);
-
-		RadarDist = length(R);
-		//sprintf(oapiDebugString(), "LEM-CSM Distance: %lfm", RadarDist);
-
-		RNDZXPDRGain = RNDZXPDRSystem::GetCSMGain(theta, phi);
-		//sprintf(oapiDebugString(), "RNDZXPDRGain = %lf dBi", RNDZXPDRGain);
-
-		RNDZXPDRGain = pow(10, (RNDZXPDRGain / 10)); //convert to ratio from dB
-
-		if (RadarDist > 80.0*0.3048)
-		{
-			RCVDPowerdB = RCVDgain * RNDZXPDRGain * RCVDpow*pow((C0 / (RCVDfreq * 1000000)) / (4 * PI*RadarDist), 2); //watts
-			RCVDPowerdB = 10.0 * log10(1000.0 * RCVDPowerdB); //convert to dBm
-		}
-		else
-		{
-			RCVDPowerdB = -130; //technicially dB should decrease linearly with decreasing log(distance) as we enter the Rayleigh Region, but this works maybe simulate this better later
-		}
-
-		if ((RCVDPowerdB > -122.0) && XPDRon)
-		{
-			if (lockTimer < 1.3)
-			{
-				lockTimer += simdt;
-			}
-			else
-			{
-				haslock = LOCKED;
-			}
-		}
-		else
-		{
-			haslock = UNLOCKED;
-			lockTimer = 0.0;
-		}
-
-		//sprintf(oapiDebugString(), "Power Receved: %lfdB ,Lock Timer: %lfsec", RCVDPowerdB, lockTimer);
-
-		RNDZXPDRSystem::SendRF();
-	}
-}
-
-void RNDZXPDRSystem::SystemTimestep(double simdt)
-{
-	double XPDRpowerDraw = 70.5; //watts
-	double heater = 14.0; //watts
-
-	if (RRT_FLTBusCB->Voltage() > 25.0) //spec minimum for the RRT system
-	{
-		if (HeaterPowerSwitch->GetState() == THREEPOSSWITCH_UP)
-		{
-			RRT_FLTBusCB->DrawPower(XPDRpowerDraw + heater);
-		}
-		else if (HeaterPowerSwitch->GetState() == THREEPOSSWITCH_DOWN)
-		{
-			RRT_FLTBusCB->DrawPower(heater);
-		}
-
-		//if (haslock == LOCKED)
-		//{
-			//send voltages to proper gauges.
-		//}
-	}
-}
-
-void RNDZXPDRSystem::LoadState(char *line)
-{
-	sscanf(line + 14, "%i %lf %lf %lf %lf %lf", &haslock, &lockTimer, &RCVDfreq, &RCVDpow, &RCVDgain, &RCVDPhase);
-}
-
-void RNDZXPDRSystem::SaveState(FILEHANDLE scn)
-{
-	char buffer[256];
-
-	sprintf(buffer, "%i %lf %lf %lf %lf %lf", haslock, lockTimer, RCVDfreq, RCVDpow, RCVDgain, RCVDPhase);
-
-	oapiWriteScenario_string(scn, "RNDZXPDRSystem", buffer);
 }

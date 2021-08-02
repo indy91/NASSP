@@ -41,8 +41,8 @@
 #include "papi.h"
 #include "thread.h"
 
-CSMcomputer::CSMcomputer(SoundLib &s, DSKY &display, DSKY &display2, IMU &im, CDU &sc, CDU &tc, PanelSDK &p) :
-	ApolloGuidance(s, display, im, sc, tc, p), dsky2(display2)
+CSMcomputer::CSMcomputer(SoundLib &s, DSKY &display, DSKY &display2, IMU &im, CDU &sc, CDU &tc, BlockICDU &og, BlockICDU &ig, BlockICDU &mg, PanelSDK &p) :
+	ApolloGuidance(s, display, im, sc, tc, og, ig, mg, p), dsky2(display2), IMUTurnOnDelayTimer(40.0)
 
 {
 	isLGC = false;
@@ -56,6 +56,11 @@ CSMcomputer::CSMcomputer(SoundLib &s, DSKY &display, DSKY &display2, IMU &im, CD
 	LastOut11 = 0;
 
 	thread.Resume ();
+
+	for (int i = 0;i < 13;i++)
+	{
+		KRelays[i] = false;
+	}
 }
 
 CSMcomputer::~CSMcomputer()
@@ -92,17 +97,19 @@ void CSMcomputer::agcTimestep(double simt, double simdt)
 	}	  
 	double ThisTime = LastCycled;			// Save here
 	
-	long cycles = (long)((simt - LastCycled) / 0.00001171875);	// Get number of CPU cycles to do
-	LastCycled += (0.00001171875 * cycles);						// Preserve the remainder
-	long x = 0; 
-	while(x < cycles) {
+	uint64_t cycles = (uint64_t)((simt - LastCycled) / 0.00001171875);	// Get number of CPU cycles to do
+	uint64_t cyclestart = vagc->countMCT;
+	uint64_t cycleend = cyclestart + cycles;
+	//long x = 0; 
+	while(vagc->countMCT < cycleend) {
 		SingleTimestep();
-		ThisTime += 0.00001171875;								// Add time
-		if((ThisTime - sat->pcm.last_update) > 0.00015625) {	// If a step is needed
-			sat->pcm.TimeStep(ThisTime);						// do it
-		}
-		x++;
+		//ThisTime += 0.00001171875;								// Add time
+		//if((ThisTime - sat->pcm.last_update) > 0.00015625) {	// If a step is needed
+		//	sat->pcm.TimeStep(ThisTime);						// do it
+		//}
+		//x++;
 	}
+	LastCycled += (0.00001171875 * (vagc->countMCT - cyclestart));						// Preserve the remainder
 }
 
 void CSMcomputer::Run ()
@@ -119,10 +126,135 @@ void CSMcomputer::Run ()
 
 
 void CSMcomputer::Timestep(double simt, double simdt)
-
 {
+	IMUTurnOnDelayTimer.Timestep(simdt);
+
 	// DS20060302 For joystick stuff below
 	sat = (Saturn *) OurVessel;
+
+
+	//Always set this input bit
+	if (sat->LVGuidanceSwitch.IsUp())
+	{
+		SetInputChannelBit(07, TransferSwitch, true);
+	}
+	else
+	{
+		SetInputChannelBit(07, TransferSwitch, false);
+	}
+
+	bool IMUHasPower = sat->imu.IsPowered();
+
+	if (IMUHasPower)
+	{
+		IMUTurnOnDelayTimer.SetRunning(true);
+	}
+
+	if (IMUHasPower && IMUTurnOnDelayTimer.ContactClosed())
+	{
+		KRelays[5] = true;
+	}
+	else
+	{
+		KRelays[5] = false;
+	}
+	if (IMUHasPower && !KRelays[5])
+	{
+		KRelays[6] = true;
+	}
+	else
+	{
+		KRelays[6] = false;
+	}
+
+	//Zero Encoder
+	if (IMUHasPower && sat->dsky.GetCRelay(0)) //TBD: Manual switch
+		KRelays[0] = true;
+	else
+		KRelays[0] = false;
+
+	//Coarse align
+	if (IMUHasPower && (sat->dsky.GetCRelay(1) || KRelays[6])) //TBD: Manual switch
+		KRelays[1] = true;
+	else
+		KRelays[1] = false;
+
+	//Lock CDU
+	if (IMUHasPower && sat->dsky.GetCRelay(2)) //TBD: Manual switch
+		KRelays[2] = true;
+	else
+		KRelays[2] = false;
+
+	//Fine Align
+	if (IMUHasPower && sat->dsky.GetCRelay(3)) //TBD: Manual switch
+		KRelays[3] = true;
+	else
+		KRelays[3] = false;
+
+	//Entry
+	if (IMUHasPower && sat->dsky.GetCRelay(10)) //TBD: Manual switch
+		KRelays[4] = true;
+	else
+		KRelays[4] = false;
+
+	//Attitude control
+	if (IMUHasPower && sat->dsky.GetCRelay(9)) //TBD: Manual switch
+		KRelays[11] = true;
+	else
+		KRelays[11] = false;
+
+	//Signals to CMC
+	if (KRelays[0])
+		SetInputChannelBit(07, ZeroEncoderMode, true);
+	else
+		SetInputChannelBit(07, ZeroEncoderMode, false);
+
+	if (KRelays[1])
+		SetInputChannelBit(07, CoarseAlign, true);
+	else
+		SetInputChannelBit(07, CoarseAlign, false);
+
+	if (KRelays[2])
+		SetInputChannelBit(07, ManualCDU, true);
+	else
+		SetInputChannelBit(07, ManualCDU, false);
+
+	if (KRelays[3])
+		SetInputChannelBit(07, FineAlign, true);
+	else
+		SetInputChannelBit(07, FineAlign, false);
+
+	if (KRelays[11])
+		SetInputChannelBit(07, AttitudeControl, true);
+	else
+		SetInputChannelBit(07, AttitudeControl, false);
+
+	if (KRelays[4])
+		SetInputChannelBit(07, EntryMode, true);
+	else
+		SetInputChannelBit(07, EntryMode, false);
+
+	bool ORofC = false;
+
+	for (int i = 0;i < 33;i++)
+	{
+		if (sat->dsky.GetCRelay(i))
+		{
+			ORofC = true;
+			break;
+		}
+	}
+
+	if (ORofC)
+	{
+		SetInputChannelBit(07, ORofC1C33, true);
+	}
+	else
+	{
+		SetInputChannelBit(07, ORofC1C33, false);
+	}
+
+	//sprintf(oapiDebugString(), "%d %d %d %d %d %d", KRelays[0], KRelays[1], KRelays[2], KRelays[3], KRelays[4], KRelays[11]);
 
 		//
 		// Reduce time acceleration as per configured, not to jump to x100 or x1000 and freeze the simulation
@@ -141,15 +273,11 @@ void CSMcomputer::Timestep(double simt, double simdt)
 			// HARDWARE MUST RESTART
 
 			// Clear flip-flop based registers
-			vagc.Erasable[0][00] = 0;     // A
-			vagc.Erasable[0][01] = 0;     // L
-			vagc.Erasable[0][02] = 0;     // Q
-			vagc.Erasable[0][03] = 0;     // EB
-			vagc.Erasable[0][04] = 0;     // FB
-			vagc.Erasable[0][05] = 04000; // Z
-			vagc.Erasable[0][06] = 0;     // BB
+			vagc->memory[00] = 0;     // A
+			vagc->memory[01] = 0;     // Q
+			vagc->memory[02] = 02030; // Z
 			// Clear ISR flag
-			vagc.InIsr = 0;
+			/*vagc.InIsr = 0;
 			// Clear interrupt requests
 			vagc.InterruptRequests[0] = 0;
 			vagc.InterruptRequests[1] = 0;
@@ -187,97 +315,13 @@ void CSMcomputer::Timestep(double simt, double simdt)
 			dsky.ClearRestart();
 			dsky2.ClearRestart();
 			dsky.ClearStby();
-			dsky2.ClearStby();
+			dsky2.ClearStby();*/
 			// Reset last cycling time
 			LastCycled = 0;
 
 			// We should issue telemetry though.
 			sat->pcm.TimeStep(simt);
 			return;
-		}
-
-		//
-		// Initial startup hack for Yaagc.
-		//
-		if(!PadLoaded) {
-
-			double latitude, longitude, radius, heading, TEPHEM0;
-
-			// init pad load
-			OurVessel->GetEquPos(longitude, latitude, radius);
-			oapiGetHeading(OurVessel->GetHandle(), &heading);
-
-			// set launch pad latitude
-			vagc.Erasable[5][2] = ConvertDecimalToAGCOctal(latitude / TWO_PI, true);
-			vagc.Erasable[5][3] = ConvertDecimalToAGCOctal(latitude / TWO_PI, false);
-
-			if (ProgramName == "Colossus237" || ProgramName == "Colossus249" || ProgramName == "Manche45R2")
-			{
-				// set launch pad longitude
-				if (longitude < 0) { longitude += TWO_PI; }
-				vagc.Erasable[2][0263] = ConvertDecimalToAGCOctal(longitude / TWO_PI, true);
-				vagc.Erasable[2][0264] = ConvertDecimalToAGCOctal(longitude / TWO_PI, false);
-
-				// set launch pad altitude
-				//vagc.Erasable[2][0272] = 01;	// 17.7 nmi
-				vagc.Erasable[2][0272] = 0;
-				vagc.Erasable[2][0273] = (int16_t)(0.5 * OurVessel->GetAltitude());
-
-				TEPHEM0 = 40038.;
-			}
-			else if (ProgramName == "Comanche055")	// Comanche 055
-			{
-				// set launch pad longitude
-				if (longitude < 0) { longitude += TWO_PI; }
-				vagc.Erasable[2][0263] = ConvertDecimalToAGCOctal(longitude / TWO_PI, true);
-				vagc.Erasable[2][0264] = ConvertDecimalToAGCOctal(longitude / TWO_PI, false);
-
-				// set launch pad altitude
-				//vagc.Erasable[2][0272] = 01;	// 17.7 nmi
-				vagc.Erasable[2][0272] = 0;
-				vagc.Erasable[2][0273] = (int16_t)(0.5 * OurVessel->GetAltitude());
-
-				TEPHEM0 = 40403.;
-			}
-			else if (ProgramName == "Artemis072NBY71")	//Artemis 072 for Apollo 14
-			{
-				// set launch pad longitude
-				if (longitude < 0) longitude += TWO_PI;
-				vagc.Erasable[2][0135] = ConvertDecimalToAGCOctal(longitude / TWO_PI, true);
-				vagc.Erasable[2][0136] = ConvertDecimalToAGCOctal(longitude / TWO_PI, false);
-
-				// set launch pad altitude
-				//vagc.Erasable[2][0133] = 01;	// 17.7 nmi
-				vagc.Erasable[2][0133] = 0;
-				vagc.Erasable[2][0134] = (int16_t)(0.5 * OurVessel->GetAltitude());
-
-				TEPHEM0 = 40768.;
-			}
-			else	//Artemis 072
-			{
-				// set launch pad longitude
-				if (longitude < 0) longitude += TWO_PI;
-				vagc.Erasable[2][0135] = ConvertDecimalToAGCOctal(longitude / TWO_PI, true);
-				vagc.Erasable[2][0136] = ConvertDecimalToAGCOctal(longitude / TWO_PI, false);
-
-				// set launch pad altitude
-				//vagc.Erasable[2][0133] = 01;	// 17.7 nmi
-				vagc.Erasable[2][0133] = 0;
-				vagc.Erasable[2][0134] = (int16_t)(0.5 * OurVessel->GetAltitude());
-
-				TEPHEM0 = 41133.;
-			}
-
-			// Synchronize clock with launch time (TEPHEM)
-			double tephem = vagc.Erasable[AGC_BANK(01710)][AGC_ADDR(01710)] +
-				vagc.Erasable[AGC_BANK(01707)][AGC_ADDR(01707)] * pow((double) 2., (double) 14.) +
-				vagc.Erasable[AGC_BANK(01706)][AGC_ADDR(01706)] * pow((double) 2., (double) 28.);
-			tephem = (tephem / 8640000.) + TEPHEM0;
-			double clock = (oapiGetSimMJD() - tephem) * 8640000. * pow((double) 2., (double)-28.);
-			vagc.Erasable[AGC_BANK(024)][AGC_ADDR(024)] = ConvertDecimalToAGCOctal(clock, true);
-			vagc.Erasable[AGC_BANK(025)][AGC_ADDR(025)] = ConvertDecimalToAGCOctal(clock, false);
-
-			PadLoaded = true;
 		}
 
 		//
@@ -340,7 +384,7 @@ void CSMcomputer::ProcessChannel10(ChannelValue val){
 	dsky2.ProcessChannel10(val);
 
 	// Gimbal Lock & Prog alarm
-	ChannelValue10 val10;
+	/*ChannelValue10 val10;
 	val10.Value = val.to_ulong();
 	if (val10.Bits.a == 12) {
 		// Gimbal Lock
@@ -349,12 +393,10 @@ void CSMcomputer::ProcessChannel10(ChannelValue val){
 		TrackerAlarm = ((val10.Value & (1 << 7)) != 0);
 		// Prog alarm
 		ProgAlarm = ((val10.Value & (1 << 8)) != 0);
-	}
+	}*/
 }
 
 void CSMcomputer::ProcessChannel11Bit(int bit, bool val){
-	dsky.ProcessChannel11Bit(bit, val);
-	dsky2.ProcessChannel11Bit(bit, val);
 
 	LastOut11 = GetOutputChannel(011);
 }
@@ -479,7 +521,7 @@ void CSMcomputer::ProcessChannel6(ChannelValue val){
 }
 
 void CSMcomputer::ProcessIMUCDUReadCount(int channel, int val) {
-	SetErasable(0, channel, val);
+	SetErasable(channel, val);
 }
 
 // DS20060308 FDAI
@@ -494,7 +536,7 @@ void CSMcomputer::ProcessIMUCDUErrorCount(int channel, ChannelValue val){
 	ChannelValue val12;
 	if(channel != 012){ val12 = GetOutputChannel(012); }else{ val12 = val; }
 	// 174 = X, 175 = Y, 176 = Z
-	if(val12[CoarseAlignEnable]){ return; } // Does not apply to us here.
+	/*if(GetIMUCoarseAlign()){ return; } // Does not apply to us here.
 	switch(channel){
 	case 012:
 		// Reset FDAI
@@ -554,7 +596,7 @@ void CSMcomputer::ProcessIMUCDUErrorCount(int channel, ChannelValue val){
 		}
 //		sprintf(oapiDebugString(),"FDAI: NEEDLES: %d %d %d",sat->gdc.fdai_err_x,sat->gdc.fdai_err_y,sat->gdc.fdai_err_z);
 		break;
-	}
+	}*/
 }
 
 void CSMcomputer::ProcessChannel14(ChannelValue val){
@@ -581,6 +623,35 @@ VESSEL *CSMcomputer::GetLM()
 	}
 
 	return NULL;
+}
+
+void CSMcomputer::SaveState(FILEHANDLE scn)
+{
+	oapiWriteLine(scn, AGC_START_STRING);
+	ApolloGuidance::SaveState(scn);
+	papiWriteScenario_boolarr(scn, "KRELAYS", KRelays, 13);
+	IMUTurnOnDelayTimer.SaveState(scn, "DELAYTIMER_START", "DELAYTIMER_END");
+	oapiWriteLine(scn, AGC_END_STRING);
+}
+
+void CSMcomputer::LoadState(FILEHANDLE scn)
+{
+	char *line;
+	int tmp = 0; // Used in boolean type loader
+	int end_len = strlen(AGC_END_STRING);
+
+	while (oapiReadScenario_nextline(scn, line)) {
+		if (!strnicmp(line, AGC_END_STRING, end_len)) {
+			break;
+		}
+
+		ApolloGuidance::LoadState(line);
+
+		papiReadScenario_boolarr(line, "KRELAYS", KRelays, 13);
+		if (!strnicmp(line, "DELAYTIMER_START", sizeof("DELAYTIMER_START"))) {
+			IMUTurnOnDelayTimer.LoadState(scn, "DELAYTIMER_END");
+		}
+	}
 }
 
 
@@ -697,19 +768,19 @@ void CMOptics::OpticsSwitchToggled()
 {
 	if (sat->OpticsZeroSwitch.IsUp())
 	{
-		sat->agc.SetInputChannelBit(033, ZeroOptics_33, true);
+		sat->agc.SetInputChannelBit(07, ZeroOptics, true);
 	}
 	else
 	{
-		sat->agc.SetInputChannelBit(033, ZeroOptics_33, false);
+		sat->agc.SetInputChannelBit(07, ZeroOptics, false);
 	}
 	if (sat->OpticsModeSwitch.IsUp() && sat->OpticsZeroSwitch.IsDown())
 	{
-		sat->agc.SetInputChannelBit(033, CMCControl, true);
+		sat->agc.SetInputChannelBit(07, CMCControl, true);
 	}
 	else
 	{
-		sat->agc.SetInputChannelBit(033, CMCControl, false);
+		sat->agc.SetInputChannelBit(07, CMCControl, false);
 	}
 }
 
@@ -820,12 +891,12 @@ void CMOptics::TimeStep(double simdt) {
 			}
 		}
 
-		if (sat->agc.GetOutputChannelBit(012, DisengageOpticsDAC) == false)
+		/*if (sat->agc.GetOutputChannelBit(012, DisengageOpticsDAC) == false)
 		{
 			//26mV per bit, 30.8 revolutions per second per volt, 1/3080 gear ratio (Shaft), 2/11780 gear ratio (Trunnion)
 			dShaft += 0.026*30.8*PI2*1.0 / 3080.0*simdt*(double)sat->scdu.GetErrorCounter();
 			dTrunion += 0.026*30.8*PI2*2.0 / 11780.0*simdt*(double)sat->tcdu.GetErrorCounter();
-		}
+		}*/
 
 		//sprintf(oapiDebugString(), "Trun Err: %lf Shaft Err: %lf", (double)sat->tcdu.GetErrorCounter()*180.0*pow(2, -14), (double)sat->scdu.GetErrorCounter()*180.0*pow(2, -12));
 		//sprintf(oapiDebugString(), "Trun: %lf %d Shaft: %lf %d", dTrunion / simdt * DEG, sat->tcdu.GetErrorCounter(), dShaft / simdt * DEG, sat->scdu.GetErrorCounter());

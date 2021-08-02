@@ -27,6 +27,7 @@ See http://nassp.sourceforge.net/license/ for more details.
 #include "apolloguidance.h"
 #include "cdu.h"
 #include "papi.h"
+#include "ioChannels.h"
 
 #define CHECK_BIT(var,pos) ( (((var) & (pos)) > 0 ) ? (1) : (0) )
 
@@ -125,8 +126,8 @@ void CDU::Timestep(double simdt)
 
 					if (CHECK_BIT(ReadCounter, 2) != CHECK_BIT(readcountertemp, 2))
 					{
-						agc.vagc.Erasable[0][loc]++;
-						agc.vagc.Erasable[0][loc] &= 077777;
+						agc.vagc->memory[loc]++;
+						agc.vagc->memory[loc] &= 077777;
 					}
 					if (ErrorCounterEnabled && CA && (ErrorCounter > -0600) && (CHECK_BIT(ReadCounter, 8) != CHECK_BIT(readcountertemp, 8)))
 					{
@@ -143,8 +144,8 @@ void CDU::Timestep(double simdt)
 
 					if (CHECK_BIT(ReadCounter, 2) != CHECK_BIT(readcountertemp, 2))
 					{
-						agc.vagc.Erasable[0][loc]--;
-						agc.vagc.Erasable[0][loc] &= 077777;
+						agc.vagc->memory[loc]--;
+						agc.vagc->memory[loc] &= 077777;
 					}
 					if (ErrorCounterEnabled && CA && (ErrorCounter < 0600) && (CHECK_BIT(ReadCounter, 8) != CHECK_BIT(readcountertemp, 8)))
 					{
@@ -305,4 +306,117 @@ void CDU::LoadState(FILEHANDLE scn, char *end_str) {
 		papiReadScenario_bool(line, "ZEROCDU", ZeroCDU);
 		papiReadScenario_bool(line, "ERRORCOUNTERENABLED", ErrorCounterEnabled);
 	}
+}
+
+BlockICDU::BlockICDU(ApolloGuidance &comp, int sb, int reg) : agc(comp)
+{
+	ShaftAngle = 0.0;
+	SystemBit = sb;
+	AGCRegister = reg;
+}
+
+void BlockICDU::Timestep(double simdt)
+{
+	if (IsPowered() == false) return;
+
+	//Normalize
+	if (ShaftAngle >= PI2)
+	{
+		ShaftAngle -= PI2;
+	}
+	else if (ShaftAngle < 0)
+	{
+		ShaftAngle += PI2;
+	}
+
+	//Resolvers
+	double sin_1x_theta, cos_1x_theta, sin_16x_theta, cos_16x_theta;
+
+	if (agc.GetZeroEncoderMode() == false)
+	{
+		sin_1x_theta = sin(*GimbalAngle);
+		cos_1x_theta = cos(*GimbalAngle);
+		sin_16x_theta = sin(16.0*(*GimbalAngle));
+		cos_16x_theta = cos(16.0*(*GimbalAngle));
+	}
+	else
+	{
+		sin_1x_theta = 0.0;
+		cos_1x_theta = 1.0;
+		sin_16x_theta = 0.0;
+		cos_16x_theta = 1.0;
+	}
+
+	sin_05x = agc.GetZeroEncoderMode() ? -sin(0.5*ShaftAngle) : 0.0;
+	sin_1x = sin_1x_theta * cos(ShaftAngle) - cos_1x_theta * sin(ShaftAngle);
+	sin_16x = sin_16x_theta * cos(16.0*ShaftAngle) - cos_16x_theta * sin(16.0*ShaftAngle);
+
+	//Motor Drive Amp
+	ShaftAngle += simdt*0.5*(sin_05x + (agc.GetIMUFineAlign() ? (sin_1x + 0.1*sin_16x) : 0.0));
+
+	//"Pulses" to AGC
+	if (agc.GetZeroEncoderMode() == false)
+	{
+		int pulses = (int)(((double)radToGyroPulses(ShaftAngle)) / 64.0);
+		agc.ProcessIMUCDUReadCount(AGCRegister, (pulses & 077777));
+	}
+	else
+	{
+		agc.ProcessIMUCDUReadCount(AGCRegister, 0);
+	}
+
+	//sprintf(oapiDebugString(), "Coarse %d Fine %d Zero %d ShaftAngle %lf GimbalAngle %lf sin_05x %lf sin_1x %lf sin_16x %lf", agc.GetIMUCoarseAlign(), agc.GetIMUFineAlign(), agc.GetZeroEncoderMode(), ShaftAngle*DEG, (*GimbalAngle)*DEG, sin_05x, sin_1x, sin_16x);
+}
+
+void BlockICDU::ProcessChannel12(ChannelValue val)
+{
+	if (agc.GetIMUFineAlign() || val[SystemBit] == false) return;
+	if (agc.vagc->memory[042] == 0)
+	{
+		sprintf(oapiDebugString(), "SystemBit %d inp %o", SystemBit, agc.vagc->memory[042]);
+		return;
+	}
+
+	int value = (040000 - agc.vagc->memory[042]);
+	if (value > 384)
+	{
+		value = 384;
+	}
+
+	if (val[IMUPlus])
+	{
+	}
+	else if (val[IMUMinus])
+	{
+		value = -value;//040000 + sign;
+	}
+	else
+	{
+		value = 0;
+	}
+
+	ShaftAngle += DigitalToAnalogConverter(value);
+	//sprintf(oapiDebugString(), "SystemBit %d inp %o DAC: %d", SystemBit, agc.vagc->memory[042], value);
+
+	//agc.vagc->memory[042] = 0;
+}
+
+int BlockICDU::radToGyroPulses(double angle)
+{
+	return (int)((angle * 2097152.0) / PI2);
+}
+
+double BlockICDU::DigitalToAnalogConverter(int val)
+{
+	return 1.917475984857051e-04*(double)(val);
+}
+
+void BlockICDU::SetAngleDevice(double *pAngle)
+{
+	GimbalAngle = pAngle;
+}
+
+bool BlockICDU::IsPowered()
+{
+	return true;
 }

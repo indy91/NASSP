@@ -35,9 +35,7 @@
 #include "toggleswitch.h"
 #include "apolloguidance.h"
 #include "csmcomputer.h"
-#include "lemcomputer.h"
 #include "saturn.h"
-#include "LEM.h"
 #include "Crawler.h"
 #include "papi.h"
 #include <stdio.h>
@@ -730,15 +728,7 @@ void ProjectApolloChecklistMFD::substituteVariables(char *buffer,int buflen) {
 					expansion[0] = 0;
 				}
 			} else {
-				if (lem) {
-					if (lem->Checklist_Variable[variable_index][0] != 0) {
-						strncpy(expansion, lem->Checklist_Variable[variable_index], 32);
-					} else {
-						expansion[0] = 0;
-					}
-				} else {
-					expansion[0] = 0; // Shouldn't be able to get here, the crawler can't.
-				}
+				expansion[0] = 0; // Shouldn't be able to get here, the crawler can't.
 			}
 			// If it's emptystring, replace that with an ellipsis.
 			if (expansion[0] == 0) {
@@ -1450,7 +1440,6 @@ std::string ProjectApolloChecklistMFD::DisplayMissionElapsedTime (void)
 	// Take the mission time from class 
 	if (saturn){ mt = saturn->GetMissionTime(); }
 	if (crawler){ mt = crawler->GetMissionTime(); }
-	if (lem){ mt = lem->GetMissionTime(); }
 
 	int secs = abs((int) mt);
 	int hours = (secs / 3600);

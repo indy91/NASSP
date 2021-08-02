@@ -1038,7 +1038,6 @@ public:
 
 	virtual void ActivateStagingVent() {}
 
-	virtual void VHFRangingReturnSignal();
 	void StartSeparationPyros();
 
 	//CSM to IU interface functions
@@ -3568,9 +3567,7 @@ protected:
 	OMNI omnid;
 	VHFAntenna vhfAntRight;
 	VHFAntenna vhfAntLeft;
-	VHFRangingSystem vhfranging;
 	VHFAMTransceiver vhftransceiver;
-	RNDZXPDRSystem RRTsystem;
 
 	//Instrumentation
 	SCE sce;
@@ -3773,6 +3770,9 @@ protected:
 	IMU imu;
 	CDU tcdu;
 	CDU scdu;
+	BlockICDU ogcdu;
+	BlockICDU igcdu;
+	BlockICDU mgcdu;
 	IU* iu;
 	SIVBSystems *sivb;
 	CSMCautionWarningSystem cws;
@@ -4430,10 +4430,6 @@ protected:
 
 	// Checklist Controller to CSM connector
 	ChecklistDataInterface cdi;
-
-	//RF connectors
-	CSM_RRTto_LM_RRConnector CSM_RRTto_LM_RRConnector;
-	CSM_VHFto_LM_VHFConnector csm_vhfto_lm_vhfconnector;
 
 	//
 	// PanelSDK pointers.

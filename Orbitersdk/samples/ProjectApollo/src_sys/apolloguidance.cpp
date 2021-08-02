@@ -31,7 +31,7 @@
 #include <math.h>
 #include "soundlib.h"
 
-#include "yaAGC/agc_engine.h"
+#include "yaAGCb1/yaAGCb1.h"
 #include "ioChannels.h"
 
 #include "nasspdefs.h"
@@ -44,9 +44,11 @@
 
 #include "tracer.h"
 
-ApolloGuidance::ApolloGuidance(SoundLib &s, DSKY &display, IMU &im, CDU &sc, CDU &tc, PanelSDK &p) : soundlib(s), dsky(display), imu(im), DCPower(0, p), scdu(sc), tcdu(tc)
-
+ApolloGuidance::ApolloGuidance(SoundLib &s, DSKY &display, IMU &im, CDU &sc, CDU &tc, BlockICDU &og, BlockICDU &ig, BlockICDU &mg, PanelSDK &p) : 
+	soundlib(s), dsky(display), imu(im), DCPower(0, p), scdu(sc), tcdu(tc), ogcdu(og), igcdu(ig), mgcdu(mg)
 {
+	vagc = &agc;
+
 	Reset = false;
 	CurrentTimestep = 0;
 	LastTimestep = 0;
@@ -80,13 +82,13 @@ ApolloGuidance::ApolloGuidance(SoundLib &s, DSKY &display, IMU &im, CDU &sc, CDU
 	//
 	// Virtual AGC.
 	//
-	memset(&vagc, 0, sizeof(vagc));
-	vagc.agc_clientdata = this;
-	agc_engine_init(&vagc, NULL, NULL, 0);
+	//memset(vagc, 0, sizeof(vagc));
+	vagc->agc_clientdata = this;
+	loadYul("Nonsense", 1);
 
 #ifdef _DEBUG
 	out_file = fopen("ProjectApollo AGC.log", "wt");
-	vagc.out_file = out_file;
+	//vagc->out_file = out_file;
 #endif
 }
 
@@ -102,7 +104,8 @@ void ApolloGuidance::InitVirtualAGC(char *binfile)
 
 {
 
-	(void) agc_load_binfile(&vagc, binfile);
+	loadYul(binfile, 0);
+	vagc->agc_clientdata = this;
 
 	// Set channels only once, otherwise this code overwrites the channel values in the scenario
 	if (!PadLoaded) { 
@@ -119,27 +122,27 @@ void ApolloGuidance::InitVirtualAGC(char *binfile)
 		val30 = 077777;
 		// Enable to turn on
 		// val30.Bits.IMUOperate = 0;
-		val30.reset(TempInLimits);
+		//val30.reset(TempInLimits);
 
 		//
 		// We default to the IMU turned off. If you change this, change the IMU code to
 		// match.
 		//
-		val30.set(IMUOperate);
+		//val30.set(IMUOperate);
 
-		vagc.InputChannel[030] = (int16_t)val30.to_ulong();
+		//vagc->InputChannel[030] = (int16_t)val30.to_ulong();
 
-		val31 = 077777;
+		//val31 = 077777;
 		// Default position of the CMC MODE switch is FREE
-		val31[FreeFunction] = 0;
+		//val31[FreeFunction] = 0;
 
-		vagc.InputChannel[031] = (int16_t)val31.to_ulong();
+		//vagc->InputChannel[031] = (int16_t)val31.to_ulong();
 
 
-		val32 = 077777;
-		vagc.InputChannel[032] = (int16_t)val32.to_ulong();
+		//val32 = 077777;
+		//vagc->InputChannel[032] = (int16_t)val32.to_ulong();
 
-		val33 = 077777;
+		//val33 = 077777;
 	//	val33.Bits.RangeUnitDataGood = 0;
 	//	val33.Bits.BlockUplinkInput = 0;
 
@@ -152,9 +155,9 @@ void ApolloGuidance::InitVirtualAGC(char *binfile)
 		//	RAND	CHAN33		# RESTART LOOP.
 		//
 
-		val33[AGCWarning] = 0;
+		//val33[AGCWarning] = 0;
 		
-		vagc.InputChannel[033] = (int16_t)val33.to_ulong();
+		//vagc->InputChannel[033] = (int16_t)val33.to_ulong();
 	}
 }
 
@@ -175,7 +178,7 @@ bool ApolloGuidance::OutOfReset()
 }
 
 
-// Do a single timestep - Used by CM to maintain sync between telemetry and vAGC.
+// Do a single timestep - Used by CM to maintain sync between telemetry and vagc->
 bool ApolloGuidance::SingleTimestepPrep(double simt, double simdt){
 	LastTimestep = CurrentTimestep;
 	CurrentTimestep = simt;
@@ -184,13 +187,13 @@ bool ApolloGuidance::SingleTimestepPrep(double simt, double simdt){
 
 bool ApolloGuidance::SingleTimestep() {
 
-	agc_engine(&vagc);
+	executeOneInstruction(NULL);
 	return TRUE;
 }
 
 void ApolloGuidance::VirtualAGCCoreDump(char *fileName) {
 
-	MakeCoreDump(&vagc, fileName); 
+	//MakeCoreDump(&vagc, fileName); 
 }
 
 bool ApolloGuidance::GenericTimestep(double simt, double simdt)
@@ -206,7 +209,7 @@ bool ApolloGuidance::GenericTimestep(double simt, double simdt)
 	int cycles = (long) ((simdt) * 1024000 / 12);
 
 	for (i = 0; i < cycles; i++) {
-		agc_engine(&vagc);
+		executeOneInstruction(NULL);
 	}
 
 	return true;
@@ -262,18 +265,15 @@ int ApolloGuidance::GetErasable(int bank, int address)
 	if (address < 0 || address > 0400)
 		return 0;
 
-	return vagc.Erasable[bank][address];
+	return vagc->memory[bank*0400 + address];
 }
 
-void ApolloGuidance::SetErasable(int bank, int address, int value)
-
+void ApolloGuidance::SetErasable(int address, int value)
 {
-	if (bank < 0 || bank > 8)
-		return;
-	if (address < 0 || address > 0400)
+	if (address < 0 || address > 01777)
 		return;
 
-	vagc.Erasable[bank][address] = value;
+	vagc->memory[address] = value;
 }
 
 void ApolloGuidance::PulsePIPA(int RegPIPA, int pulses) 
@@ -293,12 +293,12 @@ void ApolloGuidance::PulsePIPA(int RegPIPA, int pulses)
 
 	if (pulses >= 0) {
     	for (i = 0; i < pulses; i++) {
-			UnprogrammedIncrement(&vagc, RegPIPA, 0);	// PINC
+			UnprogrammedIncrement(vagc, RegPIPA, 0);	// PINC
 
     	}
 	} else {
     	for (i = 0; i < -pulses; i++) {
-			UnprogrammedIncrement(&vagc, RegPIPA, 2);	// MINC
+			UnprogrammedIncrement(vagc, RegPIPA, 2);	// MINC
     	}
 	}
 
@@ -356,7 +356,7 @@ void ApolloGuidance::SaveState(FILEHANDLE scn)
 	int i;
 	int val;
 
-	oapiWriteLine(scn, AGC_START_STRING);
+	
 
 	if (OtherVesselName[0])
 		oapiWriteScenario_string(scn, "ONAME", OtherVesselName);
@@ -370,33 +370,34 @@ void ApolloGuidance::SaveState(FILEHANDLE scn)
 	state.word = 0;
 	state.u.Reset = Reset;
 	state.u.isFirstTimestep = isFirstTimestep;
-	state.u.ExtraCode = vagc.ExtraCode;
-	state.u.AllowInterrupt = vagc.AllowInterrupt;
-	state.u.InIsr = vagc.InIsr;
-	state.u.SubstituteInstruction = vagc.SubstituteInstruction;
-	state.u.PendFlag = vagc.PendFlag;
-	state.u.PendDelay = vagc.PendDelay;
-	state.u.ExtraDelay = vagc.ExtraDelay;
-	state.u.DownruptTimeValid = vagc.DownruptTimeValid;
+	vagc->B;
+	/*state.u.ExtraCode = vagc->ExtraCode;
+	state.u.AllowInterrupt = vagc->AllowInterrupt;
+	state.u.InIsr = vagc->InIsr;
+	state.u.SubstituteInstruction = vagc->SubstituteInstruction;
+	state.u.PendFlag = vagc->PendFlag;
+	state.u.PendDelay = vagc->PendDelay;
+	state.u.ExtraDelay = vagc->ExtraDelay;
+	state.u.DownruptTimeValid = vagc->DownruptTimeValid;
 	state.u.PadLoaded = PadLoaded;
-	state.u.NightWatchman = vagc.NightWatchman;
-	state.u.RuptLock = vagc.RuptLock;
-	state.u.NoRupt = vagc.NoRupt;
-	state.u.TCTrap = vagc.TCTrap;
-	state.u.NoTC = vagc.NoTC;
-	state.u.Standby = vagc.Standby;
-	state.u.SbyPressed = vagc.SbyPressed;
-	state.u.SbyStillPressed = vagc.SbyStillPressed;
-	state.u.ParityFail = vagc.ParityFail;
-	state.u.NightWatchmanTripped = vagc.NightWatchmanTripped;
-	state.u.GeneratedWarning = vagc.GeneratedWarning;
-	state.u.TookBZF = vagc.TookBZF;
-	state.u.TookBZMF = vagc.TookBZMF;
-	state.u.Trap31A = vagc.Trap31A;
-	state.u.Trap31B = vagc.Trap31B;
-	state.u.Trap32 = vagc.Trap32;
+	state.u.NightWatchman = vagc->NightWatchman;
+	state.u.RuptLock = vagc->RuptLock;
+	state.u.NoRupt = vagc->NoRupt;
+	state.u.TCTrap = vagc->TCTrap;
+	state.u.NoTC = vagc->NoTC;
+	state.u.Standby = vagc->Standby;
+	state.u.SbyPressed = vagc->SbyPressed;
+	state.u.SbyStillPressed = vagc->SbyStillPressed;
+	state.u.ParityFail = vagc->ParityFail;
+	state.u.NightWatchmanTripped = vagc->NightWatchmanTripped;
+	state.u.GeneratedWarning = vagc->GeneratedWarning;
+	state.u.TookBZF = vagc->TookBZF;
+	state.u.TookBZMF = vagc->TookBZMF;
+	state.u.Trap31A = vagc->Trap31A;
+	state.u.Trap31B = vagc->Trap31B;
+	state.u.Trap32 = vagc->Trap32;*/
 
-	oapiWriteScenario_int(scn, "STATE", state.word);
+	//oapiWriteScenario_int(scn, "STATE", state.word);
 
 	//
 	// Write out any non-zero EMEM state.
@@ -404,7 +405,7 @@ void ApolloGuidance::SaveState(FILEHANDLE scn)
 
 	for (i = 0; i < EMEM_ENTRIES; i++) {
 		// Always save RegZ because it's set in agc_engine_init, so we have to store 0, too
-		if (ReadMemory(i, val) && (val != 0 || i == RegZ)) {
+		if (ReadMemory(i, val) && (val != 0 || i == 02)) {
 			sprintf(fname, "EMEM%04o", i);
 			sprintf(str, "%o", val);
 			oapiWriteScenario_string (scn, fname, str);
@@ -423,159 +424,179 @@ void ApolloGuidance::SaveState(FILEHANDLE scn)
 		}
 	}
 
-	for (i = 0; i < NUM_CHANNELS; i++) {
-		val = vagc.InputChannel[i];
-		// Always save channel 030 - 033 because they're set in agc_engine_init, so we have to store 0, too
-		if (val != 0 || (i >= 030 && i <= 033)) {
-			sprintf(fname, "VICHAN%03d", i);
-			oapiWriteScenario_int (scn, fname, val);
-		}
-	}
-
-	oapiWriteScenario_int (scn, "VOC7", vagc.OutputChannel7);
-	oapiWriteScenario_int (scn, "IDXV", vagc.IndexValue);
-	oapiWriteScenario_int (scn, "NEXTZ", vagc.NextZ);
-	oapiWriteScenario_int (scn, "SCALERCOUNTER", vagc.ScalerCounter);
-	oapiWriteScenario_int (scn, "CRCOUNT", vagc.ChannelRoutineCount);
-	oapiWriteScenario_int(scn, "DSKYCHANNEL163", vagc.DskyChannel163);
-	oapiWriteScenario_int(scn, "WARNINGFILTER", vagc.WarningFilter);
-
-	sprintf(buffer, "  CYCLECOUNTER %I64d", vagc.CycleCounter);
+	oapiWriteScenario_int (scn, "INDEX", vagc->INDEX);
+	oapiWriteScenario_int(scn, "INTERRUPTED", vagc->INTERRUPTED);
+	oapiWriteScenario_int(scn, "B", vagc->B);
+	oapiWriteScenario_int(scn, "ruptFlatAddress", vagc->ruptFlatAddress);
+	oapiWriteScenario_int(scn, "ruptLastINDEX", vagc->ruptLastINDEX);
+	oapiWriteScenario_int(scn, "ruptLastZ", vagc->ruptLastZ);
+	oapiWriteScenario_int(scn, "overflowedTIME3", vagc->overflowedTIME3);
+	oapiWriteScenario_int(scn, "overflowedTIME4", vagc->overflowedTIME4);
+	oapiWriteScenario_int(scn, "uplinkReady", vagc->uplinkReady);
+	oapiWriteScenario_int(scn, "downlinkReady", vagc->downlinkReady);
+	sprintf(buffer, "  countMCT %I64d", vagc->countMCT);
 	oapiWriteLine(scn, buffer);
-		
-	for (i = 0; i < 16; i++) {
-		val = vagc.OutputChannel10[i];
-		sprintf(fname, "V10CHAN%03d", i);
-		oapiWriteScenario_int (scn, fname, val);
-	}
-
-	for (i = 0; i < (1 + NUM_INTERRUPT_TYPES); i++) {
-		val = vagc.InterruptRequests[i];
-		sprintf(fname, "VINT%03d", i);
-		oapiWriteScenario_int (scn, fname, val);
-	}
+	sprintf(buffer, "  startTimeNanoseconds %I64d", vagc->startTimeNanoseconds);
+	oapiWriteLine(scn, buffer);
+	sprintf(buffer, "  pausedNanoseconds %I64d", vagc->pausedNanoseconds);
+	oapiWriteLine(scn, buffer);
+	sprintf(buffer, "  startOfPause %I64d", vagc->startOfPause);
+	oapiWriteLine(scn, buffer);
+	oapiWriteScenario_int(scn, "instructionCountDown", vagc->instructionCountDown);
 
 	papiWriteScenario_bool(scn, "PROGALARM", ProgAlarm);
 	papiWriteScenario_bool(scn, "TRACKERALARM", TrackerAlarm);
 	papiWriteScenario_bool(scn, "GIMBALLOCKALARM", GimbalLockAlarm);
-
-	oapiWriteLine(scn, AGC_END_STRING);
 }
 
-void ApolloGuidance::LoadState(FILEHANDLE scn)
-
+void ApolloGuidance::LoadState(char *line)
 {
-	char	*line;
-
-	//
-	// Now load the data.
-	//
-
-	while (oapiReadScenario_nextline (scn, line)) {
-		if (!strnicmp(line, AGC_END_STRING, sizeof(AGC_END_STRING)))
-			break;
-			
-		if (!strnicmp (line, "EMEM", 4)) {
-			int num, val;
-			sscanf(line+4, "%o", &num);
-			sscanf(line+9, "%o", &val);
-			WriteMemory(num, val);
-		}
-		else if (!strnicmp (line, "VICHAN", 6)) {
-			int num;
-			unsigned int val;
-			sscanf(line+6, "%d", &num);
-			sscanf(line+10, "%d", &val);
-			vagc.InputChannel[num] = val;
-		}
-		else if (!strnicmp (line, "V10CHAN", 7)) {
-			int num;
-			unsigned int val;
-			sscanf(line+7, "%d", &num);
-			sscanf(line+11, "%d", &val);
-			vagc.OutputChannel10[num] = val;
-		}
-		else if (!strnicmp (line, "OCHAN", 5)) {
-			int num;
-			unsigned int val;
-			sscanf(line+5, "%d", &num);
-			sscanf(line+9, "%d", &val);
-			OutputChannel[num] = val;
-		}
-		else if (!strnicmp (line, "VOC7", 4)) {
-			sscanf (line+4, "%" SCNd16, &vagc.OutputChannel7);
-		}
-		else if (!strnicmp (line, "IDXV", 4)) {
-			sscanf (line+4, "%" SCNd16, &vagc.IndexValue);
-		}
-		else if (!strnicmp (line, "NEXTZ", 5)) {
-			sscanf (line+5, "%d", &vagc.NextZ);
-		}
-		else if (!strnicmp (line, "SCALERCOUNTER", 13)) {
-			sscanf (line+13, "%d", &vagc.ScalerCounter);
-		}
-		else if (!strnicmp (line, "CRCOUNT", 7)) {
-			sscanf (line+7, "%d", &vagc.ChannelRoutineCount);
-		}
-		else if (!strnicmp(line, "DSKYCHANNEL163", 14)) {
-			sscanf(line + 14, "%d", &vagc.DskyChannel163);
-		}
-		else if (!strnicmp(line, "WARNINGFILTER", 13)) {
-			sscanf(line + 13, "%" SCNd32, &vagc.WarningFilter);
-		}
-		/*
-		TODO Do NOT load CycleCounter until CduFifos are saved/loaded, too
-		else if (!strnicmp (line, "CYCLECOUNTER", 12)) {
-			sscanf (line+12, "%I64d", &vagc.CycleCounter);
-		}
-		*/
-		else if (!strnicmp (line, "VINT", 4)) {
-			int num;
-			unsigned int val;
-			sscanf(line+4, "%d", &num);
-			sscanf(line+8, "%d", &val);
-			vagc.InterruptRequests[num] = val;
-		}
-		else if (!strnicmp (line, "STATE", 5)) {
-			AGCState state;
-			sscanf (line+5, "%d", &state.word);
-
-			Reset = state.u.Reset;
-			isFirstTimestep = (state.u.isFirstTimestep != 0);
-			vagc.ExtraCode = state.u.ExtraCode;
-			vagc.AllowInterrupt = state.u.AllowInterrupt;
-			vagc.InIsr = state.u.InIsr;
-			vagc.SubstituteInstruction = state.u.SubstituteInstruction;
-			vagc.PendFlag = state.u.PendFlag;
-			vagc.PendDelay = state.u.PendDelay;
-			vagc.ExtraDelay = state.u.ExtraDelay;
-			vagc.DownruptTimeValid = state.u.DownruptTimeValid;
-			PadLoaded = state.u.PadLoaded;
-			vagc.NightWatchman = state.u.NightWatchman;
-			vagc.RuptLock = state.u.RuptLock;
-			vagc.NoRupt = state.u.NoRupt;
-			vagc.TCTrap = state.u.TCTrap;
-			vagc.NoTC = state.u.NoTC;
-			vagc.Standby = state.u.Standby;
-			vagc.SbyPressed = state.u.SbyPressed;
-			vagc.SbyStillPressed = state.u.SbyStillPressed;
-			vagc.ParityFail = state.u.ParityFail;
-			vagc.NightWatchmanTripped = state.u.NightWatchmanTripped;
-			vagc.GeneratedWarning = state.u.GeneratedWarning;
-			vagc.TookBZF = state.u.TookBZF;
-			vagc.TookBZMF = state.u.TookBZMF;
-			vagc.Trap31A = state.u.Trap31A;
-			vagc.Trap31B = state.u.Trap31B;
-			vagc.Trap32 = state.u.Trap32;
-		}
-		else if (!strnicmp (line, "ONAME", 5)) {
-			strncpy (OtherVesselName, line + 6, 64);
-		}
-
-		papiReadScenario_bool(line, "PROGALARM", ProgAlarm);
-		papiReadScenario_bool(line, "TRACKERALARM", TrackerAlarm);
-		papiReadScenario_bool(line, "GIMBALLOCKALARM", GimbalLockAlarm);
+	if (!strnicmp(line, "EMEM", 4)) {
+		int num, val;
+		sscanf(line + 4, "%o", &num);
+		sscanf(line + 9, "%o", &val);
+		WriteMemory(num, val);
 	}
+	else if (!strnicmp(line, "VICHAN", 6)) {
+		int num;
+		unsigned int val;
+		sscanf(line + 6, "%d", &num);
+		sscanf(line + 10, "%d", &val);
+		//vagc->InputChannel[num] = val;
+	}
+	else if (!strnicmp(line, "V10CHAN", 7)) {
+		int num;
+		unsigned int val;
+		sscanf(line + 7, "%d", &num);
+		sscanf(line + 11, "%d", &val);
+		//vagc->OutputChannel10[num] = val;
+	}
+	else if (!strnicmp(line, "OCHAN", 5)) {
+		int num;
+		unsigned int val;
+		sscanf(line + 5, "%d", &num);
+		sscanf(line + 9, "%d", &val);
+		OutputChannel[num] = val;
+	}
+	else if (!strnicmp(line, "INDEX", 5)) {
+		sscanf(line + 5, "%" SCNd16, &vagc->INDEX);
+	}
+	else if (!strnicmp(line, "INTERRUPTED", 11)) {
+		sscanf(line + 11, "%" SCNd16, &vagc->INTERRUPTED);
+	}
+	else if (!strnicmp(line, "B", 1)) {
+		sscanf(line + 1, "%" SCNd16, &vagc->B);
+	}
+	else if (!strnicmp(line, "ruptFlatAddress", 15)) {
+		sscanf(line + 15, "%" SCNd16, &vagc->ruptFlatAddress);
+	}
+	else if (!strnicmp(line, "ruptLastINDEX", 13)) {
+		sscanf(line + 13, "%" SCNd16, &vagc->ruptLastINDEX);
+	}
+	else if (!strnicmp(line, "ruptLastZ", 9)) {
+		sscanf(line + 9, "%" SCNd16, &vagc->ruptLastZ);
+	}
+	else if (!strnicmp(line, "overflowedTIME3", 15)) {
+		sscanf(line + 15, "%" SCNd16, &vagc->overflowedTIME3);
+	}
+	else if (!strnicmp(line, "overflowedTIME4", 15)) {
+		sscanf(line + 15, "%" SCNd16, &vagc->overflowedTIME4);
+	}
+	else if (!strnicmp(line, "uplinkReady", 11)) {
+		sscanf(line + 11, "%" SCNd16, &vagc->uplinkReady);
+	}
+	else if (!strnicmp(line, "downlinkReady", 13)) {
+		sscanf(line + 13, "%" SCNd16, &vagc->downlinkReady);
+	}
+	else if (!strnicmp(line, "countMCT", 8)) {
+		sscanf(line + 8, "%" SCNd64, &vagc->countMCT);
+	}
+	else if (!strnicmp(line, "startTimeNanoseconds", 20)) {
+		sscanf(line + 20, "%" SCNd64, &vagc->startTimeNanoseconds);
+	}
+	else if (!strnicmp(line, "pausedNanoseconds", 17)) {
+		sscanf(line + 17, "%" SCNd64, &vagc->pausedNanoseconds);
+	}
+	else if (!strnicmp(line, "startOfPause", 12)) {
+		sscanf(line + 12, "%" SCNd64, &vagc->startOfPause);
+	}
+	else if (!strnicmp(line, "instructionCountDown", 20)) {
+		sscanf(line + 20, "%d", &vagc->instructionCountDown);
+	}
+
+	/*else if (!strnicmp (line, "VOC7", 4)) {
+		sscanf (line+4, "%" SCNd16, &vagc->OutputChannel7);
+	}
+	else if (!strnicmp (line, "IDXV", 4)) {
+		sscanf (line+4, "%" SCNd16, &vagc->IndexValue);
+	}
+	else if (!strnicmp (line, "NEXTZ", 5)) {
+		sscanf (line+5, "%d", &vagc->NextZ);
+	}
+	else if (!strnicmp (line, "SCALERCOUNTER", 13)) {
+		sscanf (line+13, "%d", &vagc->ScalerCounter);
+	}
+	else if (!strnicmp (line, "CRCOUNT", 7)) {
+		sscanf (line+7, "%d", &vagc->ChannelRoutineCount);
+	}
+	else if (!strnicmp(line, "DSKYCHANNEL163", 14)) {
+		sscanf(line + 14, "%d", &vagc->DskyChannel163);
+	}
+	else if (!strnicmp(line, "WARNINGFILTER", 13)) {
+		sscanf(line + 13, "%" SCNd32, &vagc->WarningFilter);
+	}*/
+	/*
+	TODO Do NOT load CycleCounter until CduFifos are saved/loaded, too
+	else if (!strnicmp (line, "CYCLECOUNTER", 12)) {
+		sscanf (line+12, "%I64d", &vagc->CycleCounter);
+	}
+	*/
+	if (!strnicmp(line, "VINT", 4)) {
+		int num;
+		unsigned int val;
+		sscanf(line + 4, "%d", &num);
+		sscanf(line + 8, "%d", &val);
+		//vagc->InterruptRequests[num] = val;
+	}
+	else if (!strnicmp(line, "STATE", 5)) {
+		AGCState state;
+		sscanf(line + 5, "%d", &state.word);
+
+		Reset = state.u.Reset;
+		isFirstTimestep = (state.u.isFirstTimestep != 0);
+		/*vagc->ExtraCode = state.u.ExtraCode;
+		vagc->AllowInterrupt = state.u.AllowInterrupt;
+		vagc->InIsr = state.u.InIsr;
+		vagc->SubstituteInstruction = state.u.SubstituteInstruction;
+		vagc->PendFlag = state.u.PendFlag;
+		vagc->PendDelay = state.u.PendDelay;
+		vagc->ExtraDelay = state.u.ExtraDelay;
+		vagc->DownruptTimeValid = state.u.DownruptTimeValid;
+		PadLoaded = state.u.PadLoaded;
+		vagc->NightWatchman = state.u.NightWatchman;
+		vagc->RuptLock = state.u.RuptLock;
+		vagc->NoRupt = state.u.NoRupt;
+		vagc->TCTrap = state.u.TCTrap;
+		vagc->NoTC = state.u.NoTC;
+		vagc->Standby = state.u.Standby;
+		vagc->SbyPressed = state.u.SbyPressed;
+		vagc->SbyStillPressed = state.u.SbyStillPressed;
+		vagc->ParityFail = state.u.ParityFail;
+		vagc->NightWatchmanTripped = state.u.NightWatchmanTripped;
+		vagc->GeneratedWarning = state.u.GeneratedWarning;
+		vagc->TookBZF = state.u.TookBZF;
+		vagc->TookBZMF = state.u.TookBZMF;
+		vagc->Trap31A = state.u.Trap31A;
+		vagc->Trap31B = state.u.Trap31B;
+		vagc->Trap32 = state.u.Trap32;*/
+	}
+	else if (!strnicmp(line, "ONAME", 5)) {
+		strncpy(OtherVesselName, line + 6, 64);
+	}
+
+	papiReadScenario_bool(line, "PROGALARM", ProgAlarm);
+	papiReadScenario_bool(line, "TRACKERALARM", TrackerAlarm);
+	papiReadScenario_bool(line, "GIMBALLOCKALARM", GimbalLockAlarm);
 }
 
 //
@@ -625,6 +646,12 @@ void ApolloGuidance::SetInputChannel(int channel, ChannelValue val)
 	if (!IsPowered())
 		return;
 
+	//Only DSKY for now
+	if (channel == 04)
+	{
+		GenericWriteMemory(channel, val.to_ulong());
+	}
+
 #ifdef _DEBUG
 	//
 	// Don't print debug for IMU channels or we get a multi-gigabyte log file!
@@ -636,14 +663,14 @@ void ApolloGuidance::SetInputChannel(int channel, ChannelValue val)
 	if (channel & 0x80) {
 		// In this case we're dealing with a counter increment.
 		// So increment the counter.
-		UnprogrammedIncrement (&vagc, channel, val.to_ulong());
+		//UnprogrammedIncrement (&vagc, channel, val.to_ulong());
 	}
 	else {
 		// If this is a keystroke from the DSKY, generate an interrupt req.
 		if (channel == 015){
-			vagc.InterruptRequests[5] = 1;
+			//vagc->InterruptRequests[5] = 1;
 		}else{ if (channel == 016){ // Secondary DSKY
-			vagc.InterruptRequests[6] = 1;
+			//vagc->InterruptRequests[6] = 1;
 		}}
 
 		//
@@ -654,7 +681,7 @@ void ApolloGuidance::SetInputChannel(int channel, ChannelValue val)
 			val ^= 077777;
 		}
 
-		WriteIO(&vagc, channel, val.to_ulong());
+		//WriteIO(&vagc, channel, val.to_ulong());
 	}
 }
 
@@ -662,14 +689,14 @@ void ApolloGuidance::SetInputChannelBit(int channel, int bit, bool val)
 
 {
 	unsigned int mask = (1 << (bit));
-	int	data = vagc.InputChannel[channel];
+	int	data = vagc->memory[channel];
 
 	//
 	// Channels 030-034 are inverted!
 	//
 
-	if ((channel >= 030) && (channel <= 034))
-		data ^= 077777;
+	//if ((channel >= 030) && (channel <= 034))
+	//	data ^= 077777;
 
 #ifdef _DEBUG
 		fprintf(out_file, "Set bit %d of input channel %04o to %d\n", bit, channel, val ? 1 : 0); 
@@ -695,17 +722,18 @@ void ApolloGuidance::SetInputChannelBit(int channel, int bit, bool val)
 	// Channels 030-034 are inverted!
 	//
 
-	if ((channel >= 030) && (channel <= 034))
-		data ^= 077777;
+	//if ((channel >= 030) && (channel <= 034))
+	//	data ^= 077777;
 
 	// If this is a keystroke from the DSKY (Or MARK/MARKREJ), generate an interrupt req.
 	if (channel == 015 && val != 0){
-		vagc.InterruptRequests[5] = 1;
+		//vagc->InterruptRequests[5] = 1;
 	}else{ if (channel == 016 && val != 0){ // Secondary DSKY
-		vagc.InterruptRequests[6] = 1;
+		//vagc->InterruptRequests[6] = 1;
 	}}
 
-	WriteIO(&vagc, channel, data);
+	//WriteIO(&vagc, channel, data);
+	GenericWriteMemory(channel, data);
 }
 
 void ApolloGuidance::SetOutputChannel(int channel, ChannelValue val)
@@ -716,6 +744,25 @@ void ApolloGuidance::SetOutputChannel(int channel, ChannelValue val)
 
 	OutputChannel[channel] = val.to_ulong();
 
+	switch (channel)
+	{
+	case 010:
+		//DSKY
+		ProcessChannel10(val);
+		break;
+	case 011:
+		ProcessChannel11(val);
+		break;
+	case 012:
+		//Pulses
+		imu.ChannelOutput(channel, val);
+		ogcdu.ProcessChannel12(val);
+		igcdu.ProcessChannel12(val);
+		mgcdu.ProcessChannel12(val);
+		break;
+	}
+
+	/*
 #ifdef _DEBUG
 	switch (channel) {
 	case 010:
@@ -801,12 +848,12 @@ void ApolloGuidance::SetOutputChannel(int channel, ChannelValue val)
 		{			
 			ChannelValue33 val33;
 			val33.Value = val;
-		} */
+		} 
 		break;
 	case 034:
 		ProcessChannel34(val);
 		break;
-	}
+	}*/
 }
 
 //
@@ -842,29 +889,29 @@ void ApolloGuidance::ProcessIMUCDUReadCount(int channel, int val) {
 }
 
 void ApolloGuidance::GenerateHandrupt() {
-	vagc.InterruptRequests[10] = 1;
+	//vagc->InterruptRequests[10] = 1;
 }
 
 void ApolloGuidance::GenerateDownrupt(){
-	vagc.InterruptRequests[8] = 1;
+	//vagc->InterruptRequests[8] = 1;
 }
 
 void ApolloGuidance::GenerateUprupt(){
-	vagc.InterruptRequests[7] = 1;
+	//vagc->InterruptRequests[7] = 1;
 }
 
 void ApolloGuidance::GenerateRadarupt(){
-	vagc.InterruptRequests[9] = 1;
+	//vagc->InterruptRequests[9] = 1;
 }
 
 bool ApolloGuidance::IsUpruptActive() {
 	// UPRUPT waiting to be processed
-	if (vagc.InterruptRequests[7] == 1)
-		return 1;
+	//if (vagc->InterruptRequests[7] == 1)
+	//	return 1;
 
 	// UPRUPT currently being processed
-	if (vagc.InIsr && vagc.InterruptRequests[0] == 7)
-		return 1;
+	//if (vagc->InIsr && vagc->InterruptRequests[0] == 7)
+	//	return 1;
 
 	return 0;
 }
@@ -881,15 +928,15 @@ bool ApolloGuidance::GetInputChannelBit(int channel, int bit)
 unsigned int ApolloGuidance::GetInputChannel(int channel)
 
 {
-	if (channel < 0 || channel >= NUM_CHANNELS)
-		return 0;
+	//if (channel < 0 || channel >= NUM_CHANNELS)
+	//	return 0;
 
 	//
 	// Virtual AGC code stores values in native form. C++ AGC expects to read them out in
 	// 0 = false, 1 = true form.
 	//
 
-	unsigned int val = vagc.InputChannel[channel];
+	unsigned int val = 0;//vagc->InputChannel[channel];
 	
 	if ((channel >= 030) && (channel <= 034))
 		val ^= 077777;
@@ -898,15 +945,9 @@ unsigned int ApolloGuidance::GetInputChannel(int channel)
 }
 
 bool ApolloGuidance::GenericReadMemory(unsigned int loc, int &val)
-
 {
-	int bank, addr;
-
-	bank = (loc / 0400);
-	addr = loc - (bank * 0400);
-
-	if (bank >= 0 && bank < 8) {
-		val = vagc.Erasable[bank][addr];
+	if (loc < 02000) {
+		val = vagc->memory[loc];
 		return true;
 	}
 
@@ -928,13 +969,8 @@ void ApolloGuidance::PadLoad(unsigned int address, unsigned int value)
 void ApolloGuidance::GenericWriteMemory(unsigned int loc, int val)
 
 {
-	int bank, addr;
-
-	bank = (loc / 0400);
-	addr = loc - (bank * 0400);
-
-	if (bank >= 0 && bank < 8)
-		vagc.Erasable[bank][addr] = val;
+	if (loc < 02000)
+		vagc->memory[loc] = val;
 	return;
 }
 
@@ -989,17 +1025,16 @@ int16_t ApolloGuidance::ConvertDecimalToAGCOctal(double x, bool highByte)
 //-----------------------------------------------------------------------------
 // Function for broadcasting "output channel" data to all connected clients.
 
-void ChannelOutput (agc_t * State, int Channel, int Value) 
-
+void ChannelOutput(agcBlock1_t * State, int Channel, int Value)
 {
 
   // Some output channels have purposes within the CPU, so we have to
   // account for those separately.
-  if (Channel == 7)
-    {
-      State->InputChannel[7] = State->OutputChannel7 = (Value & 0160);
-      return;
-    }
+  //if (Channel == 7)
+   // {
+     // State->InputChannel[7] = State->OutputChannel7 = (Value & 0160);
+    //  return;
+    //}
   // Most output channels are simply transmitted to clients representing
   // hardware simulations.
 
@@ -1009,23 +1044,23 @@ void ChannelOutput (agc_t * State, int Channel, int Value)
   agc->SetOutputChannel(Channel, Value);
 }
 
-void ShiftToDeda (agc_t *State, int Data)
+//void ShiftToDeda (agc_t *State, int Data)
 
-{
+//{
 	// Nothing for now.
-}
+//}
 
 //
 // Do nothing here. We'll process input seperately.
 //
 
-int ChannelInput (agc_t *State)
+int ChannelInput (agcBlock1_t *State)
 
 {
 	return 0;
 }
 
-void ChannelRoutine (agc_t *State)
+void ChannelRoutine (agcBlock1_t *State)
 
 {
 }

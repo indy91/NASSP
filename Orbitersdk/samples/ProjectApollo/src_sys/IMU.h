@@ -47,6 +47,7 @@ public:
 	void SetVessel(VESSEL *v, bool LEMFlag);
 	void SetVesselFlag(bool LEMFlag);
 	VECTOR3 GetTotalAttitude();
+	double *GetGimbalPointer(int i) { return &Gimbals[i]; }
 
 	void WireToBuses(e_object *a, e_object *b, GuardedToggleSwitch *s);
 	void WireHeaterToBuses(Boiler *heater, e_object *a, e_object *b);
@@ -63,14 +64,10 @@ public:
 
 protected:
 	
-	void DriveCDUX(int cducmd);
-	void DriveCDUY(int cducmd);
-	void DriveCDUZ(int cducmd);
-	void DriveCDU(int index, int RegCDU, int cducmd);
 	void DriveGimbalX(double angle);
 	void DriveGimbalY(double angle);
 	void DriveGimbalZ(double angle);
-	void DriveGimbal(int index, int RegCDU, double angle);
+	void DriveGimbal(int index, double angle);
 	void PulsePIPA(int RegPIPA, int pulses);
 	void SetOrbiterAttitudeReference();
 	void DoZeroIMUCDUs();

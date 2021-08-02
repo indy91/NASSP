@@ -72,3 +72,29 @@ protected:
 
 	ApolloGuidance &agc;
 };
+
+class BlockICDU
+{
+public:
+	BlockICDU(ApolloGuidance &comp, int sb, int reg);
+	void Timestep(double simdt);
+	void ProcessChannel12(ChannelValue val);
+	void SetAngleDevice(double *pAngle);
+	double Resolver1xOutput() { return sin_1x; }
+protected:
+	bool IsPowered();
+	int radToGyroPulses(double angle);
+	double DigitalToAnalogConverter(int val);
+
+	double ShaftAngle;
+	int SystemBit; //8 = Z, 9 = Y, 10 = X
+	int AGCRegister;
+
+	ApolloGuidance &agc;
+
+	//Resolvers
+	double sin_05x, sin_1x, sin_16x;
+
+	//Pointer to gimbal
+	double *GimbalAngle;
+};

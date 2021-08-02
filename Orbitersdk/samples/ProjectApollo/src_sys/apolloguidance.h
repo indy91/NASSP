@@ -32,15 +32,15 @@
 class DSKY;
 class IMU;
 class CDU;
+class BlockICDU;
 class PanelSDK;
 
 #include <bitset>
 #include "powersource.h"
 
 #include "control.h"
-#include "yaAGC/agc_engine.h"
+#include "yaAGCb1/yaAGCb1.h"
 #include "thread.h"
-
 
 typedef std::bitset<16> ChannelValue;
 ///
@@ -60,7 +60,7 @@ public:
 	/// \param im Spacecraft Inertial Measurement Unit.
 	/// \param p Panel SDK we're connected to.
 	///
-	ApolloGuidance(SoundLib &s, DSKY &display, IMU &im, CDU &sc, CDU &tc, PanelSDK &p);
+	ApolloGuidance(SoundLib &s, DSKY &display, IMU &im, CDU &sc, CDU &tc, BlockICDU &og, BlockICDU &ig, BlockICDU &mg, PanelSDK &p);
 
 	///
 	/// \brief Destructor.
@@ -108,28 +108,12 @@ public:
 	///
 	/// \brief Is the AGC in standby mode?
 	///
-	bool OnStandby() { return vagc.Standby; };
+	bool OnStandby() { return false; };//vagc.Standby;
 
 	///
 	/// \brief Is the AGC out of reset?
 	///
 	bool OutOfReset();
-
-	//
-	// External event handlers.
-	//
-
-	///
-	/// \brief Save AGC state to scenario file.
-	/// \param scn Scenario file to save to.
-	///
-	void SaveState(FILEHANDLE scn);
-
-	///
-	/// \brief Load AGC state from scenario file.
-	/// \param scn Scenario file to load from.
-	///
-	void LoadState(FILEHANDLE scn);
 
 	//
 	// I/O channels.
@@ -240,7 +224,7 @@ public:
 	/// \param address Memory location within the bank to access.
 	/// \param value The value to store in the memory location.
 	///
-	void SetErasable(int bank, int address, int value);
+	void SetErasable(int address, int value);
 
 	///
 	/// Load a PAD value into the AGC. Used for initialising the LEM when created.
@@ -315,7 +299,14 @@ public:
 	bool GetTrackerAlarm() { return TrackerAlarm; }
 	bool GetGimbalLockAlarm() { return GimbalLockAlarm; }
 
+	virtual bool GetZeroEncoderMode() { return false; }
+	virtual bool GetIMUTurnedOn() { return false; }
+	virtual bool GetIMUCoarseAlign() { return false; }
+	virtual bool GetIMUFineAlign() { return false; }
 protected:
+
+	void SaveState(FILEHANDLE scn);
+	void LoadState(char *line);
 
 	//
 	// DSKY interface.
@@ -369,6 +360,9 @@ protected:
 
 	CDU &tcdu;
 	CDU &scdu;
+	BlockICDU &igcdu;
+	BlockICDU &ogcdu;
+	BlockICDU &mgcdu;
 
 	///
 	/// \brief AGC software name
@@ -441,7 +435,7 @@ protected:
 	/// so they can keep track of their state.
 	/// \brief Virtual AGC state.
 	///
-	agc_t vagc;
+	agcBlock1_t *vagc;
 	Mutex agcCycleMutex;
 	Event timeStepEvent;
 	double thread_simt;
@@ -462,6 +456,6 @@ protected:
 #define AGC_START_STRING	"AGC_BEGIN"		///< String to start AGC state dump in scenario file.
 #define AGC_END_STRING		"AGC_END"		///< String to end AGC state dump in scenario file.
 
-#define EMEM_ENTRIES	(8 * 0400)			///< Number of EMEM values to simulate
+#define EMEM_ENTRIES	(4 * 0400)			///< Number of EMEM values to simulate
 
 #endif // _PA_APOLLOGUIDANCE_H

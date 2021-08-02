@@ -52,196 +52,83 @@ typedef std::bitset<16> ChannelValue;
 ///
 
 
-enum ChannelValue11_Bits {
- ISSWarning=0,
- LightComputerActivity,		///< Turn on the Computer Activity light.
- LightUplink,					///< Turn on the Uplink Activity light.
- LightTempCaution,			///< Turn on the Temperature warning light.
- LightKbRel,					///< Turn on the Keyboard Release light.
- FlashVerbNoun,			///< Flash the Verb and Noun displays.
- LightOprErr,					///< Light the Operator Error light.
-					///< Unused.
- TestConnectorOut=8,
- CautionReset,
-//						///< Unused.
- EngineOn=12,					///< Turn the main engine on.
- EngineOff
+//IN0
+enum ChannelValue4_Bits
+{
+	BlockUplink = 5,
+	InhibitUpsync,
+	GNAttitudeControlMode = 10,
+	GNDVMode,
+	GNEntryMode,
+	OpticsMark = 14
 };
 
-///
-/// \ingroup AGCIO
-/// \brief CSM AGC output channel 12.
-///
-
-enum ChannelValue12_Bits {
-	ZeroOpticsCDUs = 0,
-	EnableOpticsCDUErrorCounters,
-	// Unused.
-	CoarseAlignEnable = 3,
-	ZeroIMUCDUs,
-	EnableIMUCDUErrorCounters,
-	// Unused.
-	TVCEnable = 7,						///< Enable thrust vector control.
-	EnableSIVBTakeover,
-	ZeroOptics,
-	DisengageOpticsDAC,
-	// Spare2							///< Unused.
-	SIVBIgnitionSequenceStart = 12,		///< Start the SIVb ignition sequence for TLI.
-	SIVBCutoff,						///< Shut down the SIVb.
-	ISSTurnOnDelayComplete			///< Delay for ISS turnon has completed.
-};
-
-
-
-///
-/// \ingroup AGCIO
-/// \brief CSM AGC output channel 13.
-///
-
-enum ChannelValue13_Bits {
- RangeUnitSelectC = 0,
- RangeUnitSelectB,
- RangeUnitSelectA,
- RangeUnitActivity,
-///< Unused.
- BlockInlink=6,
- DownlinkWordOrderCodeBit,
- ///< Unused.
- ///< Unused.
- TestAlarms=9,
- EnableStandby,				///< Enable AGC standby mode.
- ResetTrap31A,
- ResetTrap31B,
- ResetTrap32,
- EnableT6RUPT,
-};
-
-///
-/// \ingroup AGCIO
-/// \brief CSM AGC output channel 14.
-///
-enum ChannelValue14_Bits {
-	OutLinkActivity = 0,				
-	AltitudeRateSelect,					
-	AltitudeMeterActivity,
-	ThrustDrive,
-	//Spare
-	GyroEnable = 5,
-	GyroSelectB,
-	GyroSelectA,
-	GyroSign,
-	GyroActivity,
-	DriveCDUS,
-	DriveCDUT,
-	DriveCDUZ,
-	DriveCDUY,
-	DriveCDUX
-};
-
-///
-/// \ingroup AGCIO
-/// \brief CSM AGC input channel 16.
-///
-
-enum ChannelValue16_Bits {
-		NavDSKY1=0,				///< NAV DSKY
-		NavDSKY2,				///< NAV DSKY
-		NavDSKY3,				///< NAV DSKY
-		NavDSKY4,				///< NAV DSKY
-		NavDSKY5,				///< NAV DSKY
-		Mark,					///< MARK key
-		MarkReject				///< MARK REJECT key
-}; 
-
-
-///
-/// \ingroup AGCIO
-/// \brief CSM AGC input channel 30.
-///
-
-enum ChannelValue30_Bits {
-	UllageThrust = 0,
-	CMSMSeperate,				///< CM has seperated from the SM.
-	SPSReady,					///< SPS is activated.
-	SIVBSeperateAbort,
-	LiftOff,						///< Liftoff has occured.
+//IN2
+enum ChannelValue6_Bits
+{
+	LiftOff = 4,
 	GuidanceReferenceRelease,
-	OpticsCDUFail,
-//  Spare
-	IMUOperate=8,					///< IMU is operating.
-	SCControlOfSaturn,
-	IMUCage,						///< IMU is caged.
+	UllageThrust,
+	SIVBSeperateAbort,
+	CMSMSeperate,
 	IMUCDUFail,
+	PIPAFail,
 	IMUFail,
-	ISSTurnOnRequest,
-	TempInLimits
+	SCSDVMode,
+	GNMonitorMode,
+	ParityFail
 };
 
+//IN3
+enum ChannelValue7_Bits
+{
+	ZeroEncoderMode = 0,
+	CoarseAlign,
+	ManualCDU,
+	FineAlign,
+	AttitudeControl,
+	TransferSwitch,
+	EntryMode,
+	TrackerOn = 9,
+	StarPresence,
+	ZeroOptics = 11,
+	CMCControl = 13,
+	ORofC1C33
+};
 
-///
-/// \ingroup AGCIO
-/// \brief CSM AGC input channel 31.
-///
+//OUT1
+enum ChannelValue11_Bits
+{
+	ProgramAlarm = 0,
+	ComputerActivity,
+	KeyRelease,
+	TelemetryAlarm,
+	CheckFail,
+	RUPT2TrapReset = 6,
+	IDWord = 8,
+	BlockEndPulse,
+	EngineOn = 12
+};
 
-enum ChannelValue31_Bits {
-	    PlusPitchManualRotation=0,
-		MinusPitchManualRotation,
-		PlusYawManualRotation,
-		MinusYawManualRotation,
-		PlusRollManualRotation,
-		MinusRollManualRotation,
-		PlusXTranslation,
-		MinusXTranslation,
-		PlusYTranslation,
-		MinusYTranslation,
-		PlusZTranslation,
-		MinusZTranslation,		
-		HoldFunction,
-		FreeFunction,
-		GNAutopilotControl,
-} ;
-
-
-///
-/// \ingroup AGCIO
-/// \brief CSM AGC input channel 32.
-///
-
-enum ChannelValue32_Bits {
-		PlusPitchMinImpulse=0,
-		MinusPitchMinImpulse,
-		PlusYawMinimumImpulse,
-		MinusYawMinimumImpulse,
-		PlusRollMinimumImpulse,
-		MinusRollMinimumImpulse,
-		// Spare 4					///< Unused.
-		LMAttached=10,
-		// Spare 2					///< Unused.
-		Proceed=13
-		//Spare 1					///< Unused.
-} ;
-
-
-///
-/// \ingroup AGCIO
-/// \brief CSM AGC input channel 33.
-///
-
-enum ChannelValue33_Bits {
-        // Spare 1					///< Unused.
-		RangeUnitDataGood = 1,
-		// Spare 1					///< Unused.
-		ZeroOptics_33 = 3,			///< Optics ZERO switch
-		CMCControl,				    ///< Optics under CMC control
-		// NotUsed 2				///< Unused.
-		// Spare 2					///< Unused.
-		BlockUplinkInput=9,
-		UplinkTooFast,
-		DownlinkTooFast,
-		PIPAFail,
-		AGCWarning,					///< AGC Internal use only.
-		AGCOscillatorAlarm,
-} ;
+//OUT2
+enum ChannelValue12_Bits
+{
+	RadarC = 0,
+	RadarB,
+	RadarA,
+	Thrust,
+	OptY,
+	OptX,
+	OptPlus,
+	OptMinus,
+	IMUZ,
+	IMUY,
+	IMUX,
+	IMUGyro,
+	IMUCDU,
+	IMUPlus,
+	IMUMinus
+};
 
 enum ChannelValue163_Bits {
 

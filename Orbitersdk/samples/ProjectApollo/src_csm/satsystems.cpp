@@ -412,6 +412,9 @@ void Saturn::SystemsInit() {
 	ems.Init(this, &EMSMnACircuitBraker, &EMSMnBCircuitBraker, &NumericRotarySwitch, &LightingNumIntLMDCCB);
 	ordeal.Init(&ORDEALEarthSwitch, &OrdealAc2CircuitBraker, &OrdealMnBCircuitBraker, &ORDEALAltSetRotary, &ORDEALModeSwitch, &ORDEALSlewSwitch, &ORDEALFDAI1Switch, &ORDEALFDAI2Switch);
 	mechanicalAccelerometer.Init(this);
+	ogcdu.SetAngleDevice(imu.GetGimbalPointer(0));
+	igcdu.SetAngleDevice(imu.GetGimbalPointer(1));
+	mgcdu.SetAngleDevice(imu.GetGimbalPointer(2));
 
 	qball.Init(this);
 
@@ -425,9 +428,7 @@ void Saturn::SystemsInit() {
 	omnid.Init(this);
 	dataRecorder.Init(this);
 	pcm.Init(this);
-	vhfranging.Init(this, &VHFStationAudioRCB, &VHFRangingSwitch, &VHFRNGSwitch, &vhftransceiver);
 	vhftransceiver.Init(this, &VHFAMASwitch, &VHFAMBSwitch, &RCVOnlySwitch, &VHFStationAudioCTRCB, &VHFAntennaRotarySwitch, &vhfAntLeft, &vhfAntRight);
-	RRTsystem.Init(this, &RNDZXPNDRFLTBusCB, &RNDZXPDRSwitch, &Panel100RNDZXPDRSwitch, &LeftSystemTestRotarySwitch, &RightSystemTestRotarySwitch);
 
 	//Instrumentation
 	sce.Init(this);
@@ -690,11 +691,9 @@ void Saturn::SystemsTimestep(double simt, double simdt, double mjd) {
 		omnib.TimeStep();
 		omnic.TimeStep();
 		omnid.TimeStep();
-		if (pMission->CSMHasVHFRanging()) vhfranging.TimeStep(simdt);
 		vhftransceiver.Timestep();
 		sce.Timestep();
 		dataRecorder.TimeStep( MissionTime, simdt );
-		RRTsystem.TimeStep(simdt);
 
 		//
 		// Systems state handling
@@ -1476,8 +1475,6 @@ void Saturn::SystemsInternalTimestep(double simdt)
 		pmp.SystemTimestep(tFactor);
 		usb.SystemTimestep(tFactor);
 		hga.SystemTimestep(tFactor);
-		vhfranging.SystemTimestep(tFactor);
-		RRTsystem.SystemTimestep(tFactor);
 		sce.SystemTimestep();
 		ems.SystemTimestep(tFactor);
 		els.SystemTimestep(tFactor);
@@ -1719,22 +1716,22 @@ void Saturn::JoystickTimestep()
 		if (rhc_voltage1 > SP_MIN_DCVOLTAGE || rhc_voltage2 > SP_MIN_DCVOLTAGE) { // NORMAL
 			// CMC
 			if (rhc1.GetMinusRollBreakoutSwitch()) {
-				val31[MinusRollManualRotation] = 1;
+				//val31[MinusRollManualRotation] = 1;
 			}					
 			if (rhc1.GetMinusPitchBreakoutSwitch()) {
-				val31[MinusPitchManualRotation] = 1;
+				//val31[MinusPitchManualRotation] = 1;
 			}
 			if (rhc1.GetPlusRollBreakoutSwitch()) {
-				val31[PlusRollManualRotation] = 1;
+				//val31[PlusRollManualRotation] = 1;
 			}
 			if (rhc1.GetPlusPitchBreakoutSwitch()) {
-				val31[PlusPitchManualRotation] = 1;
+				//val31[PlusPitchManualRotation] = 1;
 			}
 			if (rhc1.GetMinusYawBreakoutSwitch()) {
-				val31[MinusYawManualRotation] = 1;
+				//val31[MinusYawManualRotation] = 1;
 			}
 			if (rhc1.GetPlusYawBreakoutSwitch()) {
-				val31[PlusYawManualRotation] = 1;
+				//val31[PlusYawManualRotation] = 1;
 			}
 		}
 
@@ -2172,22 +2169,22 @@ void Saturn::JoystickTimestep()
 		if (thc_voltage > SP_MIN_DCVOLTAGE) {
 			if (SCContSwitch.IsUp() && !THCRotary.IsClockwise()) {	// CMC
 				if (thc_x_pos < 16384) {							
-					val31[MinusYTranslation] = 1;
+					//val31[MinusYTranslation] = 1;
 				}
 				if (thc_y_pos < 16384) {
-					val31[PlusZTranslation] = 1;
+					//val31[PlusZTranslation] = 1;
 				}
 				if (thc_x_pos > 49152) {
-					val31[PlusYTranslation] = 1;
+					//val31[PlusYTranslation] = 1;
 				}
 				if (thc_y_pos > 49152) {
-					val31[MinusZTranslation] = 1;
+					//val31[MinusZTranslation] = 1;
 				}
 				if (thc_rot_pos < 16384) { 
-					val31[MinusXTranslation] = 1;
+					//val31[MinusXTranslation] = 1;
 				}
 				if (thc_rot_pos > 49152) {
-					val31[PlusXTranslation] = 1;
+					//val31[PlusXTranslation] = 1;
 				}
 			}
 			if (thc_debug != -1) { 
@@ -3688,21 +3685,21 @@ void Saturn::GetAGCWarningStatus(AGCWarningStatus &aws)
 	ChannelValue val163;
 
 	val11 = agc.GetOutputChannel(011);
-	if (val11[ISSWarning]) 
-		aws.ISSWarning = true;
-	else
+	//if (val11[ISSWarning]) 
+	//	aws.ISSWarning = true;
+	//else
 		aws.ISSWarning = false;
 
-	val163 = agc.GetOutputChannel(0163);
-	if (val163[Ch163DSKYWarn])
-		aws.DSKYWarn = true;
-	else
+	//val163 = agc.GetOutputChannel(0163);
+	//if (val163[Ch163DSKYWarn])
+	//	aws.DSKYWarn = true;
+	//else
 		aws.DSKYWarn = false;
 		
 	aws.PGNSWarning = false;
 	// Restart alarm
-	if (agc.vagc.RestartLight)
-		aws.PGNSWarning = true;
+	//if (agc.vagc.RestartLight)
+	//	aws.PGNSWarning = true;
 	// Tracker alarm
 	if (agc.GetTrackerAlarm())
 		aws.PGNSWarning = true;
@@ -3713,8 +3710,8 @@ void Saturn::GetAGCWarningStatus(AGCWarningStatus &aws)
 	if (agc.GetProgAlarm()) 
 		aws.PGNSWarning = true;
 	// Temp alarm
-	if (val11[LightTempCaution])
-		aws.PGNSWarning = true;
+	//if (val11[LightTempCaution])
+	//	aws.PGNSWarning = true;
 }
 
 bool Saturn::LETAttached()

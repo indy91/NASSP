@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include "connector.h"
 #include "s1bsystems.h"
 #include "PanelSDK/PanelSDK.h"
 #include "pyro.h"
