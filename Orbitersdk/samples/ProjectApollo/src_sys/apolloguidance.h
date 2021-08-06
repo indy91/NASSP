@@ -312,8 +312,6 @@ protected:
 	// DSKY interface.
 	//
 
-	virtual void ProcessChannel5(ChannelValue val);
-	virtual void ProcessChannel6(ChannelValue val);
 	virtual void ProcessChannel10(ChannelValue val);
 	virtual void ProcessChannel11Bit(int bit, bool val);
 	virtual void ProcessChannel11(ChannelValue val);

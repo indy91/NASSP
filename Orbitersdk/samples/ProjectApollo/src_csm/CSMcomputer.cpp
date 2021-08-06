@@ -132,6 +132,7 @@ void CSMcomputer::Timestep(double simt, double simdt)
 	// DS20060302 For joystick stuff below
 	sat = (Saturn *) OurVessel;
 
+	sprintf(oapiDebugString(), "%o %o", vagc->memory[0], vagc->memory[0]);
 
 	//Always set this input bit
 	if (sat->LVGuidanceSwitch.IsUp())
@@ -273,9 +274,58 @@ void CSMcomputer::Timestep(double simt, double simdt)
 			// HARDWARE MUST RESTART
 
 			// Clear flip-flop based registers
-			vagc->memory[00] = 0;     // A
-			vagc->memory[01] = 0;     // Q
-			vagc->memory[02] = 02030; // Z
+			//for (int i = 0;i < 053;i++)
+			//{
+			//	vagc->memory[i] = 0;
+			//}
+			vagc->memory[00] = 0;		// A
+			vagc->memory[01] = 0;		// Q
+			vagc->memory[02] = 02030;	// Z
+			/*vagc->memory[04] = 0;		// IN0
+			vagc->memory[05] = 0;		// IN1
+			vagc->memory[06] = 0;		// IN2
+			vagc->memory[07] = 0;		// IN3
+			vagc->memory[010] = 0;		// OUT0
+			vagc->memory[011] = 0;		// OUT1
+			vagc->memory[012] = 0;		// OUT2
+			vagc->memory[013] = 0;		// OUT3
+			vagc->memory[014] = 0;		// OUT4
+			vagc->memory[015] = 0;		// BANKREG
+			vagc->memory[016] = 0;		// RELINT
+			vagc->memory[017] = 0;		// INHINT
+			vagc->memory[020] = 0;		// CYR
+			vagc->memory[021] = 0;		// SR
+			vagc->memory[022] = 0;		// CYL
+			vagc->memory[023] = 0;		// SL
+			vagc->memory[024] = 0;		// ZRUPT
+			vagc->memory[025] = 0;		// BRUPT
+			vagc->memory[026] = 0;		// ARUPT
+			vagc->memory[027] = 0;		// QRUPT
+			vagc->memory[030] = 0;		// BANKRUPT
+			vagc->memory[031] = 0;		// OVRUPT
+			vagc->memory[032] = 0;		// LPRUPT
+			vagc->memory[033] = 0;		// DSRUPTSW
+			vagc->memory[034] = 0;		// OVCTR
+			vagc->memory[035] = 0;		// TIME2
+			vagc->memory[036] = 0;		// TIME1
+			vagc->memory[037] = 0;		// TIME3
+			vagc->memory[040] = 0;		// TIME4*/
+
+			vagc->countMCT = 0;
+			vagc->nextTimerIncrement = 1280;
+			vagc->INDEX = 0;
+			vagc->INTERRUPTED = 0;
+			vagc->B = 0;
+			vagc->ruptFlatAddress = 0;
+			vagc->ruptLastINDEX = 0;
+			vagc->ruptLastZ = 0;
+			vagc->overflowedTIME3 = 0;
+			vagc->overflowedTIME4 = 0;
+			vagc->uplinkReady = 0;
+			vagc->downlinkReady = 0;
+			// Reset last cycling time
+			LastCycled = 0;
+
 			// Clear ISR flag
 			/*vagc.InIsr = 0;
 			// Clear interrupt requests
@@ -316,12 +366,27 @@ void CSMcomputer::Timestep(double simt, double simdt)
 			dsky2.ClearRestart();
 			dsky.ClearStby();
 			dsky2.ClearStby();*/
-			// Reset last cycling time
-			LastCycled = 0;
 
 			// We should issue telemetry though.
 			sat->pcm.TimeStep(simt);
 			return;
+		}
+
+		//
+		// Initial startup hack for Yaagc.
+		//
+		if (!PadLoaded)
+		{
+			double intpart;
+			double fractpart = modf(oapiGetSimMJD(), &intpart);
+			double clock = fractpart * 8640000. * pow((double) 2., (double)-28.);
+
+			vagc->memory[035] = ConvertDecimalToAGCOctal(clock, true);
+			vagc->memory[036] = ConvertDecimalToAGCOctal(clock, false);
+
+			//vagc->instructionCountDown = -1;
+
+			PadLoaded = true;
 		}
 
 		//
@@ -406,118 +471,6 @@ void CSMcomputer::ProcessChannel11(ChannelValue val){
 	dsky2.ProcessChannel11(val);
 
 	LastOut11 = val.to_ulong();
-}
-
-//
-// Process RCS channels
-//
-
-void CSMcomputer::ProcessChannel5(ChannelValue val){
-	ChannelValue val30;
-	val30 = GetInputChannel(030);
-
-	Saturn *sat = (Saturn *) OurVessel;
-	if ((sat->SCContSwitch.IsDown() && sat->SCSLogicBus3.Voltage() > SP_MIN_DCVOLTAGE) || (sat->THCRotary.IsClockwise() && sat->SCSLogicBus2.Voltage() > SP_MIN_DCVOLTAGE)) {
-		return;
-	}
-
-	CSMOut5 Current;
-	CSMOut5 Changed;
-
-	//
-	// Get the current state and a mask of any changed state.
-	//
-	
-	Current.word = val.to_ulong();
-	Changed.word = (val.to_ulong() ^ LastOut5);	
-
-	//
-	// Update any thrusters that have changed.
-	//
-
-	if (Changed.u.SMA3) {
-		sat->rjec.SetThruster(3,Current.u.SMA3 != 0);
-	}
-	if (Changed.u.SMA4) {
-		sat->rjec.SetThruster(2,Current.u.SMA4 != 0);
-	}
-
-	if (Changed.u.SMB3) {
-		sat->rjec.SetThruster(7,Current.u.SMB3 != 0);
-	}
-	if (Changed.u.SMB4) {
-		sat->rjec.SetThruster(6,Current.u.SMB4 != 0);
-	}
-
-	if (Changed.u.SMC3) {
-		sat->rjec.SetThruster(1,Current.u.SMC3 != 0);
-	}
-	if (Changed.u.SMC4) {
-		sat->rjec.SetThruster(4,Current.u.SMC4 != 0);
-	}
-
-	if (Changed.u.SMD3) {
-		sat->rjec.SetThruster(5,Current.u.SMD3 != 0);
-	}
-	if (Changed.u.SMD4) {
-		sat->rjec.SetThruster(8,Current.u.SMD4 != 0);
-	}
-
-	LastOut5 = val.to_ulong();
-}
-
-void CSMcomputer::ProcessChannel6(ChannelValue val){
-	ChannelValue val30;
-	val30 = GetInputChannel(030);
-
-	Saturn *sat = (Saturn *) OurVessel;	
-	if ((sat->SCContSwitch.IsDown() && sat->SCSLogicBus3.Voltage() > SP_MIN_DCVOLTAGE) || (sat->THCRotary.IsClockwise() && sat->SCSLogicBus2.Voltage() > SP_MIN_DCVOLTAGE)) {
-		return;
-	}
-
-	CSMOut6 Current;
-	CSMOut6 Changed;
-
-	//
-	// Get the current state and a mask of any changed state.
-	//
-
-	Current.word = val.to_ulong();
-	Changed.word = (val.to_ulong() ^ LastOut6);	
-
-	//
-	// Update any thrusters that have changed.
-	//
-
-	if (Changed.u.SMA1) {
-		sat->rjec.SetThruster(13,Current.u.SMA1 != 0);
-	}
-	if (Changed.u.SMA2) {
-		sat->rjec.SetThruster(14,Current.u.SMA2 != 0);
-	}
-
-	if (Changed.u.SMB1) {
-		sat->rjec.SetThruster(9,Current.u.SMB1 != 0);
-	}
-	if (Changed.u.SMB2) {
-		sat->rjec.SetThruster(12,Current.u.SMB2 != 0);
-	}
-
-	if (Changed.u.SMC1) {
-		sat->rjec.SetThruster(15,Current.u.SMC1 != 0);
-	}
-	if (Changed.u.SMC2) {
-		sat->rjec.SetThruster(16,Current.u.SMC2 != 0);
-	}
-
-	if (Changed.u.SMD1) {
-		sat->rjec.SetThruster(11,Current.u.SMD1 != 0);
-	}
-	if (Changed.u.SMD2) {
-		sat->rjec.SetThruster(10,Current.u.SMD2 != 0);
-	}
-
-	LastOut6 = val.to_ulong();
 }
 
 void CSMcomputer::ProcessIMUCDUReadCount(int channel, int val) {

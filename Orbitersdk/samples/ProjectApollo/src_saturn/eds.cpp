@@ -101,6 +101,8 @@ EDS::EDS(IU *iu)
 	AutoAbort3AToSC = false;
 	AutoAbort3BToSC = false;
 	AutoAbortBusGSEMonitor = false;
+	TowerJettisonA = false;
+	TowerJettisonB = false;
 
 	AutoAbortBus = false;
 	IUEDSBusPowered = true;

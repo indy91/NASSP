@@ -864,6 +864,20 @@ bool IUToCSMCommandConnector::ReceiveMessage(Connector *from, ConnectorMessage &
 			return true;
 		}
 		break;
+	case CSMIU_GET_TOWER_JETTISON_CMD_A:
+		if (ourIU)
+		{
+			m.val1.bValue = ourIU->GetEDS()->GetTowerJettisonCmdA();
+			return true;
+		}
+		break;
+	case CSMIU_GET_TOWER_JETTISON_CMD_B:
+		if (ourIU)
+		{
+			m.val1.bValue = ourIU->GetEDS()->GetTowerJettisonCmdB();
+			return true;
+		}
+		break;
 	}
 
 	return false;
@@ -1757,6 +1771,7 @@ void IUSV::SwitchSelector(int item)
 		ControlDistributor.SetTwoEngOutAutoAbortInhibitEnable();
 		break;
 	case 52: //LET Jettison "A"
+		eds.SetTowerJettisonA();
 		break;
 	case 53: //S-IVB Engine Out Indication "B" Enable Reset
 		eds.SetSIVBEngineOutIndicationB(false);
@@ -1774,6 +1789,9 @@ void IUSV::SwitchSelector(int item)
 	case 63: //CCS Coax Switch High Gain Antenna
 		break;
 	case 65: //CCS Coax Switch Low Gain Antenna
+		break;
+	case 66: //LET Jettison "B" (TBD: Find out real channel!)
+		eds.SetTowerJettisonB();
 		break;
 	case 68: //S/C Control of Saturn Enable
 		eds.EnableSCControl();

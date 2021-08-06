@@ -35,48 +35,6 @@ class PanelSwitchItem;
 #define OCDU_SHAFT_STEP 0.000191747598876953125 
 #define OCDU_TRUNNION_STEP 0.00004793689959716796875
 
-
-///
-/// AGC output channel five, used to control CM and SM RCS thrusters.
-///
-/// \ingroup AGCIO
-/// \brief CSM AGC output channel 5.
-///
-typedef union {
-	struct {
-		unsigned SMC3:1;			///< Fire SM RCS C-3
-		unsigned SMC4:1;			///< Fire SM RCS C-4
-		unsigned SMA3:1;			///< Fire SM RCS A-3
-		unsigned SMA4:1;			///< Fire SM RCS A-4
-		unsigned SMD3:1;			///< Fire SM RCS D-3
-		unsigned SMD4:1;			///< Fire SM RCS D-4
-		unsigned SMB3:1;			///< Fire SM RCS B-3
-		unsigned SMB4:1;			///< Fire SM RCS B-4
-	} u;
-	unsigned int word;				///< Word holds the flags from the bitfield in one 32-bit value.
-} CSMOut5;
-
-///
-///
-/// AGC output channel five, used to control CM and SM RCS thrusters.
-///
-/// \ingroup AGCIO
-/// \brief CSM AGC output channel 6.
-///
-typedef union {
-	struct {
-		unsigned SMB1:1;			///< Fire SM RCS B-1
-		unsigned SMB2:1;			///< Fire SM RCS B-2
-		unsigned SMD1:1;			///< Fire SM RCS D-1
-		unsigned SMD2:1;			///< Fire SM RCS D-2
-		unsigned SMA1:1;			///< Fire SM RCS A-1
-		unsigned SMA2:1;			///< Fire SM RCS A-2
-		unsigned SMC1:1;			///< Fire SM RCS C-1
-		unsigned SMC2:1;			///< Fire SM RCS C-2
-	} u;
-	unsigned int word;				///< Word holds the flags from the bitfield in one 32-bit value.
-} CSMOut6;
-
 class Saturn;
 class IU;
 class CSMToIUConnector;
@@ -151,8 +109,6 @@ public:
 	bool GetIMUFineAlign() { return KRelays[3]; }
 protected:
 
-	void ProcessChannel5(ChannelValue val);
-	void ProcessChannel6(ChannelValue val);
 	void ProcessChannel10(ChannelValue val);
 	void ProcessChannel11Bit(int bit, bool val);
 	void ProcessChannel11(ChannelValue val);

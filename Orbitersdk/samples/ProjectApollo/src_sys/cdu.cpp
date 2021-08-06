@@ -313,6 +313,7 @@ BlockICDU::BlockICDU(ApolloGuidance &comp, int sb, int reg) : agc(comp)
 	ShaftAngle = 0.0;
 	SystemBit = sb;
 	AGCRegister = reg;
+	sin_05x = sin_1x = sin_16x = 0.0;
 }
 
 void BlockICDU::Timestep(double simdt)
@@ -416,7 +417,35 @@ void BlockICDU::SetAngleDevice(double *pAngle)
 	GimbalAngle = pAngle;
 }
 
+double BlockICDU::GetAttitudeError()
+{
+	if (agc.GetIMUCoarseAlign()) return 0.0;
+
+	return sin_1x;
+}
+
 bool BlockICDU::IsPowered()
 {
 	return true;
+}
+
+void BlockICDU::SaveState(FILEHANDLE scn, char *start_str, char *end_str) {
+	oapiWriteLine(scn, start_str);
+
+	papiWriteScenario_double(scn, "ShaftAngle", ShaftAngle);
+
+	oapiWriteLine(scn, end_str);
+}
+
+void BlockICDU::LoadState(FILEHANDLE scn, char *end_str) {
+	char *line;
+	int tmp = 0; // Used in boolean type loader
+	int end_len = strlen(end_str);
+
+	while (oapiReadScenario_nextline(scn, line)) {
+		if (!strnicmp(line, end_str, end_len)) {
+			break;
+		}
+		papiReadScenario_double(line, "ShaftAngle", ShaftAngle);
+	}
 }

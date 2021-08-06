@@ -319,32 +319,7 @@ typedef union
 	struct {
 		unsigned Reset:1;
 		unsigned isFirstTimestep:1;
-		unsigned ExtraCode:1;
-		unsigned AllowInterrupt:1;
-		unsigned InIsr:1;
-		unsigned SubstituteInstruction:1;
-		unsigned PendFlag:1;
-		unsigned PendDelay:3;
-		unsigned ExtraDelay:3;
-		unsigned DownruptTimeValid:1;
 		unsigned PadLoaded:1;
-		unsigned NightWatchman:1;
-		unsigned RuptLock:1;
-		unsigned NoRupt:1;
-		unsigned TCTrap:1;
-		unsigned NoTC:1;
-		unsigned Standby:1;
-		unsigned SbyPressed:1;
-		unsigned SbyStillPressed:1;
-		unsigned ParityFail:1;
-		unsigned Spare1:1;
-		unsigned NightWatchmanTripped:1;
-		unsigned GeneratedWarning:1;
-		unsigned TookBZF:1;
-		unsigned TookBZMF:1;
-		unsigned Trap31A:1;
-		unsigned Trap31B:1;
-		unsigned Trap32:1;
 	} u;
 	unsigned long word;
 } AGCState;
@@ -370,34 +345,9 @@ void ApolloGuidance::SaveState(FILEHANDLE scn)
 	state.word = 0;
 	state.u.Reset = Reset;
 	state.u.isFirstTimestep = isFirstTimestep;
-	vagc->B;
-	/*state.u.ExtraCode = vagc->ExtraCode;
-	state.u.AllowInterrupt = vagc->AllowInterrupt;
-	state.u.InIsr = vagc->InIsr;
-	state.u.SubstituteInstruction = vagc->SubstituteInstruction;
-	state.u.PendFlag = vagc->PendFlag;
-	state.u.PendDelay = vagc->PendDelay;
-	state.u.ExtraDelay = vagc->ExtraDelay;
-	state.u.DownruptTimeValid = vagc->DownruptTimeValid;
 	state.u.PadLoaded = PadLoaded;
-	state.u.NightWatchman = vagc->NightWatchman;
-	state.u.RuptLock = vagc->RuptLock;
-	state.u.NoRupt = vagc->NoRupt;
-	state.u.TCTrap = vagc->TCTrap;
-	state.u.NoTC = vagc->NoTC;
-	state.u.Standby = vagc->Standby;
-	state.u.SbyPressed = vagc->SbyPressed;
-	state.u.SbyStillPressed = vagc->SbyStillPressed;
-	state.u.ParityFail = vagc->ParityFail;
-	state.u.NightWatchmanTripped = vagc->NightWatchmanTripped;
-	state.u.GeneratedWarning = vagc->GeneratedWarning;
-	state.u.TookBZF = vagc->TookBZF;
-	state.u.TookBZMF = vagc->TookBZMF;
-	state.u.Trap31A = vagc->Trap31A;
-	state.u.Trap31B = vagc->Trap31B;
-	state.u.Trap32 = vagc->Trap32;*/
 
-	//oapiWriteScenario_int(scn, "STATE", state.word);
+	oapiWriteScenario_int(scn, "STATE", state.word);
 
 	//
 	// Write out any non-zero EMEM state.
@@ -436,6 +386,8 @@ void ApolloGuidance::SaveState(FILEHANDLE scn)
 	oapiWriteScenario_int(scn, "downlinkReady", vagc->downlinkReady);
 	sprintf(buffer, "  countMCT %I64d", vagc->countMCT);
 	oapiWriteLine(scn, buffer);
+	sprintf(buffer, "  nextTimerIncrement %I64d", vagc->nextTimerIncrement);
+	oapiWriteLine(scn, buffer);
 	sprintf(buffer, "  startTimeNanoseconds %I64d", vagc->startTimeNanoseconds);
 	oapiWriteLine(scn, buffer);
 	sprintf(buffer, "  pausedNanoseconds %I64d", vagc->pausedNanoseconds);
@@ -447,6 +399,7 @@ void ApolloGuidance::SaveState(FILEHANDLE scn)
 	papiWriteScenario_bool(scn, "PROGALARM", ProgAlarm);
 	papiWriteScenario_bool(scn, "TRACKERALARM", TrackerAlarm);
 	papiWriteScenario_bool(scn, "GIMBALLOCKALARM", GimbalLockAlarm);
+	papiWriteScenario_double(scn, "LastCycled", LastCycled);
 }
 
 void ApolloGuidance::LoadState(char *line)
@@ -511,6 +464,9 @@ void ApolloGuidance::LoadState(char *line)
 	else if (!strnicmp(line, "countMCT", 8)) {
 		sscanf(line + 8, "%" SCNd64, &vagc->countMCT);
 	}
+	else if (!strnicmp(line, "nextTimerIncrement", 18)) {
+		sscanf(line + 18, "%" SCNd64, &vagc->nextTimerIncrement);
+	}
 	else if (!strnicmp(line, "startTimeNanoseconds", 20)) {
 		sscanf(line + 20, "%" SCNd64, &vagc->startTimeNanoseconds);
 	}
@@ -564,31 +520,7 @@ void ApolloGuidance::LoadState(char *line)
 
 		Reset = state.u.Reset;
 		isFirstTimestep = (state.u.isFirstTimestep != 0);
-		/*vagc->ExtraCode = state.u.ExtraCode;
-		vagc->AllowInterrupt = state.u.AllowInterrupt;
-		vagc->InIsr = state.u.InIsr;
-		vagc->SubstituteInstruction = state.u.SubstituteInstruction;
-		vagc->PendFlag = state.u.PendFlag;
-		vagc->PendDelay = state.u.PendDelay;
-		vagc->ExtraDelay = state.u.ExtraDelay;
-		vagc->DownruptTimeValid = state.u.DownruptTimeValid;
-		PadLoaded = state.u.PadLoaded;
-		vagc->NightWatchman = state.u.NightWatchman;
-		vagc->RuptLock = state.u.RuptLock;
-		vagc->NoRupt = state.u.NoRupt;
-		vagc->TCTrap = state.u.TCTrap;
-		vagc->NoTC = state.u.NoTC;
-		vagc->Standby = state.u.Standby;
-		vagc->SbyPressed = state.u.SbyPressed;
-		vagc->SbyStillPressed = state.u.SbyStillPressed;
-		vagc->ParityFail = state.u.ParityFail;
-		vagc->NightWatchmanTripped = state.u.NightWatchmanTripped;
-		vagc->GeneratedWarning = state.u.GeneratedWarning;
-		vagc->TookBZF = state.u.TookBZF;
-		vagc->TookBZMF = state.u.TookBZMF;
-		vagc->Trap31A = state.u.Trap31A;
-		vagc->Trap31B = state.u.Trap31B;
-		vagc->Trap32 = state.u.Trap32;*/
+		PadLoaded = (state.u.PadLoaded != 0);
 	}
 	else if (!strnicmp(line, "ONAME", 5)) {
 		strncpy(OtherVesselName, line + 6, 64);
@@ -597,6 +529,7 @@ void ApolloGuidance::LoadState(char *line)
 	papiReadScenario_bool(line, "PROGALARM", ProgAlarm);
 	papiReadScenario_bool(line, "TRACKERALARM", TrackerAlarm);
 	papiReadScenario_bool(line, "GIMBALLOCKALARM", GimbalLockAlarm);
+	papiReadScenario_double(line, "LastCycled", LastCycled);
 }
 
 //
@@ -755,10 +688,17 @@ void ApolloGuidance::SetOutputChannel(int channel, ChannelValue val)
 		break;
 	case 012:
 		//Pulses
-		imu.ChannelOutput(channel, val);
-		ogcdu.ProcessChannel12(val);
-		igcdu.ProcessChannel12(val);
-		mgcdu.ProcessChannel12(val);
+		if (val[IMUCDU] == true)
+		{
+			ogcdu.ProcessChannel12(val);
+			igcdu.ProcessChannel12(val);
+			mgcdu.ProcessChannel12(val);
+		}
+		if (val[IMUGyro] == true)
+		{
+			imu.ChannelOutput(channel, val);
+		}
+		
 		break;
 	}
 
@@ -854,16 +794,6 @@ void ApolloGuidance::SetOutputChannel(int channel, ChannelValue val)
 		ProcessChannel34(val);
 		break;
 	}*/
-}
-
-//
-// By default, do nothing for the RCS channels.
-//
-
-void ApolloGuidance::ProcessChannel5(ChannelValue val){
-}
-
-void ApolloGuidance::ProcessChannel6(ChannelValue val){
 }
 
 // DS20060226 Stubs for optics controls and TVC

@@ -226,56 +226,63 @@ void IMU::ChannelOutput(int address, ChannelValue value)
 			agc.vagc->memory[042] = 0;
 		}*/
 
-		if (value[IMUGyro])
+		double delta;
+		MATRIX3 t;
+		VECTOR3 newAngles;
+		int sign = (040000 - agc.vagc->memory[042]);
+		//if (sign > 384)
+		//{
+		//	sign = 384;
+		//}
+		if (value[IMUPlus])
 		{
-			double delta;
-			MATRIX3 t;
-			VECTOR3 newAngles;
-			int sign;
-			if (value[IMUPlus])
-			{
-				sign = 1;
-			}
-			else if (value[IMUMinus])
-			{
-				sign = -1;
-			}
-			else
-			{
-				sign = 0;
-			}
-			delta = gyroPulsesToRad(sign);
-
-			// gyro torquing is done in stable member coordinates
-			if (value[IMUX]) {
-				t = getRotationMatrixZ(delta);
-				sprintf(oapiDebugString(), "IMU Gyro X %d", sign);
-			}
-			else if (value[IMUY]) {
-				t = getRotationMatrixY(delta);
-				sprintf(oapiDebugString(), "IMU Gyro Y %d", sign);
-			}
-			else if (value[IMUZ]) {
-				t = getRotationMatrixX(delta);
-				sprintf(oapiDebugString(), "IMU Gyro Z %d", sign);
-			}
-
-			// transformation to navigation base coordinates
-			// CAUTION: gimbal angles are left-handed
-			t = mul(getRotationMatrixY(-Gimbal.Y), t);
-			t = mul(getRotationMatrixZ(-Gimbal.Z), t);
-			t = mul(getRotationMatrixX(-Gimbal.X), t);
-
-			// calculate the new gimbal angles
-			newAngles = getRotationAnglesXZY(t);
-
-			// drive gimabals to new angles
-			// CAUTION: gimbal angles are left-handed			
-			DriveGimbalX(-newAngles.x - Gimbal.X);
-			DriveGimbalY(-newAngles.y - Gimbal.Y);
-			DriveGimbalZ(-newAngles.z - Gimbal.Z);
-			SetOrbiterAttitudeReference();
+			//sign = -sign;
 		}
+		else if (value[IMUMinus])
+		{
+			sign = -sign;
+		}
+		else
+		{
+			sign = 0;
+		}
+		delta = gyroPulsesToRad(sign)*2.0;
+
+		// gyro torquing is done in stable member coordinates
+		//char gyroc;
+		if (value[IMUZ]) {
+			t = getRotationMatrixZ(delta);
+			//sprintf(oapiDebugString(), "IMU Gyro X %d %o", sign, agc.vagc->memory[042]);
+			//gyroc = 'Z';
+		}
+		else if (value[IMUY]) {
+			t = getRotationMatrixY(delta);
+			//sprintf(oapiDebugString(), "IMU Gyro Y %d %o", sign, agc.vagc->memory[042]);
+			//gyroc = 'Y';
+		}
+		else if (value[IMUX]) {
+			t = getRotationMatrixX(delta);
+			//sprintf(oapiDebugString(), "IMU Gyro Z %d %o", sign, agc.vagc->memory[042]);
+			//gyroc = 'X';
+		}
+
+		// transformation to navigation base coordinates
+		// CAUTION: gimbal angles are left-handed
+		t = mul(getRotationMatrixY(-Gimbal.Y), t);
+		t = mul(getRotationMatrixZ(-Gimbal.Z), t);
+		t = mul(getRotationMatrixX(-Gimbal.X), t);
+
+		// calculate the new gimbal angles
+		newAngles = getRotationAnglesXZY(t);
+
+		//sprintf(oapiDebugString(), "IMU Gyro %c OUTCR1 %o sign %d delta %lf Delta Angles %lf %lf %lf", gyroc, agc.vagc->memory[042], sign, delta*DEG, (-newAngles.x - Gimbal.X)*DEG, (-newAngles.y - Gimbal.Y)*DEG, (-newAngles.z - Gimbal.Z)*DEG);
+
+		// drive gimabals to new angles
+		// CAUTION: gimbal angles are left-handed			
+		DriveGimbalX(-newAngles.x - Gimbal.X);
+		DriveGimbalY(-newAngles.y - Gimbal.Y);
+		DriveGimbalZ(-newAngles.z - Gimbal.Z);
+		SetOrbiterAttitudeReference();
 	}
 
 	/*TRACESETUP("CHANNEL OUTPUT PROCESS");
@@ -515,6 +522,7 @@ void IMU::Timestep(double simdt)
 		// Calculate accelerations
 		VECTOR3 w, vel;
 		OurVessel->GetWeightVector(w);
+		//sprintf(oapiDebugString(), "%lf %lf %lf", w.x, w.y, w.z);
 		// Transform to Orbiter global and calculate accelerations
 		w = mul(tinv, w) / OurVessel->GetMass();
 
@@ -601,6 +609,8 @@ void IMU::Timestep(double simdt)
 		}
 		LastSimDT = simdt;
 	}
+
+	//sprintf(oapiDebugString(), "%lf %lf %lf", Gimbal.X*DEG, Gimbal.Y*DEG, Gimbal.Z*DEG);
 }
 
 void IMU::SystemTimestep(double simdt) 

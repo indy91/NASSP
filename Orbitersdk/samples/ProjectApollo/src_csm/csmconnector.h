@@ -62,6 +62,8 @@ public:
 	bool GetAbortLight();
 	bool GetQBallPower();
 	bool GetQBallSimulateCmd();
+	bool GetTowerJettisonCmdA();
+	bool GetTowerJettisonCmdB();
 
 protected:
 	CSMcomputer &agc;

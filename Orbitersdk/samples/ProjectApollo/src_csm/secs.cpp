@@ -721,6 +721,10 @@ void MESC::Timestep(double simdt)
 	{
 		LESMotorFire = true;
 	}
+	else if (Sat->mcp_scc.GetLESMotorFire(IsSystemA))
+	{
+		LESMotorFire = true;
+	}
 	else
 	{
 		LESMotorFire = false;
@@ -900,6 +904,11 @@ void MESC::Timestep(double simdt)
 	}
 
 	AutoTowerJettison = false;
+
+	if (Sat->mcp_scc.GetFireArm(IsSystemA))
+	{
+		AutoTowerJettison = true;
+	}
 
 	if (MESCLogicBus())
 	{

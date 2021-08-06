@@ -3875,6 +3875,14 @@ void ECA::TimeStep(double simdt) {
 		sat->rjec.SetThruster(8,0);
 	}
 	// ERROR DETERMINATION
+
+	//CMC error
+	VECTOR3 IMUAngles = sat->imu.GetTotalAttitude();
+	VECTOR3 CDUAttitudeErrors = _V(sat->ogcdu.GetAttitudeError(), sat->igcdu.GetAttitudeError(), sat->mgcdu.GetAttitudeError());
+	VECTOR3 E_NB = _V(CDUAttitudeErrors.x, CDUAttitudeErrors.y*sin(IMUAngles.x)+ CDUAttitudeErrors.z*sin(IMUAngles.x),-CDUAttitudeErrors.y*sin(IMUAngles.x)+ CDUAttitudeErrors.z*cos(IMUAngles.x));
+	VECTOR3 E_Body = _V(E_NB.z*cos(33.0*RAD) - E_NB.x*sin(33.0*RAD), E_NB.y, E_NB.z*sin(33.0*RAD) + E_NB.x*cos(33.0*RAD));
+	VECTOR3 E_Entry = _V(CDUAttitudeErrors.x, E_Body.y, E_NB.z);
+
 	VECTOR3 target, errors;
 	if (S18_2 || thc_cw) {
 		// Get BMAG1 attitude errors

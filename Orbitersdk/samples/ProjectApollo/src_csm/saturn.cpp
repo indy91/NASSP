@@ -1406,6 +1406,9 @@ void Saturn::clbkSaveState(FILEHANDLE scn)
 	imu.SaveState(scn);
 	scdu.SaveState(scn, "SCDU_START", "CDU_END");
 	tcdu.SaveState(scn, "TCDU_START", "CDU_END");
+	ogcdu.SaveState(scn, "OGCDU_START", "CDU_END");
+	igcdu.SaveState(scn, "IGCDU_START", "CDU_END");
+	mgcdu.SaveState(scn, "MGCDU_START", "CDU_END");
 	cws.SaveState(scn);
 	secs.SaveState(scn);
 	els.SaveState(scn);
@@ -2014,6 +2017,15 @@ bool Saturn::ProcessConfigFileLine(FILEHANDLE scn, char *line)
 	}
 	else if (!strnicmp(line, "TCDU_START", sizeof("TCDU_START"))) {
 		tcdu.LoadState(scn, "CDU_END");
+	}
+	else if (!strnicmp(line, "OGCDU_START", sizeof("OGCDU_START"))) {
+		ogcdu.LoadState(scn, "CDU_END");
+	}
+	else if (!strnicmp(line, "IGCDU_START", sizeof("IGCDU_START"))) {
+		igcdu.LoadState(scn, "CDU_END");
+	}
+	else if (!strnicmp(line, "MGCDU_START", sizeof("MGCDU_START"))) {
+		mgcdu.LoadState(scn, "CDU_END");
 	}
 	else if (!strnicmp(line, GDC_START_STRING, sizeof(GDC_START_STRING))) {
 		gdc.LoadState(scn);

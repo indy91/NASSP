@@ -65,6 +65,7 @@
 #include "sce.h"
 #include "csmsensors.h"
 #include "rhc.h"
+#include "mcp.h"
 
 #define DIRECTINPUT_VERSION 0x0800
 #include "dinput.h"
@@ -800,6 +801,9 @@ public:
 	/// \brief Clear the SII Seperation light.
 	///
 	void ClearSIISep() { SIISepState = false; };
+
+	/// Get
+	bool GetSIISepState() { return SIISepState; }
 
 	///
 	/// Turn on an engine indicator light on the control panel.
@@ -3780,6 +3784,7 @@ protected:
 	DockingProbe dockingprobe;
 	SECS secs;
 	ELS els;
+	MCP_SCC mcp_scc;
 
 	QBall qball;
 	LETCanard canard;
@@ -4561,6 +4566,7 @@ protected:
 	friend class DockingTargetSwitch;
 	friend class LeftCOASPowerSwitch;
 	friend class SCE;
+	friend class MCP_SCC;
 	// Friend class the MFD too so it can steal our data
 	friend class ProjectApolloMFD;
 	friend class ARCore;

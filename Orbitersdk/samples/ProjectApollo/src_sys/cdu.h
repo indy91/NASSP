@@ -81,6 +81,9 @@ public:
 	void ProcessChannel12(ChannelValue val);
 	void SetAngleDevice(double *pAngle);
 	double Resolver1xOutput() { return sin_1x; }
+	void SaveState(FILEHANDLE scn, char *start_str, char *end_str);
+	void LoadState(FILEHANDLE scn, char *end_str);
+	double GetAttitudeError();
 protected:
 	bool IsPowered();
 	int radToGyroPulses(double angle);

@@ -739,6 +739,36 @@ bool CSMToIUConnector::GetQBallSimulateCmd()
 	return false;
 }
 
+bool CSMToIUConnector::GetTowerJettisonCmdA()
+{
+	ConnectorMessage cm;
+
+	cm.destination = CSM_IU_COMMAND;
+	cm.messageType = CSMIU_GET_TOWER_JETTISON_CMD_A;
+
+	if (SendMessage(cm))
+	{
+		return cm.val1.bValue;
+	}
+
+	return false;
+}
+
+bool CSMToIUConnector::GetTowerJettisonCmdB()
+{
+	ConnectorMessage cm;
+
+	cm.destination = CSM_IU_COMMAND;
+	cm.messageType = CSMIU_GET_TOWER_JETTISON_CMD_B;
+
+	if (SendMessage(cm))
+	{
+		return cm.val1.bValue;
+	}
+
+	return false;
+}
+
 CSMToLEMECSConnector::CSMToLEMECSConnector(Saturn *s) : SaturnConnector(s)
 {
 

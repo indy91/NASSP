@@ -50,6 +50,8 @@ public:
 	void EnableSCControl() { SCControlEnableRelay = true; }
 	void DisableSCControl() { SCControlEnableRelay = false; }
 	void EnableCommandSystem() { IUCommandSystemEnable = true; }
+	void SetTowerJettisonA() { TowerJettisonA = true; }
+	void SetTowerJettisonB() { TowerJettisonB = true; }
 
 	//GSE Reset Buses
 	virtual void ResetBus1();
@@ -61,6 +63,8 @@ public:
 	bool GetEDSAbort(int n);
 	virtual double GetLVTankPressure(int n);
 	bool GetAbortLightSignal() { return AbortLightSignal; }
+	bool GetTowerJettisonCmdA() { return TowerJettisonA; }
+	bool GetTowerJettisonCmdB() { return TowerJettisonB; }
 
 	//To LVDA
 	bool GetIULiftoff() { return LiftoffRelay; }
@@ -216,6 +220,9 @@ protected:
 	//A8K3 (K43-3)
 	bool TwoEngineOutAutoAbortInhibitNo3;
 	bool SIVBEngineCutoffDisabled;
+
+	bool TowerJettisonA;
+	bool TowerJettisonB;
 
 	//Signals
 	bool LiftoffA;

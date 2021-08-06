@@ -172,6 +172,7 @@ MATRIX3 IMU::getNavigationBaseToOrbiterLocalTransformation() {
 		m.m23 = -0.838670567945424;
 		m.m31 = 0.838670567945424;
 		m.m33 = 0.544639035015027;
+
 		//m.m12 = 1.0;	
 		//m.m23 = -1.0;
 		//m.m31 = 1.0;
@@ -198,6 +199,7 @@ MATRIX3 IMU::getOrbiterLocalToNavigationBaseTransformation() {
 		m.m21 = 1.0;
 		m.m32 = -0.838670567945424;
 		m.m33 = 0.544639035015027;
+
 		//m.m13 = 1.0;
 		//m.m21 = 1.0;	
 		//m.m32 = -1.0;

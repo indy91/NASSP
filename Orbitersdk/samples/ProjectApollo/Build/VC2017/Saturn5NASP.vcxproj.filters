@@ -234,6 +234,9 @@
     <ClCompile Include="..\..\src_sys\yaAGCb1\fromYaAGC.c">
       <Filter>yaAGCb1</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src_csm\mcp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src_sys\apolloguidance.h">
@@ -457,6 +460,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src_sys\yaAGCb1\yaAGCb1.h">
       <Filter>yaAGCb1</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src_csm\mcp.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
