@@ -132,8 +132,6 @@ void CSMcomputer::Timestep(double simt, double simdt)
 	// DS20060302 For joystick stuff below
 	sat = (Saturn *) OurVessel;
 
-	sprintf(oapiDebugString(), "%o %o", vagc->memory[0], vagc->memory[0]);
-
 	//Always set this input bit
 	if (sat->LVGuidanceSwitch.IsUp())
 	{
