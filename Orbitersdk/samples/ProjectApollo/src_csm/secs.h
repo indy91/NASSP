@@ -289,7 +289,7 @@ class LDEC
 {
 public:
 	LDEC();
-	void Init(Saturn *v, MESC* connectedMESC, CircuitBrakerSwitch *SECSArm, CircuitBrakerSwitch* DockProbe, ThreePosSwitch *DockingProbeRetract, ToggleSwitch *PyroArmSw, DCbus *PyroB, PowerMerge *PyroBusFeed);
+	void Init(bool SysA, Saturn *v, MESC* connectedMESC, CircuitBrakerSwitch *SECSArm, CircuitBrakerSwitch* DockProbe, ThreePosSwitch *DockingProbeRetract, ToggleSwitch *PyroArmSw, DCbus *PyroB, PowerMerge *PyroBusFeed);
 	void InitSIMJett(CircuitBrakerSwitch *SMSec1Power);
 	void Timestep(double simdt);
 	void LoadState(FILEHANDLE scn, char *end_str);
@@ -343,6 +343,8 @@ protected:
 	DCbus *PyroBus;
 	PowerMerge *PyroBusFeeder;
 	CircuitBrakerSwitch *SMSector1LogicPowerBreaker;
+
+	bool IsSystemA;
 };
 
 ///

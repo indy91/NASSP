@@ -534,3 +534,21 @@ protected:
 	Saturn *sat;
 	LEM *lem;
 };
+
+class UDL
+{
+public:
+	UDL();
+protected:
+
+	//Latching relays
+
+	//Abort Light A
+	bool K1;
+	//Abort Light B
+	bool K2;
+	//C-Band
+	bool K3;
+	//VHF Transmitter
+	bool K4;
+};

@@ -401,7 +401,9 @@ void Saturn::SystemsInit() {
 	dockingprobe.WireTo(&DockProbeMnACircuitBraker, &DockProbeMnBCircuitBraker);   
 
 	// SCS initialization
-	mcp_scc.Init(this);
+	mcp_ads.Init(this);
+	mcp_scc.Init(this, &mcp_gcc, &mcp_ads);
+	mcp_gcc.Init(this, &mcp_scc);
 	bmag1.Init(1, this, &SystemMnACircuitBraker, &StabContSystemAc1CircuitBraker, (Boiler *) Panelsdk.GetPointerByString("ELECTRIC:BMAGHEATER1"));
 	bmag2.Init(2, this, &SystemMnBCircuitBraker, &StabContSystemAc2CircuitBraker, (Boiler *) Panelsdk.GetPointerByString("ELECTRIC:BMAGHEATER2"));
 	gdc.Init(this);
@@ -660,7 +662,9 @@ void Saturn::SystemsTimestep(double simt, double simdt, double mjd) {
 		eda.Timestep(simdt);
 		cws.TimeStep(MissionTime);
 		dockingprobe.TimeStep(MissionTime, simdt);
+		mcp_ads.Timestep(simdt);
 		mcp_scc.Timestep(simdt);
+		mcp_gcc.Timestep(simdt);
 		secs.Timestep(MissionTime, simdt);
 		els.Timestep(MissionTime, simdt);
 		ordeal.Timestep(simdt);

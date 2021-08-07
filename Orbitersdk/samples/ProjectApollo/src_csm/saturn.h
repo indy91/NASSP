@@ -3785,6 +3785,8 @@ protected:
 	SECS secs;
 	ELS els;
 	MCP_SCC mcp_scc;
+	MCP_GCC mcp_gcc;
+	MCP_ADS mcp_ads;
 
 	QBall qball;
 	LETCanard canard;

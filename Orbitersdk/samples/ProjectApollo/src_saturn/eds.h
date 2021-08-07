@@ -52,6 +52,8 @@ public:
 	void EnableCommandSystem() { IUCommandSystemEnable = true; }
 	void SetTowerJettisonA() { TowerJettisonA = true; }
 	void SetTowerJettisonB() { TowerJettisonB = true; }
+	void SetLVSCSeparationA() { LVSCSeparationA = true; }
+	void SetLVSCSeparationB() { LVSCSeparationB = true; }
 
 	//GSE Reset Buses
 	virtual void ResetBus1();
@@ -65,6 +67,8 @@ public:
 	bool GetAbortLightSignal() { return AbortLightSignal; }
 	bool GetTowerJettisonCmdA() { return TowerJettisonA; }
 	bool GetTowerJettisonCmdB() { return TowerJettisonB; }
+	bool GetLVSCSepCmdA() { return LVSCSeparationA; }
+	bool GetLVSCSepCmdB() { return LVSCSeparationB; }
 
 	//To LVDA
 	bool GetIULiftoff() { return LiftoffRelay; }
@@ -221,8 +225,10 @@ protected:
 	bool TwoEngineOutAutoAbortInhibitNo3;
 	bool SIVBEngineCutoffDisabled;
 
-	bool TowerJettisonA;
-	bool TowerJettisonB;
+	bool TowerJettisonA; //K145
+	bool TowerJettisonB; //K145
+	bool LVSCSeparationA; //K165-1?
+	bool LVSCSeparationB; //K156-2?
 
 	//Signals
 	bool LiftoffA;

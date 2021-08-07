@@ -64,6 +64,8 @@ public:
 	bool GetQBallSimulateCmd();
 	bool GetTowerJettisonCmdA();
 	bool GetTowerJettisonCmdB();
+	bool GetLVSCSepCmdA();
+	bool GetLVSCSepCmdB();
 
 protected:
 	CSMcomputer &agc;

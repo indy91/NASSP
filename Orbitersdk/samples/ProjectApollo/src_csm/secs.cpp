@@ -521,7 +521,7 @@ void MESC::Timestep(double simdt)
 	//
 
 	bool switchOn = (Sat->SECSLogic1Switch.IsUp() || Sat->SECSLogic2Switch.IsUp());
-	if (switchOn && SECSArmBreaker->IsPowered()) {
+	if (switchOn && Sat->mcp_scc.GetMESCLogicBusArm(IsSystemA) && SECSArmBreaker->IsPowered()) {
 		MESCLogicArm = true;
 		SECSLogicBus->WireTo(SECSLogicBreaker);
 	}
@@ -1303,8 +1303,9 @@ LDEC::LDEC():
 	SMSector1LogicPowerBreaker = NULL;
 }
 
-void LDEC::Init(Saturn *v, MESC* connectedMESC, CircuitBrakerSwitch *SECSArm, CircuitBrakerSwitch* DockProbe,ThreePosSwitch *DockingProbeRetract, ToggleSwitch *PyroArmSw, DCbus *PyroB, PowerMerge *PyroBusFeed)
+void LDEC::Init(bool SysA, Saturn *v, MESC* connectedMESC, CircuitBrakerSwitch *SECSArm, CircuitBrakerSwitch* DockProbe,ThreePosSwitch *DockingProbeRetract, ToggleSwitch *PyroArmSw, DCbus *PyroB, PowerMerge *PyroBusFeed)
 {
+	IsSystemA = SysA;
 	Sat = v;
 	mesc = connectedMESC;
 	SECSArmBreaker = SECSArm;
@@ -1326,15 +1327,15 @@ void LDEC::Timestep(double simdt)
 
 	//Pyro Bus Motor
 
-	if (SECSArmBreaker->IsPowered()) {
-		if (PyroArmSwitch->IsUp() && !SECSPyroBusMotor) {
-			SECSPyroBusMotor = true;
-			PyroBus->WireTo(PyroBusFeeder);
-		}
-		else if (PyroArmSwitch->IsDown() && SECSPyroBusMotor) {
-			SECSPyroBusMotor = false;
-			PyroBus->Disconnect();
-		}
+	if (!SECSPyroBusMotor && SECSArmBreaker->IsPowered() && Sat->mcp_scc.GetMESCPyroBusArm(IsSystemA) && PyroArmSwitch->IsUp())
+	{
+		SECSPyroBusMotor = true;
+		PyroBus->WireTo(PyroBusFeeder);
+	}
+	else if (SECSPyroBusMotor)
+	{
+		SECSPyroBusMotor = false;
+		PyroBus->Disconnect();
 	}
 
 	if (Sat->SIVBPayloadSepSwitch.IsUp() && SequentialArmBus())
@@ -1492,8 +1493,8 @@ void SECS::Realize()
 	MESCA.CBInit(&Sat->SECSLogicBatACircuitBraker, &Sat->SECSArmBatACircuitBraker, &Sat->RCSLogicMnACircuitBraker, &Sat->ELSBatACircuitBraker, &Sat->EDS1BatACircuitBraker);
 	MESCB.Init(Sat, &Sat->SECSLogicBusB, &Sat->PyroBusB, &Sat->MissionTimerDisplay, &Sat->MissionTimerSwitch, &Sat->EventTimerDisplay, &Sat->EventTimerContSwitch, &MESCA, false);
 	MESCB.CBInit(&Sat->SECSLogicBatBCircuitBraker, &Sat->SECSArmBatBCircuitBraker, &Sat->RCSLogicMnBCircuitBraker, &Sat->ELSBatBCircuitBraker, &Sat->EDS3BatBCircuitBraker);
-	LDECA.Init(Sat, &MESCA, &Sat->SECSArmBatACircuitBraker, &Sat->DockProbeMnACircuitBraker, &Sat->DockingProbeRetractPrimSwitch, &Sat->PyroArmASwitch, &Sat->PyroBusA, &Sat->PyroBusAFeeder);
-	LDECB.Init(Sat, &MESCB, &Sat->SECSArmBatBCircuitBraker, &Sat->DockProbeMnBCircuitBraker, &Sat->DockingProbeRetractSecSwitch, &Sat->PyroArmBSwitch, &Sat->PyroBusB, &Sat->PyroBusBFeeder);
+	LDECA.Init(true, Sat, &MESCA, &Sat->SECSArmBatACircuitBraker, &Sat->DockProbeMnACircuitBraker, &Sat->DockingProbeRetractPrimSwitch, &Sat->PyroArmASwitch, &Sat->PyroBusA, &Sat->PyroBusAFeeder);
+	LDECB.Init(false, Sat, &MESCB, &Sat->SECSArmBatBCircuitBraker, &Sat->DockProbeMnBCircuitBraker, &Sat->DockingProbeRetractSecSwitch, &Sat->PyroArmBSwitch, &Sat->PyroBusB, &Sat->PyroBusBFeeder);
 }
 
 void SECS::InitSIMJett(CircuitBrakerSwitch *SMSec1PowerA, CircuitBrakerSwitch *SMSec1PowerB)

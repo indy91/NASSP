@@ -769,6 +769,36 @@ bool CSMToIUConnector::GetTowerJettisonCmdB()
 	return false;
 }
 
+bool CSMToIUConnector::GetLVSCSepCmdA()
+{
+	ConnectorMessage cm;
+
+	cm.destination = CSM_IU_COMMAND;
+	cm.messageType = CSMIU_GET_LV_SC_SEP_CMD_A;
+
+	if (SendMessage(cm))
+	{
+		return cm.val1.bValue;
+	}
+
+	return false;
+}
+
+bool CSMToIUConnector::GetLVSCSepCmdB()
+{
+	ConnectorMessage cm;
+
+	cm.destination = CSM_IU_COMMAND;
+	cm.messageType = CSMIU_GET_LV_SC_SEP_CMD_B;
+
+	if (SendMessage(cm))
+	{
+		return cm.val1.bValue;
+	}
+
+	return false;
+}
+
 CSMToLEMECSConnector::CSMToLEMECSConnector(Saturn *s) : SaturnConnector(s)
 {
 

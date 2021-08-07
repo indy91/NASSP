@@ -878,6 +878,20 @@ bool IUToCSMCommandConnector::ReceiveMessage(Connector *from, ConnectorMessage &
 			return true;
 		}
 		break;
+	case CSMIU_GET_LV_SC_SEP_CMD_A:
+		if (ourIU)
+		{
+			m.val1.bValue = ourIU->GetEDS()->GetLVSCSepCmdA();
+			return true;
+		}
+		break;
+	case CSMIU_GET_LV_SC_SEP_CMD_B:
+		if (ourIU)
+		{
+			m.val1.bValue = ourIU->GetEDS()->GetLVSCSepCmdB();
+			return true;
+		}
+		break;
 	}
 
 	return false;
@@ -1828,6 +1842,12 @@ void IUSV::SwitchSelector(int item)
 		break;
 	case 87: //S-IC Outboard Engines Cant Off "C"
 		ControlDistributor.SetSICEngineCantC(false);
+		break;
+	case 88: //LV SC Separation Cmd A (Find real channel!)
+		eds.SetLVSCSeparationA();
+		break;
+	case 89: //LV SC Separation Cmd B (Find real channel!)
+		eds.SetLVSCSeparationB();
 		break;
 	case 98: //AZUSA X-Ponder Power Off
 		break;

@@ -5057,3 +5057,11 @@ void DSE::SaveState(FILEHANDLE scn) {
 	sprintf(buffer, "%lf %lf %lf %i %lf", tapeSpeedInchesPerSecond, desiredTapeSpeed, tapeMotion, state, lastEventTime); 
 	oapiWriteScenario_string(scn, "DATARECORDER", buffer);
 }
+
+UDL::UDL()
+{
+	K1 = false;
+	K2 = false;
+	K3 = false;
+	K4 = false;
+}
