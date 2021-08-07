@@ -173,7 +173,7 @@ executeOneInstruction(FILE *logFile)
 #else
   sum = AddSP16(SignExtend(agc.INDEX),
       (flatAddress < 4) ?
-          agc.memory[flatAddress] : SignExtend(agc.memory[flatAddress]));
+		agc.memory[flatAddress] : SignExtend(agc.memory[flatAddress]));
 #endif
   instruction = sum;
   instruction &= 0177777;
@@ -366,7 +366,7 @@ executeOneInstruction(FILE *logFile)
       else if (operand < 04)
         {
           // Full 16-bit.
-          agc.memory[operand] = regA;
+		  agc.memory[operand] = regA;
           edit(operand);
           regA = fetchedFromOperand;
         }
@@ -392,7 +392,7 @@ executeOneInstruction(FILE *logFile)
           aOverflowBits = regA & 0140000;
           if (operand < 04 || (operand >= 020 && operand <= 023))
             {
-              agc.memory[operand] = regA;
+			  agc.memory[operand] = regA;
               edit(operand);
             }
           else
@@ -404,8 +404,11 @@ executeOneInstruction(FILE *logFile)
             {
               // Overflow.
               incrementZ(1);
-              if (aOverflowBits == 0040000) regA = 0000001;// Positive overflow.
-              else regA = 0177776;// Negative overflow;
+			  if (operand != 00)
+			  {
+				  if (aOverflowBits == 0040000) regA = 0000001;// Positive overflow.
+				  else regA = 0177776;// Negative overflow;
+			  }
             }
         }
     }
