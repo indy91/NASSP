@@ -42,6 +42,18 @@
  *                              instructions implemented now, though I've
  *                              had no way to test DV so far.
  *              2016-09-27 RSB  Hooked up DSRUPT.
+ *              2021-08-07 MAS  Fixed a bunch of errors identified by
+ *                              running SELF-CHECK in Solarium:
+ *                              * AD and INDEX now edit their arguments
+ *                              * SL no longer shifts into bit 14
+ *                              * DV now sets LP to either 140001 or 140000
+ *                                depending on inputs.
+ *                              * DV with negative numerators now works.
+ *                              * DV of equal-magnitude numbers now sets
+ *                                A and Q correctly.
+ *                              * CCS and SU now respect overflow.
+ *                              * TS A now preserves the value of A on
+ *                                overflow.
  */
 
 #include <stdlib.h>
@@ -130,7 +142,7 @@ edit(uint16_t flatAddress)
     }
   else if (flatAddress == 023)
     {
-      regSL = ((regSL << 1) & 0077776) | ((regSL & 0100000) >> 15);
+	  regSL = ((regSL << 1) & 0037776) | ((regSL & 0100000) >> 15);
     }
   return;
 }
@@ -502,14 +514,22 @@ executeOneInstruction(FILE *logFile)
               sign = -sign;
               denominator = ~denominator;
             }
-          quotient = numerator / denominator;
-          remainder = numerator % denominator;
-          if (quotient > 037777)
-            quotient = 037777;
-          if (sign < 0)
-            quotient = ~quotient;
-          regA = quotient;
-          regQ = ~remainder;
+		  if ((numerator >> 14) == denominator)
+		  {
+			  regQ = ~denominator;
+			  regA = (sign > 0) ? 037777 : 0140000;
+		  }
+		  else
+		  {
+			  quotient = numerator / denominator;
+			  remainder = numerator % denominator;
+			  if (quotient > 037777)
+				  quotient = 037777;
+			  if (sign < 0)
+				  quotient = ~quotient;
+			  regA = quotient;
+			  regQ = ~remainder;
+		  }
 		  if (sign > 0)
 			  regLP = 1;
 		  else
