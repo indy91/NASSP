@@ -1915,7 +1915,7 @@ void Saturn::SetSwitches(int panel) {
 	SMRCSHelium2DSwitch.Init (303, 23, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSHelium2Row);
 
 	CMUplinkSwitch.Init(0, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SMRCSHelium2Row, &agc);
-	CMUplinkSwitch.SetChannelData(033, 10, false);	// Down is 'Block Uplink Input'
+	CMUplinkSwitch.SetChannelData(04, BlockUplink, false);	// Down is 'Block Uplink Input'
 
 	if (!SkylabCM)
 		IUUplinkSwitch.Init(43, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SMRCSHelium2Row);
@@ -2104,8 +2104,7 @@ void Saturn::SetSwitches(int panel) {
 	//
 
 	ELSRow.Init(AID_ELS_SWITCHES, MainPanel);
-	CGSwitch.Init(0, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ELSRow, &agc);
-	CGSwitch.SetChannelData(032, 11, true);	// LM Attached flag.
+	CGSwitch.Init(0, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ELSRow);
 	ELSLogicSwitch.Init(44, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ELSRow);
 	ELSLogicSwitch.InitGuard(43, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
 	ELSAutoSwitch.Init(88, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ELSRow);

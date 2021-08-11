@@ -659,11 +659,11 @@ void ApolloGuidance::SetInputChannelBit(int channel, int bit, bool val)
 	//	data ^= 077777;
 
 	// If this is a keystroke from the DSKY (Or MARK/MARKREJ), generate an interrupt req.
-	if (channel == 015 && val != 0){
+	//if (channel == 015 && val != 0){
 		//vagc->InterruptRequests[5] = 1;
-	}else{ if (channel == 016 && val != 0){ // Secondary DSKY
+	//}else{ if (channel == 016 && val != 0){ // Secondary DSKY
 		//vagc->InterruptRequests[6] = 1;
-	}}
+	//}}
 
 	//WriteIO(&vagc, channel, data);
 	GenericWriteMemory(channel, data);
@@ -827,7 +827,7 @@ void ApolloGuidance::GenerateDownrupt(){
 }
 
 void ApolloGuidance::GenerateUprupt(){
-	//vagc->InterruptRequests[7] = 1;
+	agc.uplinkReady = 1;
 }
 
 void ApolloGuidance::GenerateRadarupt(){

@@ -109,6 +109,7 @@ void CSMcomputer::agcTimestep(double simt, double simdt)
 		//}
 		//x++;
 	}
+	sat->pcm.TimeStep(simt);
 	LastCycled += (0.00001171875 * (vagc->countMCT - cyclestart));						// Preserve the remainder
 }
 
@@ -321,6 +322,7 @@ void CSMcomputer::Timestep(double simt, double simdt)
 			vagc->overflowedTIME4 = 0;
 			vagc->uplinkReady = 0;
 			vagc->downlinkReady = 0;
+			agc.instructionCountDown = 1;
 			// Reset last cycling time
 			LastCycled = 0;
 

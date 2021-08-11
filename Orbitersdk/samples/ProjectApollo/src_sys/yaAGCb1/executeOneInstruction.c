@@ -253,7 +253,7 @@ executeOneInstruction(FILE *logFile)
 
       if (!interruptVector && 0 != (regIN2 & 077600)) // ERRUPT -- 8 fail bits in IN2.
         {
-          interruptVector = 02004;
+          //interruptVector = 02004;
         }
 
       if (!interruptVector && agc.overflowedTIME4)  // DSRUPT

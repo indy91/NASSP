@@ -4678,7 +4678,7 @@ void PCM::handle_uplink() {
 			rx_offset = 0; uplink_state = 0; break;
 		}
 		// Move to INLINK
-		sat->agc.vagc->memory[045] = cmc_uplink_wd;
+		sat->agc.vagc->memory[041] = cmc_uplink_wd;
 		// Cause UPRUPT
 		sat->agc.GenerateUprupt();
 
@@ -4727,19 +4727,6 @@ void PCM::handle_uplink() {
 			rx_offset = 0; uplink_state = 0;
 		}
 		break;
-		case 04: // CREW ALERT OFF
-		{
-			sat->cws.UplinkTestState &= 003;
-
-			rx_offset = 0; uplink_state = 0;
-		}
-		break;
-		case 05: // CREW ALERT ON
-		{
-			sat->cws.UplinkTestState |= 010;
-			rx_offset = 0; uplink_state = 0;
-		}
-		break;
 		case 06: // ABORT LT B OFF
 		{
 			sat->cws.UplinkTestState &= 011;
@@ -4752,76 +4739,9 @@ void PCM::handle_uplink() {
 			rx_offset = 0; uplink_state = 0;
 		}
 		break;
-
-		case 010: // ACE CMC ZERO DISABLE
-		case 011: // ACE CMC ZERO ENABLE
-		case 014: // ACE CMC ONE DISABLE
-		case 015: // ACE CMC ONE ENABLE
-				  // Ignore these
-			rx_offset = 0; uplink_state = 0;
-			break;
-
-		case 022: // LATCH RELAYS FOR VHF RANGING CONTROL
-		case 023: // RANGING DISABLE
-		case 026: // RANGING RESET
-		case 027: // RANGING ENABLE
-			rx_offset = 0; uplink_state = 0; break;
-
-		case 032: // LATCH RELAYS FOR R/T PCM CONTROL
-		case 033: // SAME
-		case 036: // R/T PCM RESET
-		case 037: // R/T PCM 1024 ON (IF 32 LATCHED) or R/T PCM OFF (IF 33 LATCHED)
-			rx_offset = 0; uplink_state = 0; break;
-
-		case 040: // LATCH RELAYS FOR UNIFIED S-BAND SYSTEM CONTROL
-		case 041: // SAME
-		case 042: // SAME
-		case 043: // SAME
-		case 044: // FM OFF, TAPE OFF
-		case 045: // FM ON, TAPE ON
-		case 046: // POWER AMP RESET (IF 42 LATCHED), POWER AMP OFF (IF 43 LATCHED)
-		case 047: // POWER AMP HIGH (IF 42 LATCHED), POWER AMP LOW (IF 43 LATCHED)
-		case 050: // USB MODE RESET 
-		case 051: // BACKUP VOICE FM OFF
-			rx_offset = 0; uplink_state = 0; break;
-
-		case 052: // LATCH RELAYS FOR DSE PLAYBACK MODE CONTROL
-		case 053: // SELECT LM PLAYBACK DATA
-		case 056: // PLAYBACK MODE RESET
-		case 057: // SELECT CSM PLAYBACK DATA
-			rx_offset = 0; uplink_state = 0; break;
-
-		case 062: // LATCH RELAYS FOR DSE CONTROL
-		case 063: // SAME
-		case 064: // LATCH RELAYS FOR PCM DOWNTELEMETRY RATE CONTROL
-			rx_offset = 0; uplink_state = 0; break;
-
-		case 065: // DOWNTLM MODE LBR
-			pcm_rate_override = 1;
-			rx_offset = 0; uplink_state = 0; break;
-
-		case 066: // DSE RESET (IF 62 LATCHED), DSE OFF (IF 63 LATCHED)
-		case 067: // DSE RECORD (IF 62 LATCHED), DSE PLAYBACK (IF 63 LATCHED)
-			rx_offset = 0; uplink_state = 0; break;
-
-		case 070: // DOWNTLM MODE RESET
-			pcm_rate_override = 0;
-			rx_offset = 0; uplink_state = 0; break;
-
-		case 071: // DOWNTLM MODE HBR
-			pcm_rate_override = 2;
-			rx_offset = 0; uplink_state = 0; break;
-
-		case 072: // LATCH RELAYS FOR DSE TAPE CONTROL
-		case 073: // SAME
-		case 074: // ANTENNA SELECT RESET
-		case 075: // ANTENNA SELECT OMNI "D" 
-		case 076: // DSE TAPE RESET (IF 72 LATCHED), DSE TAPE STOP (IF 73 LATCHED)
-		case 077: // DSE TAPE FORWARD (IF 72 LATCHED), DSE TAPE REWIND (IF 73 LATCHED)
-			rx_offset = 0; uplink_state = 0; break;
-
 		default:
-			sprintf(sat->debugString(), "UNKNOWN RTC COMMAND %o", rx_data[rx_offset]);
+			sat->mcp_gcc.RealTimeCommand(rx_data[rx_offset]);
+			//sprintf(sat->debugString(), "UNKNOWN RTC COMMAND %o", rx_data[rx_offset]);
 			rx_offset = 0; uplink_state = 0;
 			break;
 		}

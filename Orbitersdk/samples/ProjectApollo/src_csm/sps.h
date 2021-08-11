@@ -90,7 +90,7 @@ public:
 	virtual ~SPSGimbalActuator();
 
 	void Init(Saturn *s, ServoAmplifierModule *servoAmp, ThreePosSwitch *m1Switch, ThreePosSwitch *m2Switch,
-	          e_object *m1Source, e_object *m1StartSource, e_object *m2Source, e_object *m2StartSource);
+	          e_object *m1Source, e_object *m1StartSource, e_object *m2Source, e_object *m2StartSource, bool yaw);
 	void Timestep(double simdt);
 	void SystemTimestep(double simdt);
 	void SaveState(FILEHANDLE scn);
@@ -115,6 +115,9 @@ protected:
 	ThreePosSwitch *gimbalMotor1Switch, *gimbalMotor2Switch;
 	e_object *motor1Source, *motor1StartSource, *motor2Source, *motor2StartSource;
 	ServoAmplifierModule *servoAmplifier;
+
+	bool IsYaw;
+	bool SwitchPower, SwitchStart, SwitchOn, SwitchOff, MCPStart, MCPOn, MCPOff;
 };
 
 ///

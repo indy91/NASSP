@@ -332,13 +332,14 @@ CMRCSPropellantSource::CMRCSPropellantSource(PROPELLANT_HANDLE &ph, PanelSDK &p)
 	for (i = 0; i < 6; i++) {
 		purgeLevel[i] = 0;
 	}
+	rcsc = NULL;
 }
 
 CMRCSPropellantSource::~CMRCSPropellantSource() {
 	// Nothing for now.
 }
 
-void CMRCSPropellantSource::Init(THRUSTER_HANDLE *th, h_Radiator *t, CMRCSPropellantSource *ic, e_object *pp, e_object *ppp, e_object *isol) {
+void CMRCSPropellantSource::Init(THRUSTER_HANDLE *th, h_Radiator *t, CMRCSPropellantSource *ic, e_object *pp, e_object *ppp, e_object *isol, RCSC_BlockI *r) {
 
 	thrusters = th;
 	heliumTank = t;
@@ -346,6 +347,7 @@ void CMRCSPropellantSource::Init(THRUSTER_HANDLE *th, h_Radiator *t, CMRCSPropel
 	purgePower = pp;
 	purgePyroPower = ppp;
 	isolPower = isol;
+	rcsc = r;
 }
 
 void CMRCSPropellantSource::Timestep(double simt, double simdt) {
@@ -371,20 +373,20 @@ void CMRCSPropellantSource::Timestep(double simt, double simdt) {
 	// Fuel/oxidizer interconnect valves
 	if (!fuelInterconnectValvesOpen && our_vessel->PyroBusB.Voltage() > SP_MIN_DCVOLTAGE) {
 		// Manual control
-		if (our_vessel->secs.rcsc.GetInterconnectAndPropellantBurnRelayB()) {
+		if (our_vessel->secs.RCSCB.GetInterconnectAndPropellantBurnRelay()) {
 			fuelInterconnectValvesOpen = true;
 		}
 	}
 	if (!oxidizerInterconnectValvesOpen && our_vessel->PyroBusA.Voltage() > SP_MIN_DCVOLTAGE) {
 		// Manual control
-		if (our_vessel->secs.rcsc.GetInterconnectAndPropellantBurnRelayA()) {
+		if (our_vessel->secs.RCSCA.GetInterconnectAndPropellantBurnRelay()) {
 			oxidizerInterconnectValvesOpen = true;
 		}
 	}
 
 	// Purge valves
 	if (!purgeValvesOpen && purgePyroPower->Voltage() > SP_MIN_DCVOLTAGE && purgePower->Voltage() > SP_MIN_DCVOLTAGE) {
-		if (our_vessel->secs.rcsc.GetOxidFuelPurgeRelay()) {
+		if (rcsc->GetOxidFuelPurgeRelay()) {
 			OpenPurgeValves();
 		}
 	}
@@ -416,7 +418,7 @@ void CMRCSPropellantSource::Timestep(double simt, double simdt) {
 	}
 
 	//Automatic closing of propellant valves
-	if (propellantValve.IsOpen() && isolPower->Voltage() > SP_MIN_DCVOLTAGE && our_vessel->secs.rcsc.GetOxidizerDumpRelay())
+	if (propellantValve.IsOpen() && isolPower->Voltage() > SP_MIN_DCVOLTAGE && rcsc->GetOxidizerDumpRelay())
 	{
 		propellantValve.SetState(false);
 	}
@@ -425,13 +427,13 @@ void CMRCSPropellantSource::Timestep(double simt, double simdt) {
 	if (!fuelDumpValvesOpen) {
 		if (our_vessel->PyroBusA.Voltage() > SP_MIN_DCVOLTAGE) {
 			// Open fuel dump valves
-			if (our_vessel->secs.rcsc.GetFuelDumpRelay()) {
+			if (rcsc->GetFuelDumpRelay()) {
 				fuelDumpValvesOpen = true;
 			}
 		}
 		if (our_vessel->PyroBusB.Voltage() > SP_MIN_DCVOLTAGE) {
 			// Open fuel dump valves
-			if (our_vessel->secs.rcsc.GetFuelDumpRelay()) {
+			if (rcsc->GetFuelDumpRelay()) {
 				fuelDumpValvesOpen = true;
 			}
 		}
@@ -440,13 +442,13 @@ void CMRCSPropellantSource::Timestep(double simt, double simdt) {
 	if (!oxidizerDumpValvesOpen) {
 		if (our_vessel->PyroBusA.Voltage() > SP_MIN_DCVOLTAGE) {
 			// Open oxidizer dump valves
-			if (our_vessel->secs.rcsc.GetOxidizerDumpRelay()) {
+			if (rcsc->GetOxidizerDumpRelay()) {
 				oxidizerDumpValvesOpen = true;
 			}
 		}
 		if (our_vessel->PyroBusB.Voltage() > SP_MIN_DCVOLTAGE) {
 			// Open oxidizer dump valves
-			if (our_vessel->secs.rcsc.GetOxidizerDumpRelay()) {
+			if (rcsc->GetOxidizerDumpRelay()) {
 				oxidizerDumpValvesOpen = true;
 			}
 		}

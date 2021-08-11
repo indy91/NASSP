@@ -483,9 +483,9 @@ void Saturn::SystemsInit() {
 		               (h_Radiator *) Panelsdk.GetPointerByString("HYDRAULIC:SPSPROPELLANTLINE"));
 	SPSEngine.Init(this);
 	SPSEngine.pitchGimbalActuator.Init(this, tvsa.GetPitchServoAmp(), &Pitch1Switch, &Pitch2Switch,
-		                               MainBusA, &PitchBatACircuitBraker, MainBusB, &PitchBatBCircuitBraker);
+		                               MainBusA, &PitchBatACircuitBraker, MainBusB, &PitchBatBCircuitBraker, false);
 	SPSEngine.yawGimbalActuator.Init(this, tvsa.GetYawServoAmp(), &Yaw1Switch, &Yaw2Switch,
-		                             MainBusA, &YawBatACircuitBraker, MainBusB, &YawBatBCircuitBraker);
+		                             MainBusA, &YawBatACircuitBraker, MainBusB, &YawBatBCircuitBraker, true);
 
 	SPSPropellantLineHeaterA = (Boiler *) Panelsdk.GetPointerByString("ELECTRIC:SPSPROPELLANTLINEHEATERA");
 	SPSPropellantLineHeaterB = (Boiler *) Panelsdk.GetPointerByString("ELECTRIC:SPSPROPELLANTLINEHEATERB");
@@ -543,8 +543,8 @@ void Saturn::SystemsInit() {
 	SMRCSHeaterDSwitch.WireTo(&SMHeatersDMnACircuitBraker);
 
 	// CM RCS initialization
-	CMRCS1.Init(th_att_cm_sys1, (h_Radiator *) Panelsdk.GetPointerByString("HYDRAULIC:CMRCSHELIUM1"), &CMRCS2, &RCSLogicMnACircuitBraker, &PyroBusA, &SMHeatersBMnACircuitBraker);
-	CMRCS2.Init(th_att_cm_sys2, (h_Radiator *) Panelsdk.GetPointerByString("HYDRAULIC:CMRCSHELIUM2"), NULL,    &RCSLogicMnBCircuitBraker, &PyroBusB, &SMHeatersAMnBCircuitBraker);
+	CMRCS1.Init(th_att_cm_sys1, (h_Radiator *) Panelsdk.GetPointerByString("HYDRAULIC:CMRCSHELIUM1"), &CMRCS2, &RCSLogicMnACircuitBraker, &PyroBusA, &SMHeatersBMnACircuitBraker, &secs.RCSCA);
+	CMRCS2.Init(th_att_cm_sys2, (h_Radiator *) Panelsdk.GetPointerByString("HYDRAULIC:CMRCSHELIUM2"), NULL,    &RCSLogicMnBCircuitBraker, &PyroBusB, &SMHeatersAMnBCircuitBraker, &secs.RCSCB);
 
 	CMRCSProp1Switch.WireTo(&PrplntIsolMnACircuitBraker);
 	CMRCSProp2Switch.WireTo(&PrplntIsolMnBCircuitBraker);
@@ -1749,7 +1749,7 @@ void Saturn::JoystickTimestep()
 
 		// CM/SM transfer, either motor transfers all thruster, see AOH Figure 2.5-4
 		bool sm_sep = false;
-		if (secs.rcsc.GetCMTransferMotor1() || secs.rcsc.GetCMTransferMotor2()) sm_sep = true;
+		if (secs.RCSCA.GetCMTransferMotor() || secs.RCSCB.GetCMTransferMotor()) sm_sep = true;
 
 		if ((rhc_directv1 > SP_MIN_DCVOLTAGE || rhc_directv2 > SP_MIN_DCVOLTAGE)) {
 			if (rhc_x_pos < 2738) {
@@ -2285,7 +2285,7 @@ void Saturn::JoystickTimestep()
 	//
 	
 	// Manual control
-	if (secs.rcsc.GetInterconnectAndPropellantBurnRelayA() && secs.rcsc.GetPropellantDumpInhibitA() && CMRCSLogicSwitch.IsUp() && RCSLogicMnACircuitBraker.IsPowered()) {
+	if (secs.RCSCA.GetInterconnectAndPropellantBurnRelay() && !secs.RCSCA.GetOxidizerDumpRelay() && CMRCSLogicSwitch.IsUp() && RCSLogicMnACircuitBraker.IsPowered()) {
 		SetCMRCSState(2, true);	
 		SetCMRCSState(4, true);	
 		SetCMRCSState(7, true);	
@@ -2294,7 +2294,7 @@ void Saturn::JoystickTimestep()
 	}
 		
 	// Manual control
-	if (secs.rcsc.GetInterconnectAndPropellantBurnRelayB() && secs.rcsc.GetPropellantDumpInhibitB() && CMRCSLogicSwitch.IsUp() && RCSLogicMnBCircuitBraker.IsPowered()) {
+	if (secs.RCSCB.GetInterconnectAndPropellantBurnRelay() && !secs.RCSCB.GetOxidizerDumpRelay() && CMRCSLogicSwitch.IsUp() && RCSLogicMnBCircuitBraker.IsPowered()) {
 		SetCMRCSState(3, true);	
 		SetCMRCSState(5, true);	
 		SetCMRCSState(6, true);	

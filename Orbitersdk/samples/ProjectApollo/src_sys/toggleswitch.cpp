@@ -5040,7 +5040,7 @@ bool ModeSelectSwitch::SwitchTo(int newState, bool dontspring)
 			}
 
 			//Actually Display Inertial Data
-			agc->SetInputChannelBit(030, GuidanceReferenceRelease, PGNS);
+			//agc->SetInputChannelBit(030, GuidanceReferenceRelease, PGNS);
 		}
 		return true;
 	}

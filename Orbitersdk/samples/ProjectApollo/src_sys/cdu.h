@@ -84,6 +84,7 @@ public:
 	void SaveState(FILEHANDLE scn, char *start_str, char *end_str);
 	void LoadState(FILEHANDLE scn, char *end_str);
 	double GetAttitudeError();
+	double GetShaftAngle() { return ShaftAngle; }
 protected:
 	bool IsPowered();
 	int radToGyroPulses(double angle);
@@ -96,7 +97,7 @@ protected:
 	ApolloGuidance &agc;
 
 	//Resolvers
-	double sin_05x, sin_1x, sin_16x;
+	double sin_05x, sin_1x, sin_16x, cos_1x;
 
 	//Pointer to gimbal
 	double *GimbalAngle;

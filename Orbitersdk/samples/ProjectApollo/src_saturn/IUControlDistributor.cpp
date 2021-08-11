@@ -52,6 +52,8 @@ IUControlDistributor::IUControlDistributor(IU *iu)
 	QBallPowerOn = true;
 	SIVBEngineOutA = false;
 	SIVBEngineOutB = false;
+	LVSCSeparationSequenceStartA = false;
+	LVSCSeparationSequenceStartB = false;
 }
 
 void IUControlDistributor::Timestep(double simdt)
@@ -92,6 +94,8 @@ void IUControlDistributor::SaveState(FILEHANDLE scn)
 	papiWriteScenario_bool(scn, "SIVBBURNMODEB", IsSIVBBurnModeB);
 	papiWriteScenario_boolarr(scn, "SWITCHPOINT1TO5", SwitchPoint1to5, 5);
 	papiWriteScenario_bool(scn, "QBALLPOWERON", QBallPowerOn);
+	papiWriteScenario_bool(scn, "LVSCSeparationSequenceStartA", LVSCSeparationSequenceStartA);
+	papiWriteScenario_bool(scn, "LVSCSeparationSequenceStartB", LVSCSeparationSequenceStartB);
 }
 
 void IUControlDistributor::LoadState(char *line)
@@ -107,6 +111,8 @@ void IUControlDistributor::LoadState(char *line)
 	papiReadScenario_bool(line, "SIVBBURNMODEB", IsSIVBBurnModeB);
 	papiReadScenario_boolarr(line, "SWITCHPOINT1TO5", SwitchPoint1to5, 5);
 	papiReadScenario_bool(line, "QBALLPOWERON", QBallPowerOn);
+	papiReadScenario_bool(line, "LVSCSeparationSequenceStartA", LVSCSeparationSequenceStartA);
+	papiReadScenario_bool(line, "LVSCSeparationSequenceStartB", LVSCSeparationSequenceStartB);
 }
 
 bool IUControlDistributor::GetSIVBBurnMode()

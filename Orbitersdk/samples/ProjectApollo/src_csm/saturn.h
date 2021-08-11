@@ -1044,6 +1044,11 @@ public:
 
 	void StartSeparationPyros();
 
+	//ML to CSM interface functions
+	virtual void MLResetGSESignals();
+	virtual void MLMESCLogicBusesArm();
+	virtual void MLMESCPyroBusesArm();
+
 	//CSM to IU interface functions
 	bool GetCMCSIVBTakeover();
 	bool GetCMCSIVBIgnitionSequenceStart();
@@ -2043,7 +2048,7 @@ protected:
 	//
 
 	SwitchRow ELSRow;
-	AGCIOSwitch CGSwitch;
+	ToggleSwitch CGSwitch;
 	GuardedToggleSwitch ELSLogicSwitch;
 	ToggleSwitch ELSAutoSwitch;
 	ToggleSwitch CMRCSLogicSwitch;
@@ -4538,7 +4543,7 @@ protected:
 	friend class SaturnEventTimer;
 	friend class SECS;
 	friend class MESC;
-	friend class RCSC;
+	friend class RCSC_BlockI;
 	friend class ELS;
 	friend class ELSC;
 	friend class PCVB;

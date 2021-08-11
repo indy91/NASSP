@@ -2384,7 +2384,7 @@ void EDA::Timestep(double simdt)
 	VECTOR3 bmag2rates = sat->bmag2.GetRates();
 	VECTOR3 imuatt = sat->imu.GetTotalAttitude();
 	//VECTOR3 cmcerr = _V(sat->gdc.fdai_err_x, sat->gdc.fdai_err_y, sat->gdc.fdai_err_z) * 5.0 / 0.3 / 384.0*RAD;	//Converted from -384/384 to radians (-16.66°/16.66°)
-	VECTOR3 cmcerr = _V(sat->ogcdu.Resolver1xOutput(), sat->igcdu.Resolver1xOutput(), sat->mgcdu.Resolver1xOutput());
+	VECTOR3 cmcerr = _V(-sat->ogcdu.Resolver1xOutput(), -sat->igcdu.Resolver1xOutput(), sat->mgcdu.Resolver1xOutput());
 
 	double rate, err;
 
@@ -3208,8 +3208,8 @@ void RJEC::TimeStep(double simdt){
 
 	// CM/SM transfer handling
 	bool sm_sep = false;
-	bool CMTransferMotor1 = sat->secs.rcsc.GetCMTransferMotor1();
-	bool CMTransferMotor2 = sat->secs.rcsc.GetCMTransferMotor2();
+	bool CMTransferMotor1 = sat->secs.RCSCA.GetCMTransferMotor();
+	bool CMTransferMotor2 = sat->secs.RCSCB.GetCMTransferMotor();
 	if (CMTransferMotor1 || CMTransferMotor2) sm_sep = true;
 
 	if ((S18_2 || thc_cw) && !sm_sep) {
@@ -3878,18 +3878,36 @@ void ECA::TimeStep(double simdt) {
 
 	//CMC error
 	VECTOR3 IMUAngles = sat->imu.GetTotalAttitude();
-	VECTOR3 CDUAttitudeErrors = _V(sat->ogcdu.GetAttitudeError(), sat->igcdu.GetAttitudeError(), sat->mgcdu.GetAttitudeError());
-	VECTOR3 E_NB = _V(CDUAttitudeErrors.x, CDUAttitudeErrors.y*sin(IMUAngles.x)+ CDUAttitudeErrors.z*sin(IMUAngles.x),-CDUAttitudeErrors.y*sin(IMUAngles.x)+ CDUAttitudeErrors.z*cos(IMUAngles.x));
+	VECTOR3 CDUAttitudeErrors = _V(sat->ogcdu.GetAttitudeError(), -sat->igcdu.GetAttitudeError(), -sat->mgcdu.GetAttitudeError()); //Same signs as old logic?
+	VECTOR3 E_NB = _V(CDUAttitudeErrors.x, CDUAttitudeErrors.y*cos(IMUAngles.x) + CDUAttitudeErrors.z*sin(IMUAngles.x), -CDUAttitudeErrors.y*sin(IMUAngles.x) + CDUAttitudeErrors.z*cos(IMUAngles.x));
 	VECTOR3 E_Body = _V(E_NB.z*cos(33.0*RAD) - E_NB.x*sin(33.0*RAD), E_NB.y, E_NB.z*sin(33.0*RAD) + E_NB.x*cos(33.0*RAD));
-	VECTOR3 E_Entry = _V(CDUAttitudeErrors.x, E_Body.y, E_NB.z);
+
+	VECTOR3 CDUAngles = _V(sat->ogcdu.GetShaftAngle(), sat->igcdu.GetShaftAngle(), sat->mgcdu.GetShaftAngle());
+
+	VECTOR3 AGCAngles = _V(pow(2, -14)*180.0*(double)sat->agc.vagc->memory[0700], pow(2, -14)*180.0*(double)sat->agc.vagc->memory[0701], pow(2, -14)*180.0*(double)sat->agc.vagc->memory[0702]);
+
+	sprintf(oapiDebugString(), "IMU %lf %lf %lf CDU %lf %lf %lf AGC %lf %lf %lf", IMUAngles.x*DEG, IMUAngles.y*DEG, IMUAngles.z*DEG, CDUAngles.x*DEG, CDUAngles.y*DEG, CDUAngles.z*DEG, AGCAngles.x, AGCAngles.y, AGCAngles.z);
 
 	VECTOR3 target, errors;
-	if (S18_2 || thc_cw) {
+	if (true) {
 		// Get BMAG1 attitude errors
 		// Attitude hold automatic mode only when BMAG 1 uncaged and powered
-		target.x = (E1_506 && T1QS21) ? sat->bmag1.GetAttitudeError().x : 0.0;
-		target.y = (E1_506 && T3QS21) ? sat->bmag1.GetAttitudeError().y : 0.0;
-		target.z = (E1_506 && T2QS21) ? sat->bmag1.GetAttitudeError().z : 0.0;
+		if (sat->mcp_scc.GetGNAttitudeControl())
+		{
+			target = E_Body;
+		}
+		else if (sat->mcp_scc.GetGNEntryMode())
+		{
+			target = E_Body;//E_Entry;
+		}
+		else
+		{
+			target.x = (E1_506 && T1QS21) ? sat->bmag1.GetAttitudeError().x : 0.0;
+			target.y = (E1_506 && T3QS21) ? sat->bmag1.GetAttitudeError().y : 0.0;
+			target.z = (E1_506 && T2QS21) ? sat->bmag1.GetAttitudeError().z : 0.0;
+		}
+
+		//sprintf(oapiDebugString(), "GN Att %d Entry %d target %lf %lf %lf", sat->mcp_scc.GetGNAttitudeControl(), sat->mcp_scc.GetGNEntryMode(), target.x*DEG, target.y*DEG, target.z*DEG);
 				
 		// Now process
 		if(target.x > 0){ // Positive Error

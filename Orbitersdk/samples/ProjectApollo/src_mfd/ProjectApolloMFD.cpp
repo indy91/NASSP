@@ -189,6 +189,22 @@ int DoubleToBuffer(double x, double q, int m)
 	return out;
 }
 
+void send_rtc(unsigned int cmd)
+{
+	unsigned char cmdbuf[8];
+
+	//4 for CSM, 6 for RTC-COMMAND
+	cmdbuf[0] = 046;
+	cmdbuf[1] = cmd;
+
+	for (int i = 0; i < 2; i++) {
+		g_Data.uplinkBuffer.push(cmdbuf[i]);
+	}
+
+	g_Data.uplinkDataReady = 3;
+	g_Data.connStatus = 1;
+}
+
 void send_agc_key(char key)	{
 
 	int bytesXmit = SOCKET_ERROR;
@@ -269,13 +285,9 @@ void send_agc_key(char key)	{
 			cmdbuf[1] = 0301;
 			cmdbuf[2] = 0360;
 			break;
-		case 'S': // 11-001-101 10-010-011 (code 23)
+		case 'S': // 11-001-101 10-010-011 (Abort)
 			cmdbuf[1] = 0315;
 			cmdbuf[2] = 0223;
-			break;
-		case 'T': // 11-010-001 01-110-100 (code 24)
-			cmdbuf[1] = 0321;
-			cmdbuf[2] = 0164;
 			break;
 	}
 	for (int i = 0; i < 3; i++) {
@@ -348,6 +360,35 @@ void uplink_aeaa_cmd(bool arm, bool set)
 
 	g_Data.uplinkDataReady = 3;
 	g_Data.connStatus = 1;
+}
+
+void UplinkCSMRTC(unsigned int cmd)
+{
+	if (g_Data.connStatus == 0) {
+		int bytesRecv = SOCKET_ERROR;
+		char addr[256];
+		m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		if (m_socket == INVALID_SOCKET) {
+			g_Data.uplinkDataReady = 0;
+			sprintf(debugWinsock, "ERROR AT SOCKET(): %ld", WSAGetLastError());
+			closesocket(m_socket);
+			return;
+		}
+		sprintf(addr, "127.0.0.1");
+		clientService.sin_family = AF_INET;
+		clientService.sin_addr.s_addr = inet_addr(addr);
+		clientService.sin_port = htons(14242);
+		if (connect(m_socket, (SOCKADDR*)&clientService, sizeof(clientService)) == SOCKET_ERROR) {
+			g_Data.uplinkDataReady = 0;
+			sprintf(debugWinsock, "FAILED TO CONNECT, ERROR %ld", WSAGetLastError());
+			closesocket(m_socket);
+			return;
+		}
+		sprintf(debugWinsock, "CONNECTED");
+		g_Data.uplinkState = 0;
+		send_rtc(cmd);
+		g_Data.connStatus = 1;
+	}
 }
 
 void UplinkLMRTC(bool arm, bool set)
@@ -517,7 +558,7 @@ void UpdateClock()
 	}
 }
 
-void UplinkSunburstSuborbitalAbort()
+void UplinkSolariumAbort()
 {
 	g_Data.uplinkDataReady = 2;
 
@@ -546,40 +587,6 @@ void UplinkSunburstSuborbitalAbort()
 		g_Data.uplinkState = 0;
 
 		send_agc_key('S');
-		g_Data.connStatus = 1;
-		g_Data.uplinkState = 0;
-	}
-}
-
-void UplinkSunburstCOI()
-{
-	g_Data.uplinkDataReady = 2;
-
-	if (g_Data.connStatus == 0)
-	{
-		int bytesRecv = SOCKET_ERROR;
-		char addr[256];
-		m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-		if (m_socket == INVALID_SOCKET) {
-			g_Data.uplinkDataReady = 0;
-			sprintf(debugWinsock, "ERROR AT SOCKET(): %ld", WSAGetLastError());
-			closesocket(m_socket);
-			return;
-		}
-		sprintf(addr, "127.0.0.1");
-		clientService.sin_family = AF_INET;
-		clientService.sin_addr.s_addr = inet_addr(addr);
-		clientService.sin_port = htons(14242);
-		if (connect(m_socket, (SOCKADDR*)&clientService, sizeof(clientService)) == SOCKET_ERROR) {
-			g_Data.uplinkDataReady = 0;
-			sprintf(debugWinsock, "FAILED TO CONNECT, ERROR %ld", WSAGetLastError());
-			closesocket(m_socket);
-			return;
-		}
-		sprintf(debugWinsock, "CONNECTED");
-		g_Data.uplinkState = 0;
-
-		send_agc_key('T');
 		g_Data.connStatus = 1;
 		g_Data.uplinkState = 0;
 	}
@@ -1971,6 +1978,11 @@ void ProjectApolloMFD::SetRandomFailures(double FailureMultiplier)
 	}
 }
 
+void ProjectApolloMFD::SendCSMRTCCommand(unsigned int cmd)
+{
+	UplinkCSMRTC(cmd);
+}
+
 void ProjectApolloMFD::SetAEAACommands(int arm, int set)
 {
 	//g_Data.uplinkLEM = 1;
@@ -2245,14 +2257,9 @@ void ProjectApolloMFD::menuClockUpdate()
 	}
 }
 
-void ProjectApolloMFD::menuSunburstSuborbitalAbort()
+void ProjectApolloMFD::menuSolariumAbort()
 {
-
-}
-
-void ProjectApolloMFD::menuSunburstCOI()
-{
-
+	UplinkSolariumAbort();
 }
 
 void ProjectApolloMFD::menuAEAACommands()
@@ -2260,6 +2267,14 @@ void ProjectApolloMFD::menuAEAACommands()
 	if (g_Data.uplinkDataReady == 0) {
 		bool AEAACommandsInput(void *id, char *str, void *data);
 		oapiOpenInputBox("Ascent Engine Arming Assembly. Input: X X. First digit: 1 = Arm APS, 2 = AGS guidance control. Second digit: 1 = set, 2 = reset", AEAACommandsInput, 0, 20, (void*)this);
+	}
+}
+
+void ProjectApolloMFD::menuCSMRTCCommand()
+{
+	if (g_Data.uplinkDataReady == 0) {
+		bool CSMRTCCommandsInput(void *id, char *str, void *data);
+		oapiOpenInputBox("Enter CSM RTC Command", CSMRTCCommandsInput, 0, 20, (void*)this);
 	}
 }
 
@@ -2728,6 +2743,17 @@ bool AEAACommandsInput(void *id, char *str, void *data)
 	if (sscanf(str, "%d %d", &arm, &set) == 2)
 	{
 		((ProjectApolloMFD*)data)->SetAEAACommands(arm, set);
+		return true;
+	}
+	return false;
+}
+
+bool CSMRTCCommandsInput(void *id, char *str, void *data)
+{
+	unsigned int cmd;
+	if (sscanf(str, "%o", &cmd) == 1)
+	{
+		((ProjectApolloMFD*)data)->SendCSMRTCCommand(cmd);
 		return true;
 	}
 	return false;

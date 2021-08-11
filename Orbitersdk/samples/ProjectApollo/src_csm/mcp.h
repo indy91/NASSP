@@ -34,6 +34,9 @@ class Differentiator
 public:
 	Differentiator();
 	bool EvaluateState(bool in);
+
+	bool GetState() { return State; }
+	void SetState(bool s) { State = s; }
 protected:
 	bool State;
 };
@@ -74,6 +77,9 @@ public:
 	void LoadState(FILEHANDLE scn);
 
 	void RealTimeCommand(int cmd);
+
+	//From GSE
+	void MasterControlTransfer();
 	void ProgramerReset();
 
 	bool GetLETJettison() { return RTC40LETJettison; }
@@ -83,6 +89,10 @@ public:
 
 	bool GetGNFail() { return R1K60; }
 	bool GetGNFailInhibit() { return R1K61; }
+	bool GetDirectThrustOn() { return R1K78ABCD; }
+	bool GetDirectThrustOff() { return R1K77AB; }
+	bool GetDirectUllage() { return R1K72ABCD; }
+	bool GetFDAIAlign() { return R1K71AB; }
 protected:
 
 	void InputReset();
@@ -90,6 +100,14 @@ protected:
 	Saturn *Sat;
 
 	//RTCs
+	bool RTC24SMRCSAOff;
+	bool RTC25SMRCSBOff;
+	bool RTC26SMRCSCOff;
+	bool RTC27SMRCSDOff;
+	bool RTC32SMRCSAOn;
+	bool RTC33SMRCSBOn;
+	bool RTC34SMRCSCOn;
+	bool RTC35SMRCSDOn;
 	bool RTC40LETJettison;
 	bool RTC41GNFail;
 	bool RTC42GNFailInhibit;
@@ -97,17 +115,50 @@ protected:
 	bool RTC52PlusVHFAntennaOn;
 	bool RTC53GNAntennaSwitching;
 	bool RTC61CSMSep;
+	bool RTC62SBandReceiverOn;
+	bool RTC63UHFReceiverOn;
 	bool RTC71Abort;
 
 	//Relays
 
-	//G&N
-	bool R1K60;
-	bool R1K61;
+	bool R1K1ABCD;	// FC 1 Purge
+	bool R1K2ABCD;	// FC 2 Purge
+	bool R1K3ABCD;	// FC 3 Purge
+	bool R1K4AB;	// Roll Rate Backup
+	bool R1K5AB;	// Pitch Rate Backup
+	bool R1K6AB;	// Yaw Rate Backup
+	bool R1K7AB;	// Roll A&C Channel Disable
+	bool R1K8AB;	// Roll B&D Channel Disable
+	bool R1K9AB;	// Pitch Channel Disable
+	bool R1K10AB;	// Yaw Channel Disable
+	bool R1K11AB;	// Lift entry
+	bool R1K12ABCD;	// Direct Thrust On
+	bool R1K13AB;	// +Pitch Direct Rotation
+	bool R1K14AB;	// -Pitch Direct Rotation
+	bool R1K15AB;	// +Yaw Direct Rotation
+	bool R1K16AB;	// -Yaw Direct Rotation
+	bool R1K17AB;	// +Roll Direct Rotation
+	bool R1K18AB;	// -Roll Direct Rotation
 
-	//COMM
 	bool R1K33;
 	bool R1K34;
+	bool R1K37ABC;	// Receiver
+
+	bool R1K60;
+	bool R1K61;
+	bool R1K62;		// H2 Tank No. 2 Heater and Fans
+	bool R1K63;		// O2 Tank No. 2 Heater and Fans
+	bool R1K64;		// H2 Tank No. 1 Heater and Fans
+	bool R1K65;		// O2 Tank No. 1 Heater and Fans
+	bool R1K71AB;	// FDAI Align
+	bool R1K72ABCD;	// Direct Ullage
+	bool R1K77AB;	// Direct Thrust Off
+	bool R1K78ABCD;	// Direct Thrust On
+
+	bool R1K100;
+
+	//Differentiators
+	Differentiator SIVBRestartDiff;	
 
 	MCP_SCC *scc;
 };
@@ -131,9 +182,13 @@ public:
 	void MESCPyroBusesArm(bool set);
 	void MESCPyroBusASafe(bool set);
 	void MESCPyroBusBSafe(bool set);
+	void MasterControlTransfer();
 	void ResetGSESignals();
 
 	//Signals to external systems
+	bool GetRCSDump(bool IsSysA);	// K1
+	bool GetRCSPurge(bool IsSysA);	// K2
+	bool GetOxidDump(bool IsSysA);	// K3
 	bool GetFireArm(bool IsSysA);
 	bool GetFireSafe(bool IsSysA);
 	bool GetLESMotorFire(bool IsSysA);
@@ -143,6 +198,11 @@ public:
 	bool GetMESCLogicBusArm(bool IsSysA);
 	bool GetMESCPyroBusArm(bool IsSysA);
 	bool GetSeparateAbortSignal(bool IsSysA);
+	bool GetGimbalStart(bool yaw, int num);
+	bool GetGimbalOn(bool yaw, int num);
+	bool GetGimbalOff(bool yaw, int num);
+	bool GetGNAttitudeControl() { return R2K32ABC; }
+	bool GetGNEntryMode() { return R2K34ABC; }
 protected:
 
 	bool IsPowered();
@@ -150,6 +210,12 @@ protected:
 
 	bool bPower;
 
+	bool GetRCSDumpA();
+	bool GetRCSDumpB();
+	bool GetRCSPurgeA();
+	bool GetRCSPurgeB();
+	bool GetOxidDumpA();
+	bool GetOxidDumpB();
 	bool GetFireSafeA();
 	bool GetFireSafeB();
 	bool GetFireArmA();
@@ -169,6 +235,10 @@ protected:
 
 	//1
 	bool GNFailSignal;
+	//2
+	bool GimbalMotorsOn;
+	//4
+	bool SPSEngineHold;
 	//5?
 	bool LVSCSep25sSignal;
 	//6
@@ -187,6 +257,8 @@ protected:
 	bool LVSCSepSignal;
 	//13
 	bool ImpactSignal;
+	//12
+	bool CountdownResetSignal;
 
 	bool ImpactPlus11Signal;
 	bool HFOnPlus10sSignal;
@@ -198,67 +270,74 @@ protected:
 	bool GSEMESCPyroBusABArm;
 	bool GSEMESCPyroBusASafe;
 	bool GSEMESCPyroBusBSafe;
+	bool GSEECSStart;
 
 	//Relays (latching)
 
-	//SECS
-	bool R2K9A;
-	bool R2K9B;
-	bool R2K11A;
-	bool R2K11B;
-	bool R2K12A; //MESC Logic Bus B Arm
-	bool R2K12B; //MESC Logic Bus B Arm
-	bool R2K13A; //MESC Pyro Bus B Arm
-	bool R2K13B; //MESC Pyro Bus B Arm
-	bool R2K14A;
-	bool R2K14B;
-	bool R2K15A;
-	bool R2K15B;
-	bool R2K17A;
-	bool R2K17B;
-	bool R2K18A; //MESC Logic Bus A Arm
-	bool R2K18B; //MESC Logic Bus A Arm
-	bool R2K19A; //MESC Pyro Bus A Arm
-	bool R2K19B; //MESC Pyro Bus A Arm
-	bool R2K20A;
-	bool R2K20B;
-	bool R2K10AB;
-	bool R2K16AB;
-	bool R2K43A;
-	bool R2K43B;
-	bool R2K44A;
-	bool R2K44B;
-	bool R2K55ABC;
-	bool R2K67ABC;
-	bool R2K110;
-	bool R2K111;
-	bool R2K130; //Impact + 11s
-	bool R2K131; //CSM Sep
-	bool R2K132; //Liftoff TBD: Check number
-	bool R2K133A; //Check
-	bool R2K133B; //Check
-	bool R2K135;
-	bool R2K137;
-	bool R2K138A;
-	bool R2K138B;
-	bool R2K139A; //Check
-	bool R2K139B; //Check
-	bool R2K142;
-	bool R2K173; //G&N Fail
-	bool R2K222;
-
-	//COMM
-	bool R2K116;
-
-	//ELS
+	bool R2K1AB;	// RCS Dump A
+	bool R2K2AB;	// RCS Purge Activate
+	bool R2K3AB;	// Oxid Dump A
+	bool R2K6ABCD;	// Glycol Wetness Control
+	bool R2K7AB;	// O2 Isolation Valve Open
+	bool R2K8AB;	// Glycol Shutoff Valve Open
+	bool R2K9AB;	// Escape Tower Jettison Fire Arm A
+	bool R2K10AB;	// LES Motor Fire B
+	bool R2K11AB;	// CSM Sep B
+	bool R2K12AB;	// MESC Logic Bus B Arm
+	bool R2K13AB;	// MESC Pyro Bus B Arm
+	bool R2K14AB;	// ELS Activate B 
+	bool R2K15AB;	// Escape Tower Jettison Fire Arm B
+	bool R2K16AB;	// LES Motor Fire A
+	bool R2K17AB;	// CSM Sep A
+	bool R2K18AB;	// MESC Logic Bus A Arm
+	bool R2K19AB;	// MESC Pyro Bus A Arm
+	bool R2K20AB;	// ELS Activate A
+	bool R2K21AB;	// Yaw 1 Start
+	bool R2K22AB;	// Yaw 1 On
+	bool R2K23AB;	// Pitch 1 ON
+	bool R2K24AB;	// Pitch 1 Start
+	bool R2K25AB;	// Yaw 2 Start On
+	bool R2K26AB;	// Yaw 2 On
+	bool R2K27AB;	// Pitch 2 Start
+	bool R2K28AB;	// Pitch 2 On
+	bool R2K39AB;	// Gimbal Position Set
+	bool R2K40AB;	// Gimbal Position Set
+	bool R2K43AB;	// Sep/Abort A Off
+	bool R2K44AB;	// Sep/Abort B Off
+	bool R2K53AB;	// Gimbal Position Set
+	bool R2K55ABC;	// Main Chute Disconnect A
+	bool R2K56AB;	// Backpressure Control
+	bool R2K63AB;	// Vent Bags On, Uprighting Control
+	bool R2K66AB;	// Pumps Off, Uprighting Control
+	bool R2K67ABC;	// Main Chute Disconnect B
+	bool R2K68AB;	// Pseudo Rate Out
+	bool R2K69AB;	// Deadband Select
+	bool R2K70AB;	// RCS Dump B
+	bool R2K71AB;	// RCS Purge Activate
+	bool R2K72AB;	// Oxid Dump B
+	bool R2K100;	// Master Control
+	bool R2K110;	// Stable II
+	bool R2K111;	// Stable II plus 11 seconds?
+	bool R2K116;	//VHF Antenna
+	bool R2K130;	// Impact + 11s
+	bool R2K131;	// CSM Sep
+	bool R2K132;	// Liftoff TBD: Check number
+	bool R2K135;	// LET Jettison
+	bool R2K137;	// LV/SC Sep
+	bool R2K142;	// Low LES Abort
 	bool R2K147ABC; //Main impact
 	bool R2K147DEF; //Backup impact
+	bool R2K173;	// G&N Fail
+	bool R2K222;	// S-IVB Restart
 
 	//Relays (non-latching)
-	//LET Jettison
-	bool R2K187;
-	//CM/SM Sep
-	bool R2K188;
+	bool R2K32ABC;	// G&N Attitude Control
+	bool R2K34ABC;	// G&N Entry Mode
+	bool R2K133AB;	// CSM Sep
+	bool R2K138AB;	// CSM Sep
+	bool R2K139AB;	// CSM Sep
+	bool R2K187;	// LET Jettison
+	bool R2K188;	// CM/SM Sep
 	//Abort Inhibit?
 	bool R2K140;
 	//LET Jet
@@ -281,7 +360,8 @@ protected:
 	//LV/SC Sep without abort?
 	bool R2K129;
 	//Baro switch
-	bool R2K145_146;
+	bool R2K145;
+	bool R2K146;
 	//Backup impact
 	bool R2K192;
 	//Main impact
@@ -289,6 +369,8 @@ protected:
 	//Stable II
 	bool R2K149;
 	bool R2K186;
+	bool R2K132A_B;
+	bool R2K153ABC;
 
 	//Differentiators
 	Differentiator CSMSepDiff;
@@ -297,6 +379,9 @@ protected:
 	Differentiator SepAbortDiff;
 	Differentiator ImpactDiff;
 	Differentiator ImpactPlus11Diff;
+	Differentiator GimbalMotorsDiff;
+	Differentiator CountdownResetDiff;
+	Differentiator StableIIPlus1MinDiff;
 
 	//Timers
 	DelayTimer LESMotorFireTimer;
@@ -310,6 +395,19 @@ protected:
 	DelayTimer Impact11sTimer;
 	DelayTimer HFPlus1sTimer;
 	DelayTimer HFPlus2sTimer;
+	DelayTimer RCSPurge80sTimer;
+	DelayTimer RCSPurge250sTimer;
+	DelayTimer GimbalMotors30sTimer;
+	DelayTimer GimbalMotors80sTimer;
+	DelayTimer GimbalMotorYaw1StartTimer;
+	DelayTimer GimbalMotorYaw1OnTimer;
+	DelayTimer GimbalMotorYaw2StartTimer;
+	DelayTimer GimbalMotorYaw2OnPitch2StartTimer;
+	DelayTimer GimbalMotorPitch2OnTimer;
+	DelayTimer StableIIPlus1MinTimer;
+	DelayTimer FillBagsTimer1; //These three left to right in the schematic 11.3.3 AS-501 Systems Handbook
+	DelayTimer FillBagsTimer2;
+	DelayTimer FillBagsTimer3;
 
 	Saturn *Sat;
 	MCP_GCC *gcc;

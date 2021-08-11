@@ -474,6 +474,15 @@ void ML::clbkPreStep(double simt, double simdt, double mjd) {
 		sat = (Saturn *)oapiGetVesselInterface(hLV);
 
 		sat->ActivatePrelaunchVenting();
+
+		if (sat->GetMissionTime() > -60)
+		{
+			sat->MLMESCLogicBusesArm();
+		}
+		if (sat->GetMissionTime() > -55)
+		{
+			sat->MLMESCPyroBusesArm();
+		}
 		
 		if (sat->GetMissionTime() > -30)
 		{
@@ -648,6 +657,7 @@ void ML::clbkPreStep(double simt, double simdt, double mjd) {
 
 				if (bCommit)
 				{
+					sat->MLResetGSESignals();
 					IuUmb->Disconnect();
 					TSMUmb->Disconnect();
 					// Move swingarms

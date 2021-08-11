@@ -65,6 +65,7 @@ public:
 	void SetSIIEngineFailure(int n, double misst);
 	void SetRandomFailures(double FailureMultiplier);
 	void SetAEAACommands(int arm, int set);
+	void SendCSMRTCCommand(unsigned int cmd);
 
 	void menuVoid();
 	void menuSetMainPage();
@@ -90,8 +91,7 @@ public:
 	void menuAbortUplink();
 	void menuStateVectorUpdate();
 	void menuClockUpdate();
-	void menuSunburstSuborbitalAbort();
-	void menuSunburstCOI();
+	void menuSolariumAbort();
 	void menuSetSource();
 	void menuSetReference();
 	void menuSetSVSlot();
@@ -114,6 +114,7 @@ public:
 	void menuSetSIIEngineFailure();
 	void menuSetRandomFailures();
 	void menuAEAACommands();
+	void menuCSMRTCCommand();
 
 	void WriteStatus (FILEHANDLE scn) const;
 	void ReadStatus (FILEHANDLE scn);

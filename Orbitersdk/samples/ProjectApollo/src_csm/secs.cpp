@@ -37,336 +37,173 @@
 #include "secs.h"
 #include "papi.h"
 
-RCSC::RCSC():
-TD1(42.0),
-TD2(5.0),
-TD3(5.0),
-TD4(13.0),
-TD5(13.0),
-TD6(13.0),
-TD7(13.0),
-TD8(42.0)
+RCSC_BlockI::RCSC_BlockI():
+	TD1(42.0),
+	TD2(18.0)
 {
-	OxidizerDumpA = false;
-	OxidizerDumpB = false;
-	InterconnectAndPropellantBurnA = false;
-	InterconnectAndPropellantBurnB = false;
-	FuelAndOxidBypassPurgeA = false;
-	FuelAndOxidBypassPurgeB = false;
-	RCSCCMSMTransferA = false;
-	RCSCCMSMTransferB = false;
-	CMTransferMotor1 = false;
-	CMTransferMotor2 = false;
+	OxidizerDumpInhibitRelay = false;
+	RCSCCMSMTransfer = false;
+	OxidizerDumpRelays = false;
+	InterconnectAndPropellantBurn = false;
+	FuelAndOxidBypassPurge = false;
+	CMTransferMotor = false;
+	HeliumDumpRelay = false;
 
-	Mode1ASignal = false;
-
-	//RCSCDisplay = oapiCreateAnnotation(false, 0.65, _V(1, 1, 0));
-	//oapiAnnotationSetPos(RCSCDisplay, 0.66, 0.1, 0.99, 1);
+	mesc = NULL;
+	IsSystemA = false;
+	RCSLogicCB = NULL;
+	Sat = NULL;
 }
 
-void RCSC::TimerTimestep(double simdt)
+void RCSC_BlockI::Init(Saturn *v, MESC *m, CircuitBrakerSwitch *logiccb, bool IsSysA)
+{
+	IsSystemA = IsSysA;
+	mesc = m;
+	RCSLogicCB = logiccb;
+	Sat = v;
+}
+
+void RCSC_BlockI::TimerTimestep(double simdt)
 {
 	TD1.Timestep(simdt);
 	TD2.Timestep(simdt);
-	TD3.Timestep(simdt);
-	TD4.Timestep(simdt);
-	TD5.Timestep(simdt);
-	TD6.Timestep(simdt);
-	TD7.Timestep(simdt);
-	TD8.Timestep(simdt);
 }
 
-void RCSC::Timestep(double simdt)
+void RCSC_BlockI::Timestep(double simdt)
 {
 	TimerTimestep(simdt);
 
-	if (Sat->secs.MESCA.EDSLiftoffCircuitPower())
+	//Relay Logic
+	bool HasCMRCSLogic = CMRCSLogic();
+
+	if (mesc->EDSLiftoffCircuitPower())
 	{
-		if (!GetCMTransferMotor1())
-			StartPropellantDumpInhibitTimerA();
+		TD1.SetStart(true);
 	}
-	if (Sat->secs.MESCB.EDSLiftoffCircuitPower())
+	if (HasCMRCSLogic)
 	{
-		if (!GetCMTransferMotor2())
-			StartPropellantDumpInhibitTimerB();
+		TD1.SetRunning(true);
 	}
 
-	Mode1ASignal = false;
-	
-	if (Sat->secs.MESCA.GetCMSMDeadFace())
+	if (HasCMRCSLogic && TD1.ContactClosed())
 	{
-		RCSCCMSMTransferA = true;
-		if (Sat->PropDumpAutoSwitch.IsUp() && !TD1.ContactClosed())
-		{
-			Mode1ASignal = true;
-			
-			OxidizerDumpA = true;
-			TD3.SetStart(true);
-		}
+		OxidizerDumpInhibitRelay = true;
 	}
 	else
 	{
-		RCSCCMSMTransferA = false;
+		OxidizerDumpInhibitRelay = false;
 	}
-
-	if (RCSCCMSMTransferA)
+	if (mesc->GetCMSMDeadFace())
 	{
-		Sat->agc.SetInputChannelBit(06, CMSMSeperate, true);
-	}
-	else
-	{
-		Sat->agc.SetInputChannelBit(06, CMSMSeperate, false);
-	}
-
-	if (Sat->secs.MESCB.GetCMSMDeadFace())
-	{
-		RCSCCMSMTransferB = true;
-		if (Sat->PropDumpAutoSwitch.IsUp() && !TD8.ContactClosed())
-		{
-			Mode1ASignal = true;
-			
-			OxidizerDumpB = true;
-			TD2.SetStart(true);
-		}
+		RCSCCMSMTransfer = true;
 	}
 	else
 	{
-		RCSCCMSMTransferB = false;
+		RCSCCMSMTransfer = false;
+	}
+
+	bool DumpSwitchAutoLogic = mesc->GetCMSMDeadFace() && Sat->CMPropDumpSwitch.IsUp() && !Sat->mcp_scc.GetOxidDump(IsSystemA);
+
+	if (DumpSwitchAutoLogic && !OxidizerDumpInhibitRelay)
+	{
+		OxidizerDumpRelays = true;
+	}
+	else
+	{
+		OxidizerDumpRelays = false;
+	}
+
+	if (HasCMRCSLogic && Sat->mcp_scc.GetRCSDump(IsSystemA))
+	{
+		InterconnectAndPropellantBurn = true;
+	}
+	else
+	{
+		InterconnectAndPropellantBurn = false;
+	}
+	if (HasCMRCSLogic && Sat->mcp_scc.GetRCSDump(IsSystemA) && Sat->mcp_scc.GetRCSPurge(IsSystemA))
+	{
+		FuelAndOxidBypassPurge = true;
+	}
+	else
+	{
+		FuelAndOxidBypassPurge = false;
+	}
+
+	if (HasCMRCSLogic && OxidizerDumpRelays)
+	{
+		TD2.SetStart(true);
+	}
+	if (HasCMRCSLogic)
+	{
+		TD2.SetRunning(true);
+	}
+	if (InterconnectAndPropellantBurn)
+	{
+		TD2.Reset();
+	}
+	if (TD2.ContactClosed())
+	{
+		HeliumDumpRelay = true;
+	}
+	else
+	{
+		HeliumDumpRelay = false;
 	}
 
 	// CM/SM transfer motors
-	if (Sat->CMRCSLogicSwitch.IsUp() && Sat->RCSLogicMnACircuitBraker.IsPowered() && RCSCCMSMTransferA) {
-		CMTransferMotor1 = true;
-	}
-	if (Sat->CMRCSLogicSwitch.IsUp() && Sat->RCSLogicMnBCircuitBraker.IsPowered() && RCSCCMSMTransferB) {
-		CMTransferMotor2 = true;
+	if (HasCMRCSLogic && RCSCCMSMTransfer) {
+		CMTransferMotor = true;
 	}
 	if (Sat->RCSTrnfrSwitch.IsUp()) {
 		if (Sat->RCSLogicMnACircuitBraker.IsPowered()) {
-			CMTransferMotor1 = true;
-		}
-		if (Sat->RCSLogicMnBCircuitBraker.IsPowered()) {
-			CMTransferMotor2 = true;
+			CMTransferMotor = true;
 		}
 	}
 	else if (Sat->RCSTrnfrSwitch.IsDown()) {
 		if (Sat->RCSLogicMnACircuitBraker.IsPowered()) {
-			CMTransferMotor1 = false;
-		}
-		if (Sat->RCSLogicMnBCircuitBraker.IsPowered()) {
-			CMTransferMotor2 = false;
+			CMTransferMotor = false;
 		}
 	}
 
-	//TD1 logic
-	if (CMRCSLogicA() && !CMTransferMotor1) {
-		TD1.SetRunning(TD1.GetStart());
-	}
-	else
+
+	if (IsSystemA)
 	{
-		TD1.SetStart(false);
-	}
-	
-	if (CMRCSLogicA()) {
-
-		TD3.SetRunning(true);
-
-		if (TD3.ContactClosed())
+		if (RCSCCMSMTransfer)
 		{
-			TD5.SetRunning(true);
+			Sat->agc.SetInputChannelBit(06, CMSMSeperate, true);
 		}
-	}
-
-	if (CMPropellantDumpLogicA() || (CMRCSLogicA() && OxidizerDumpA))
-	{
-		InterconnectAndPropellantBurnA = true;
-	}
-	else
-	{
-		InterconnectAndPropellantBurnA = false;
-	}
-
-	//TD2 logic
-	if (CMRCSLogicB() && !CMTransferMotor2) {
-		TD8.SetRunning(TD8.GetStart());
-	}
-	else
-	{
-		TD8.SetStart(false);
-	}
-
-	if (CMRCSLogicB()) {
-
-		TD2.SetRunning(true);
-
-		if (TD2.ContactClosed())
+		else
 		{
-			TD4.SetRunning(true);
+			Sat->agc.SetInputChannelBit(06, CMSMSeperate, false);
 		}
 	}
-
-	if (CMPropellantDumpLogicB() || (CMRCSLogicB() && OxidizerDumpB))
-	{
-		InterconnectAndPropellantBurnB = true;
-	}
-	else
-	{
-		InterconnectAndPropellantBurnB = false;
-	}
-
-	if (TD5.ContactClosed() || CMPropellantPurgeLogicA() || CMRCSHeDumpLogicA())
-	{
-		FuelAndOxidBypassPurgeA = true;
-	}
-	else
-	{
-		FuelAndOxidBypassPurgeA = false;
-	}
-
-	if (TD4.ContactClosed() || CMPropellantPurgeLogicB() || CMRCSHeDumpLogicB())
-	{
-		FuelAndOxidBypassPurgeB = true;
-	}
-	else
-	{
-		FuelAndOxidBypassPurgeB = false;
-	}
-
-	//Mode 1A Display
-	/*char buffer[1024];
-	sprintf(buffer, "REACTION CONTROL SYSTEM CONTROLLER - MODE 1A\n\n");
-	if (OxidizerDumpA)
-	{
-		sprintf(buffer, "%sOxidizer Dump Relay - Energized\n", buffer);
-	}
-	else
-	{
-		sprintf(buffer, "%sOxidizer Dump Relay - Deenergized\n", buffer);
-	}
-	if (InterconnectAndPropellantBurnA)
-	{
-		sprintf(buffer, "%sHelium & Oxidizer Interconnect Relay - Energized\n", buffer);
-	}
-	else
-	{
-		sprintf(buffer, "%sHelium & Oxidizer Interconnect Relay - Deenergized\n", buffer);
-	}
-	sprintf(buffer, "%sCM RCS Fuel Dump Timer %.2f s\n", buffer, TD3.GetTime());
-	sprintf(buffer, "%sCM RCS Purge Timer %.2f s\n", buffer, TD5.GetTime());
-	if (FuelAndOxidBypassPurgeA)
-	{
-		sprintf(buffer, "%sFuel & Oxidizer Bypass Purge Relay - Energized\n", buffer);
-	}
-	else
-	{
-		sprintf(buffer, "%sFuel & Oxidizer Bypass Purge Relay - Deenergized\n", buffer);
-	}
-	if (GetOxidizerDumpRelay())
-	{
-		sprintf(buffer, "%sOxidizer Dumping - Energized\n", buffer);
-	}
-	else
-	{
-		sprintf(buffer, "%sOxidizer Dumping - Deenergized\n", buffer);
-	}
-	if (GetFuelDumpRelay())
-	{
-		sprintf(buffer, "%sFuel Dumping - Energized\n", buffer);
-	}
-	else
-	{
-		sprintf(buffer, "%sFuel Dumping - Deenergized\n", buffer);
-	}
-	if (GetOxidFuelPurgeRelay())
-	{
-		sprintf(buffer, "%sOxidizer & Fuel Purging - Energized\n", buffer);
-	}
-	else
-	{
-		sprintf(buffer, "%sOxidizer & Fuel Purging - Deenergized\n", buffer);
-	}
-
-	oapiAnnotationSetText(RCSCDisplay, buffer);*/
 }
 
-void RCSC::ControlVessel(Saturn *v)
+bool RCSC_BlockI::CMRCSLogic()
 {
-	Sat = v;
+	return (RCSLogicCB->Voltage() > SP_MIN_DCVOLTAGE) && Sat->CMRCSLogicSwitch.IsUp();
 }
 
-bool RCSC::CMRCSLogicA() 
-{ 
-	return (Sat->RCSLogicMnACircuitBraker.Voltage() > SP_MIN_DCVOLTAGE) && Sat->CMRCSLogicSwitch.IsUp(); 
-}
-bool RCSC::CMRCSLogicB() 
-{
-	return (Sat->RCSLogicMnBCircuitBraker.Voltage() > SP_MIN_DCVOLTAGE) && Sat->CMRCSLogicSwitch.IsUp(); 
-}
 
-bool RCSC::CMPropellantDumpLogicA() 
-{ 
-	return CMRCSLogicA() && Sat->CMPropDumpSwitch.IsUp(); 
-}
-
-bool RCSC::CMPropellantDumpLogicB() 
-{ 
-	return CMRCSLogicB() && Sat->CMPropDumpSwitch.IsUp(); 
-}
-
-bool RCSC::CMPropellantPurgeLogicA() 
-{ 
-	return CMPropellantDumpLogicA() && Sat->CMPropPurgeSwitch.IsUp(); 
-}
-
-bool RCSC::CMPropellantPurgeLogicB() 
-{ 
-	return CMPropellantDumpLogicB() && Sat->CMPropPurgeSwitch.IsUp(); 
-}
-
-bool RCSC::CMRCSHeDumpLogicA() 
-{ 
-	return (Sat->RCSLogicMnACircuitBraker.Voltage() > SP_MIN_DCVOLTAGE) && Sat->CmRcsHeDumpSwitch.GetState(); 
-}
-
-bool RCSC::CMRCSHeDumpLogicB() 
-{ 
-	return (Sat->RCSLogicMnBCircuitBraker.Voltage() > SP_MIN_DCVOLTAGE) && Sat->CmRcsHeDumpSwitch.GetState(); 
-}
-
-bool RCSC::GetCMTransferMotor(bool IsSystemA)
-{
-	if (IsSystemA) return GetCMTransferMotor1();
-
-	return GetCMTransferMotor2();
-}
-
-void RCSC::SaveState(FILEHANDLE scn, char *start_str, char *end_str) {
+void RCSC_BlockI::SaveState(FILEHANDLE scn, char *start_str, char *end_str) {
 	oapiWriteLine(scn, start_str);
 
-	papiWriteScenario_bool(scn, "OXIDIZERDUMPA", OxidizerDumpA);
-	papiWriteScenario_bool(scn, "OXIDIZERDUMPB", OxidizerDumpB);
-	papiWriteScenario_bool(scn, "INTERCONNECTANDPROPELLANTBURNA", InterconnectAndPropellantBurnA);
-	papiWriteScenario_bool(scn, "INTERCONNECTANDPROPELLANTBURNB", InterconnectAndPropellantBurnB);
-	papiWriteScenario_bool(scn, "FUELANDOXIDBYPASSPURGEA", FuelAndOxidBypassPurgeA);
-	papiWriteScenario_bool(scn, "FUELANDOXIDBYPASSPURGEB", FuelAndOxidBypassPurgeB);
-	papiWriteScenario_bool(scn, "RCSCCMSMTRANSFERA", RCSCCMSMTransferA);
-	papiWriteScenario_bool(scn, "RCSCCMSMTRANSFERB", RCSCCMSMTransferB);
-	papiWriteScenario_bool(scn, "CMTRANSFERMOTOR1", CMTransferMotor1);
-	papiWriteScenario_bool(scn, "CMTRANSFERMOTOR2", CMTransferMotor2);
+	papiWriteScenario_bool(scn, "OxidizerDumpInhibitRelay", OxidizerDumpInhibitRelay);
+	papiWriteScenario_bool(scn, "RCSCCMSMTransfer", RCSCCMSMTransfer);
+	papiWriteScenario_bool(scn, "OxidizerDumpRelays", OxidizerDumpRelays);
+	papiWriteScenario_bool(scn, "InterconnectAndPropellantBurn", InterconnectAndPropellantBurn);
+	papiWriteScenario_bool(scn, "FuelAndOxidBypassPurge", FuelAndOxidBypassPurge);
+	papiWriteScenario_bool(scn, "HeliumDumpRelay", HeliumDumpRelay);
+	papiWriteScenario_bool(scn, "CMTRANSFERMOTOR", CMTransferMotor);
 
 	TD1.SaveState(scn, "TD1_BEGIN", "TD1_END");
 	TD2.SaveState(scn, "TD2_BEGIN", "TD_END");
-	TD3.SaveState(scn, "TD3_BEGIN", "TD_END");
-	TD4.SaveState(scn, "TD4_BEGIN", "TD_END");
-	TD5.SaveState(scn, "TD5_BEGIN", "TD_END");
-	TD6.SaveState(scn, "TD6_BEGIN", "TD_END");
-	TD7.SaveState(scn, "TD7_BEGIN", "TD_END");
-	TD8.SaveState(scn, "TD8_BEGIN", "TD_END");
 
 	oapiWriteLine(scn, end_str);
 }
 
-void RCSC::LoadState(FILEHANDLE scn, char *end_str) {
+void RCSC_BlockI::LoadState(FILEHANDLE scn, char *end_str) {
 	char *line;
 	int tmp = 0; // Used in boolean type loader
 	int end_len = strlen(end_str);
@@ -375,40 +212,19 @@ void RCSC::LoadState(FILEHANDLE scn, char *end_str) {
 		if (!strnicmp(line, end_str, end_len)) {
 			break;
 		}
-		papiReadScenario_bool(line, "OXIDIZERDUMPA", OxidizerDumpA);
-		papiReadScenario_bool(line, "OXIDIZERDUMPB", OxidizerDumpB);
-		papiReadScenario_bool(line, "INTERCONNECTANDPROPELLANTBURNA", InterconnectAndPropellantBurnA);
-		papiReadScenario_bool(line, "INTERCONNECTANDPROPELLANTBURNB", InterconnectAndPropellantBurnB);
-		papiReadScenario_bool(line, "FUELANDOXIDBYPASSPURGEA", FuelAndOxidBypassPurgeA);
-		papiReadScenario_bool(line, "FUELANDOXIDBYPASSPURGEB", FuelAndOxidBypassPurgeB);
-		papiReadScenario_bool(line, "RCSCCMSMTRANSFERA", RCSCCMSMTransferA);
-		papiReadScenario_bool(line, "RCSCCMSMTRANSFERB", RCSCCMSMTransferB);
-		papiReadScenario_bool(line, "CMTRANSFERMOTOR1", CMTransferMotor1);
-		papiReadScenario_bool(line, "CMTRANSFERMOTOR2", CMTransferMotor2);
+		papiReadScenario_bool(line, "OxidizerDumpInhibitRelay", OxidizerDumpInhibitRelay);
+		papiReadScenario_bool(line, "RCSCCMSMTransfer", RCSCCMSMTransfer);
+		papiReadScenario_bool(line, "OxidizerDumpRelays", OxidizerDumpRelays);
+		papiReadScenario_bool(line, "InterconnectAndPropellantBurn", InterconnectAndPropellantBurn);
+		papiReadScenario_bool(line, "FuelAndOxidBypassPurge", FuelAndOxidBypassPurge);
+		papiReadScenario_bool(line, "HeliumDumpRelay", HeliumDumpRelay);
+		papiReadScenario_bool(line, "CMTRANSFERMOTOR", CMTransferMotor);
 
 		if (!strnicmp(line, "TD1_BEGIN", sizeof("TD1_BEGIN"))) {
 			TD1.LoadState(scn, "TD_END");
 		}
 		else if (!strnicmp(line, "TD2_BEGIN", sizeof("TD2_BEGIN"))) {
 			TD2.LoadState(scn, "TD_END");
-		}
-		else if (!strnicmp(line, "TD3_BEGIN", sizeof("TD3_BEGIN"))) {
-			TD3.LoadState(scn, "TD_END");
-		}
-		else if (!strnicmp(line, "TD4_BEGIN", sizeof("TD4_BEGIN"))) {
-			TD4.LoadState(scn, "TD_END");
-		}
-		else if (!strnicmp(line, "TD5_BEGIN", sizeof("TD5_BEGIN"))) {
-			TD5.LoadState(scn, "TD_END");
-		}
-		else if (!strnicmp(line, "TD6_BEGIN", sizeof("TD6_BEGIN"))) {
-			TD6.LoadState(scn, "TD_END");
-		}
-		else if (!strnicmp(line, "TD7_BEGIN", sizeof("TD7_BEGIN"))) {
-			TD7.LoadState(scn, "TD_END");
-		}
-		else if (!strnicmp(line, "TD8_BEGIN", sizeof("TD8_BEGIN"))) {
-			TD8.LoadState(scn, "TD_END");
 		}
 	}
 }
@@ -418,7 +234,7 @@ MESC::MESC():
 	TD3(0.1),
 	TD5(11.0),
 	TD7(3.0),
-	TD11(3.0),
+	TD11(1.7),
 	TD13(0.8),
 	TD15(1.0),
 	TD17(0.4),
@@ -466,6 +282,7 @@ MESC::MESC():
 	EventTimerControl = NULL;
 	Sat = NULL;
 	OtherMESC = NULL;
+	rcsc = NULL;
 	SECSLogicBreaker = NULL;
 	SECSArmBreaker = NULL;
 	RCSLogicCircuitBreaker = NULL;
@@ -474,7 +291,7 @@ MESC::MESC():
 	//MESCDisplay = NULL;
 }
 
-void MESC::Init(Saturn *v, DCbus *LogicBus, DCbus *PyroBus, MissionTimer *MT, ThreePosSwitch *MTC, EventTimer *ET, ThreePosSwitch *ETC, MESC* OtherMESCSystem, int IsSysA)
+void MESC::Init(Saturn *v, DCbus *LogicBus, DCbus *PyroBus, MissionTimer *MT, ThreePosSwitch *MTC, EventTimer *ET, ThreePosSwitch *ETC, MESC* OtherMESCSystem, RCSC_BlockI *r, int IsSysA)
 {
 	SECSLogicBus = LogicBus;
 	SECSPyroBus = PyroBus;
@@ -485,6 +302,7 @@ void MESC::Init(Saturn *v, DCbus *LogicBus, DCbus *PyroBus, MissionTimer *MT, Th
 	Sat = v;
 	OtherMESC = OtherMESCSystem;
 	IsSystemA = IsSysA;
+	rcsc = r;
 
 	//MESCDisplay = oapiCreateAnnotation(false, 0.65, _V(1, 1, 0));
 	//oapiAnnotationSetPos(MESCDisplay, 0, 0.1, 0.33, 1);
@@ -521,11 +339,16 @@ void MESC::Timestep(double simdt)
 	//
 
 	bool switchOn = (Sat->SECSLogic1Switch.IsUp() || Sat->SECSLogic2Switch.IsUp());
-	if (switchOn && Sat->mcp_scc.GetMESCLogicBusArm(IsSystemA) && SECSArmBreaker->IsPowered()) {
-		MESCLogicArm = true;
-		SECSLogicBus->WireTo(SECSLogicBreaker);
+	if (switchOn && Sat->mcp_scc.GetMESCLogicBusArm(IsSystemA) && SECSArmBreaker->IsPowered())
+	{
+		if (!MESCLogicArm)
+		{
+			MESCLogicArm = true;
+			SECSLogicBus->WireTo(SECSLogicBreaker);
+		}
 	}
-	else {
+	else if (MESCLogicArm)
+	{
 		MESCLogicArm = false;
 		SECSLogicBus->Disconnect();
 	}
@@ -618,6 +441,10 @@ void MESC::Timestep(double simdt)
 	{
 		BoosterCutoffAbortStartRelay = true;
 	}
+	else if (Sat->mcp_scc.GetSeparateAbortSignal(IsSystemA))
+	{
+		BoosterCutoffAbortStartRelay = true;
+	}
 	else
 	{
 		BoosterCutoffAbortStartRelay = false;
@@ -649,17 +476,21 @@ void MESC::Timestep(double simdt)
 		TD5.SetRunning(true);
 	}
 
+	//CM/SM Separation Logic
+	bool CMSMSeparateLogic1 = (ELSBatteryBreaker->IsPowered() && Sat->mcp_scc.GetCMSMSep(IsSystemA)) || (SequentialArmBus() && (Sat->CmSmSep1Switch.IsUp() || Sat->CmSmSep2Switch.IsUp()));
+	bool CMSMSeparateLogic2 = (MESCLogicBus() && LESAbortRelay);
+	bool CMSMSeparateLogic3 = (MESCLogicBus() && CMSMSeparateRelay);
+
+	CMSMSeparateLogic = CMSMSeparateLogic1 || CMSMSeparateLogic2 || CMSMSeparateLogic3;
+
 	//SM Jettison Controller Start
-	if (Sat->GetStage() < CM_STAGE && SequentialArmBus() && (Sat->CmSmSep1Switch.IsUp() || Sat->CmSmSep2Switch.IsUp()))
+	if (Sat->GetStage() < CM_STAGE && CMSMSeparateLogic1)
 	{
-		if (Sat->secs.rcsc.GetCMTransferMotor(IsSystemA) == false)
+		if (rcsc->GetCMTransferMotor() == false)
 		{
 			Sat->secs.GetSMJC(IsSystemA)->SMJettControllerStart();
 		}
 	}
-
-	//CM/SM Separation Logic
-	CMSMSeparateLogic = (MESCLogicBus() && LESAbortRelay) || (SequentialArmBus() && (Sat->CmSmSep1Switch.IsUp() || Sat->CmSmSep2Switch.IsUp())) || (MESCLogicBus() && CMSMSeparateRelay);
 
 	//CM/SM Deadface Relay
 	if (CMSMSeparateLogic && !PyroCutout)
@@ -778,7 +609,7 @@ void MESC::Timestep(double simdt)
 	}
 
 	//Pitch Control Motor
-	if (LESMotorFire && Sat->secs.rcsc.GetMode1ASignal())
+	if (LESMotorFire && rcsc->GetPCMFireEnable())
 	{
 		PitchControlMotorFire = true;
 	}
@@ -873,9 +704,10 @@ void MESC::Timestep(double simdt)
 	SSSInput1 = false;
 	SSSInput2 = false;
 
-	SSSInput1 = MESCLogicBus() && (TD7.ContactClosed() || Sat->ELSLogicSwitch.IsUp());
+	bool ELSLogic = ELSBatteryBreaker->IsPowered() && (Sat->ELSLogicSwitch.IsUp() || Sat->mcp_scc.GetELSActive(IsSystemA));
+	SSSInput1 = MESCLogicBus() && (TD7.ContactClosed() || ELSLogic);
 	
-	if (MESCLogicBus() && (CanardDeploy || Sat->ELSLogicSwitch.IsUp()) && Sat->els.BaroSwitch24k.IsClosed() && Sat->ELSAutoSwitch.IsUp())
+	if (MESCLogicBus() && (CanardDeploy || ELSLogic) && Sat->els.BaroSwitch24k.IsClosed() && Sat->ELSAutoSwitch.IsUp())
 	{
 		SSSInput2 = true;
 	}
@@ -1327,10 +1159,13 @@ void LDEC::Timestep(double simdt)
 
 	//Pyro Bus Motor
 
-	if (!SECSPyroBusMotor && SECSArmBreaker->IsPowered() && Sat->mcp_scc.GetMESCPyroBusArm(IsSystemA) && PyroArmSwitch->IsUp())
+	if (SECSArmBreaker->IsPowered() && Sat->mcp_scc.GetMESCPyroBusArm(IsSystemA) && PyroArmSwitch->IsUp())
 	{
-		SECSPyroBusMotor = true;
-		PyroBus->WireTo(PyroBusFeeder);
+		if (!SECSPyroBusMotor)
+		{
+			SECSPyroBusMotor = true;
+			PyroBus->WireTo(PyroBusFeeder);
+		}
 	}
 	else if (SECSPyroBusMotor)
 	{
@@ -1484,17 +1319,18 @@ SECS::~SECS()
 void SECS::ControlVessel(Saturn *v)
 {
 	Sat = v;
-	rcsc.ControlVessel(v);
 }
 
 void SECS::Realize()
 {
-	MESCA.Init(Sat, &Sat->SECSLogicBusA, &Sat->PyroBusA, &Sat->MissionTimer306Display, &Sat->MissionTimer306Switch, &Sat->EventTimer306Display, &Sat->EventTimerControl306Switch, &MESCB, true);
+	MESCA.Init(Sat, &Sat->SECSLogicBusA, &Sat->PyroBusA, &Sat->MissionTimer306Display, &Sat->MissionTimer306Switch, &Sat->EventTimer306Display, &Sat->EventTimerControl306Switch, &MESCB, &RCSCA, true);
 	MESCA.CBInit(&Sat->SECSLogicBatACircuitBraker, &Sat->SECSArmBatACircuitBraker, &Sat->RCSLogicMnACircuitBraker, &Sat->ELSBatACircuitBraker, &Sat->EDS1BatACircuitBraker);
-	MESCB.Init(Sat, &Sat->SECSLogicBusB, &Sat->PyroBusB, &Sat->MissionTimerDisplay, &Sat->MissionTimerSwitch, &Sat->EventTimerDisplay, &Sat->EventTimerContSwitch, &MESCA, false);
+	MESCB.Init(Sat, &Sat->SECSLogicBusB, &Sat->PyroBusB, &Sat->MissionTimerDisplay, &Sat->MissionTimerSwitch, &Sat->EventTimerDisplay, &Sat->EventTimerContSwitch, &MESCA, &RCSCB, false);
 	MESCB.CBInit(&Sat->SECSLogicBatBCircuitBraker, &Sat->SECSArmBatBCircuitBraker, &Sat->RCSLogicMnBCircuitBraker, &Sat->ELSBatBCircuitBraker, &Sat->EDS3BatBCircuitBraker);
 	LDECA.Init(true, Sat, &MESCA, &Sat->SECSArmBatACircuitBraker, &Sat->DockProbeMnACircuitBraker, &Sat->DockingProbeRetractPrimSwitch, &Sat->PyroArmASwitch, &Sat->PyroBusA, &Sat->PyroBusAFeeder);
 	LDECB.Init(false, Sat, &MESCB, &Sat->SECSArmBatBCircuitBraker, &Sat->DockProbeMnBCircuitBraker, &Sat->DockingProbeRetractSecSwitch, &Sat->PyroArmBSwitch, &Sat->PyroBusB, &Sat->PyroBusBFeeder);
+	RCSCA.Init(Sat, &MESCA, &Sat->RCSLogicMnACircuitBraker, true);
+	RCSCB.Init(Sat, &MESCB, &Sat->RCSLogicMnBCircuitBraker, false);
 }
 
 void SECS::InitSIMJett(CircuitBrakerSwitch *SMSec1PowerA, CircuitBrakerSwitch *SMSec1PowerB)
@@ -1507,7 +1343,8 @@ void SECS::SetSaturnType(int sattype)
 {
 	if (sattype == SAT_SATURN1B)
 	{
-		rcsc.SetPropellantDumpInhibitTimers(61.0);
+		RCSCA.SetPropellantDumpInhibitTimer(61.0);
+		RCSCB.SetPropellantDumpInhibitTimer(61.0);
 	}
 }
 
@@ -1518,7 +1355,8 @@ void SECS::Timestep(double simt, double simdt)
 
 	MESCA.Timestep(simdt);
 	MESCB.Timestep(simdt);
-	rcsc.Timestep(simdt);
+	RCSCA.Timestep(simdt);
+	RCSCB.Timestep(simdt);
 	LDECA.Timestep(simdt);
 	LDECB.Timestep(simdt);
 	if (SMJCA) SMJCA->Timestep(simdt, Sat->MainBusAController.IsSMBusPowered());
@@ -1740,7 +1578,8 @@ void SECS::SaveState(FILEHANDLE scn)
 	oapiWriteLine(scn, SECS_START_STRING);
 
 	oapiWriteScenario_int(scn, "STATE", State);
-	rcsc.SaveState(scn, "RCSC_BEGIN", "RCSC_END");
+	RCSCA.SaveState(scn, "RCSCA_BEGIN", "RCSC_END");
+	RCSCB.SaveState(scn, "RCSCB_BEGIN", "RCSC_END");
 	MESCA.SaveState(scn, "MESCA_BEGIN", "MESC_END");
 	MESCB.SaveState(scn, "MESCB_BEGIN", "MESC_END");
 	LDECA.SaveState(scn, "LDECA_BEGIN", "LDEC_END");
@@ -1763,8 +1602,11 @@ void SECS::LoadState(FILEHANDLE scn)
 
 		papiReadScenario_int(line, "STATE", State);
 		
-		if (!strnicmp(line, "RCSC_BEGIN", sizeof("RCSC_BEGIN"))) {
-			rcsc.LoadState(scn, "RCSC_END");
+		if (!strnicmp(line, "RCSCA_BEGIN", sizeof("RCSCA_BEGIN"))) {
+			RCSCA.LoadState(scn, "RCSC_END");
+		}
+		else if (!strnicmp(line, "RCSCB_BEGIN", sizeof("RCSCB_BEGIN"))) {
+			RCSCB.LoadState(scn, "RCSC_END");
 		}
 		else if (!strnicmp(line, "MESCA_BEGIN", sizeof("MESCA_BEGIN"))) {
 			MESCA.LoadState(scn, "MESC_END");

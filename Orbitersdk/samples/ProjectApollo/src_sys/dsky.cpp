@@ -203,6 +203,11 @@ void DSKY::Reset()
 	//
 
 	LastFlashTime = MINUS_INFINITY;
+
+	for (int i = 0;i < 33;i++)
+	{
+		CRelays[i] = false;
+	}
 }
 
 DSKY::~DSKY()

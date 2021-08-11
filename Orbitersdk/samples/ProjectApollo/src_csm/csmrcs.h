@@ -123,6 +123,8 @@ protected:
 	h_Radiator *package;
 };
 
+class RCSC_BlockI;
+
 ///
 /// \ingroup Propulsion
 ///
@@ -132,7 +134,7 @@ public:
 	CMRCSPropellantSource(PROPELLANT_HANDLE &ph, PanelSDK &p);
 	virtual ~CMRCSPropellantSource();
 
-	void Init(THRUSTER_HANDLE *th, h_Radiator *t, CMRCSPropellantSource *ic, e_object *pp, e_object *ppp, e_object *isol);
+	void Init(THRUSTER_HANDLE *th, h_Radiator *t, CMRCSPropellantSource *ic, e_object *pp, e_object *ppp, e_object *isol, RCSC_BlockI *r);
 	void Timestep(double simt, double simdt);
 	void SystemTimestep(double simdt);
 
@@ -169,6 +171,7 @@ protected:
 	h_Radiator *heliumTank;
 	CMRCSPropellantSource *interconnectedSystem;
 	e_object *purgePower, *purgePyroPower, *isolPower;
+	RCSC_BlockI *rcsc;
 };
 
 //

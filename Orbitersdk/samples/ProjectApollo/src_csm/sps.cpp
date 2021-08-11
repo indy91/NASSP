@@ -900,6 +900,8 @@ SPSGimbalActuator::SPSGimbalActuator() {
 	motor1StartSource = 0;
 	motor2Source = 0;
 	motor2StartSource = 0;
+
+	IsYaw = false;
 }
 
 SPSGimbalActuator::~SPSGimbalActuator() {
@@ -907,7 +909,7 @@ SPSGimbalActuator::~SPSGimbalActuator() {
 }
 
 void SPSGimbalActuator::Init(Saturn *s, ServoAmplifierModule *servoAmp, ThreePosSwitch *m1Switch, ThreePosSwitch *m2Switch,
-	                         e_object *m1Source, e_object *m1StartSource, e_object *m2Source, e_object *m2StartSource) {
+	                         e_object *m1Source, e_object *m1StartSource, e_object *m2Source, e_object *m2StartSource, bool yaw) {
 
 	saturn = s;
 	servoAmplifier = servoAmp;
@@ -917,6 +919,7 @@ void SPSGimbalActuator::Init(Saturn *s, ServoAmplifierModule *servoAmp, ThreePos
 	motor1StartSource = m1StartSource;
 	motor2Source = m2Source;
 	motor2StartSource = m2StartSource;
+	IsYaw = yaw;
 }
 
 void SPSGimbalActuator::Timestep(double simdt) {
@@ -933,24 +936,38 @@ void SPSGimbalActuator::Timestep(double simdt) {
 	// Motors
 	//
 
+	SwitchPower = motor1StartSource->Voltage() > SP_MIN_DCVOLTAGE;
+	MCPStart = saturn->mcp_scc.GetGimbalStart(IsYaw, 1);
+	MCPOn = saturn->mcp_scc.GetGimbalOn(IsYaw, 1);
+	MCPOff = saturn->mcp_scc.GetGimbalOff(IsYaw, 1);
+	SwitchStart = (SwitchPower && ((gimbalMotor1Switch->IsUp() && MCPOff) || MCPStart));
+	SwitchOn = (SwitchPower && ((gimbalMotor1Switch->IsCenter() && MCPOff) || MCPOn));
+	SwitchOff = (SwitchPower && (gimbalMotor1Switch->IsDown() && MCPOff));
+
 	if (motor1Running) {
-		if (gimbalMotor1Switch->IsDown() || motor1Source->Voltage() < SP_MIN_DCVOLTAGE) {
+		if ((SwitchOff && !SwitchOn) || motor1Source->Voltage() < SP_MIN_DCVOLTAGE) {
 			motor1Running = false;
 		}
 	} else {
-		if (gimbalMotor1Switch->IsUp() && motor1Source->Voltage() > SP_MIN_DCVOLTAGE && 
-			motor1StartSource->Voltage() > SP_MIN_DCVOLTAGE ) {
+		if (SwitchStart && motor1Source->Voltage() > SP_MIN_DCVOLTAGE) {
 			motor1Running = true;
 		}
 	}
 
+	SwitchPower = motor2StartSource->Voltage() > SP_MIN_DCVOLTAGE;
+	MCPStart = saturn->mcp_scc.GetGimbalStart(IsYaw, 2);
+	MCPOn = saturn->mcp_scc.GetGimbalOn(IsYaw, 2);
+	MCPOff = saturn->mcp_scc.GetGimbalOff(IsYaw, 2);
+	SwitchStart = (SwitchPower && ((gimbalMotor2Switch->IsUp() && MCPOff) || MCPStart));
+	SwitchOn = (SwitchPower && ((gimbalMotor2Switch->IsCenter() && MCPOff) || MCPOn));
+	SwitchOff = (SwitchPower && (gimbalMotor2Switch->IsDown() && MCPOff));
+
 	if (motor2Running) {
-		if (gimbalMotor2Switch->IsDown() || motor2Source->Voltage() < SP_MIN_DCVOLTAGE) {
+		if ((SwitchOff && !SwitchOn) || motor2Source->Voltage() < SP_MIN_DCVOLTAGE) {
 			motor2Running = false;
 		}
 	} else {
-		if (gimbalMotor2Switch->IsUp() && motor2Source->Voltage() > SP_MIN_DCVOLTAGE && 
-			motor2StartSource->Voltage() > SP_MIN_DCVOLTAGE ) {
+		if (SwitchStart && motor2Source->Voltage() > SP_MIN_DCVOLTAGE) {
 			motor2Running = true;
 		}
 	}

@@ -100,7 +100,6 @@ void MCP_ADS::SaveState(FILEHANDLE scn)
 void MCP_ADS::LoadState(FILEHANDLE scn)
 {
 	char *line;
-	float flt = 0;
 
 	while (oapiReadScenario_nextline(scn, line)) {
 		if (!strnicmp(line, MCP_ADS_END_STRING, sizeof(MCP_ADS_END_STRING)))
@@ -118,8 +117,35 @@ void MCP_ADS::LoadState(FILEHANDLE scn)
 
 MCP_GCC::MCP_GCC()
 {
+	R1K1ABCD = false;
+	R1K2ABCD = false;
+	R1K3ABCD = false;
+	R1K4AB = false;
+	R1K5AB = false;
+	R1K6AB = false;
+	R1K7AB = false;
+	R1K8AB = false;
+	R1K9AB = false;
+	R1K10AB = false;
+	R1K11AB = false;
+	R1K12ABCD = false;
+	R1K13AB = false;
+	R1K14AB = false;
+	R1K15AB = false;
+	R1K16AB = false;
+	R1K17AB = false;
+	R1K18AB = false;
 	R1K33 = false;
 	R1K34 = false;
+	R1K37ABC = false;
+	R1K62 = false;
+	R1K63 = false;
+	R1K64 = false;
+	R1K65 = false;
+	R1K71AB = false;
+	R1K100 = false;
+	R1K78ABCD = false;
+	R1K77AB = false;
 
 	InputReset();
 }
@@ -132,13 +158,23 @@ void MCP_GCC::Init(Saturn *s, MCP_SCC* sc)
 
 void MCP_GCC::InputReset()
 {
+	RTC24SMRCSAOff = false;
+	RTC25SMRCSBOff = false;
+	RTC26SMRCSCOff = false;
+	RTC27SMRCSDOff = false;
+	RTC32SMRCSAOn = false;
+	RTC33SMRCSBOn = false;
+	RTC34SMRCSCOn = false;
+	RTC35SMRCSDOn = false;
 	RTC40LETJettison = false;
 	RTC41GNFail = false;
 	RTC42GNFailInhibit = false;
 	RTC51MinusVHFAntennaOn = false;
 	RTC52PlusVHFAntennaOn = false;
-	RTC71Abort = false;
 	RTC61CSMSep = false;
+	RTC62SBandReceiverOn = false;
+	RTC63UHFReceiverOn = false;
+	RTC71Abort = false;
 }
 
 void MCP_GCC::Timestep(double simdt)
@@ -147,11 +183,9 @@ void MCP_GCC::Timestep(double simdt)
 	if (RTC41GNFail)
 	{
 		R1K60 = true;
-		R1K60 = false;
 	}
 	if (RTC42GNFailInhibit)
 	{
-		R1K60 = false;
 		R1K61 = true;
 	}
 
@@ -166,6 +200,18 @@ void MCP_GCC::Timestep(double simdt)
 		R1K33 = false;
 		R1K34 = true;
 	}
+	bool SIVBRestartDiffSignal = SIVBRestartDiff.EvaluateState(scc->GetRestartSignal());
+	if (RTC62SBandReceiverOn || SIVBRestartDiffSignal)
+	{
+		R1K37ABC = true;
+	}
+	else if (RTC63UHFReceiverOn)
+	{
+		R1K37ABC = false;
+	}
+
+	//PROP
+	R1K12ABCD = R1K78ABCD;
 
 	//UDL input duration is 25-35 milliseconds, so just reset it all on the next timestep. SCC has one timestep to recognize signal
 	InputReset();
@@ -175,27 +221,236 @@ void MCP_GCC::ProgramerReset()
 {
 	R1K33 = false;
 	R1K34 = false;
+	R1K37ABC = false;
+	R1K100 = false;
+}
+
+void MCP_GCC::MasterControlTransfer()
+{
+	R1K100 = true;
 }
 
 void MCP_GCC::RealTimeCommand(int cmd)
 {
 	switch (cmd)
 	{
-	case 041:
+	case 02: //FC 1 Purge
+		R1K1ABCD = true;
+		break;
+	case 03: //FC 2 Purge
+		R1K2ABCD = true;
+		break;
+	case 04: //FC 2 Purge
+		R1K3ABCD = true;
+		break;
+	case 05: // Reset RTC 2, 3 and 4
+		R1K1ABCD = false;
+		R1K2ABCD = false;
+		R1K3ABCD = false;
+		break;
+	case 010: //Lift Entry
+		R1K11AB = true;
+		break;
+	case 011: //Direct Thrust On
+		R1K78ABCD = true;
+		break;
+	case 012: //Direct Thrust Off
+		R1K77AB = false;
+		break;
+	case 013: //Reset RTC 10, 11, 12
+		R1K78ABCD = false;
+		R1K77AB = false;
+		R1K11AB = false;
+		break;
+	case 014: // +Pitch Direct Rotation
+		R1K13AB = true;
+		break;
+	case 015: // -Pitch Direct Rotation
+		R1K14AB = true;
+		break;
+	case 016: // +Yaw Direct Rotation
+		R1K15AB = true;
+		break;
+	case 017: // -Yaw Direct Rotation
+		R1K16AB = true;
+		break;
+	case 020: // +Roll Direct Rotation
+		R1K17AB = true;
+		break;
+	case 021: // -Roll Direct Rotation
+		R1K18AB = true;
+		break;
+	case 022: //Direct Ullage
+		R1K72ABCD = true;
+		break;
+	case 023: //Reset 14, 15, 16, 17, 20, 21, 22
+		R1K72ABCD = false;
+		R1K18AB = false;
+		R1K17AB = false;
+		R1K16AB = false;
+		R1K15AB = false;
+		R1K14AB = false;
+		R1K13AB = false;
+		break;
+	case 024: //Propellant OFF SM quad A
+		RTC24SMRCSAOff = true;
+		break;
+	case 025: //Propellant OFF SM quad B
+		RTC25SMRCSBOff = true;
+		break;
+	case 026: //Propellant OFF SM quad C
+		RTC26SMRCSCOff = true;
+		break;
+	case 027: //Propellant OFF SM quad D
+		RTC27SMRCSDOff = true;
+		break;
+	case 032: //Propellant ON SM quad A
+		RTC32SMRCSAOn = true;
+		break;
+	case 033: //Propellant ON SM quad B
+		RTC33SMRCSBOn = true;
+		break;
+	case 034: //Propellant ON SM quad C
+		RTC34SMRCSCOn = true;
+		break;
+	case 035: //Propellant ON SM quad D
+		RTC35SMRCSDOn = true;
+		break;
+	case 040: //Launch escape tower jettison
+		RTC40LETJettison = true;
+		break;
+	case 041: //G&N Fail
 		RTC41GNFail = true;
 		break;
-	case 042:
+	case 042: //G&N Fail Inhibit
 		RTC42GNFailInhibit = true;
 		break;
-	case 051:
+	case 043: //Reset RTC 41, 42
+		R1K60 = false;
+		R1K61 = false;
+		break;
+	case 044: //Roll rate backup
+		R1K4AB = true;
+		break;
+	case 045: //Pitch rate backup
+		R1K5AB = true;
+		break;
+	case 046: //Yaw rate backup
+		R1K6AB = true;
+		break;
+	case 047: //FDAI Align
+		R1K71AB = true;
+		break;
+	case 050: //Reset RTC 44-47
+		R1K71AB = false;
+		R1K4AB = false;
+		R1K5AB = false;
+		R1K6AB = false;
+		break;
+	case 051: //Negative-Z antenna ON (VHF scimitar only)
 		RTC51MinusVHFAntennaOn = true;
 		break;
-	case 052:
+	case 052: //Positive-Z antenna ON (VHF scimitar only)
 		RTC52PlusVHFAntennaOn = true;
 		break;
 	case 053:
 		RTC53GNAntennaSwitching = true;
 		break;
+	case 054: //Roll A and C channel disable
+		R1K7AB = true;
+		break;
+	case 055: //Roll B and D channel disable
+		R1K8AB = true;
+		break;
+	case 056: //Pitch channel disable
+		R1K9AB = true;
+		break;
+	case 057: //Yaw channel disable
+		R1K10AB = true;
+		break;
+	case 060: //Reset RTC 54-57
+		R1K7AB = false;
+		R1K8AB = false;
+		R1K9AB = false;
+		R1K10AB = false;
+		break;
+	case 061: //CM/SM Separation
+		RTC61CSMSep = true;
+		break;
+	case 062: //Updata link S-band receiver select
+		RTC62SBandReceiverOn = true;
+		break;
+	case 063: //Updata link UHF receiver select
+		RTC63UHFReceiverOn = true;
+		break;
+	case 064: //H2 Tank No. 2 Heater and Fans
+		R1K62 = true;
+		break;
+	case 065: //O2 Tank No. 2 Heater and Fans
+		R1K63 = true;
+		break;
+	case 066: //H2 Tank No. 1 Heater and Fans
+		R1K64 = true;
+		break;
+	case 067: //O2 Tank No. 1 Heater and Fans
+		R1K65 = true;
+		break;
+	case 070: //Reset RTC 64-67
+		R1K62 = false;
+		R1K63 = false;
+		R1K64 = false;
+		R1K65 = false;
+		break;
+	case 071: //Launch escape tower abort and MCP separation
+		RTC71Abort = true;
+		break;
+	case 074: //C-band OFF
+		break;
+	case 075: //C-band ON (2 pulse)
+		break;
+	case 076: //VHF transmitter OFF
+		break;
+	case 077: //VHF transmitter ON
+		break;
+	}
+}
+
+void MCP_GCC::SaveState(FILEHANDLE scn)
+{
+	oapiWriteLine(scn, MCP_GCC_START_STRING);
+
+	bool arr[15];
+
+	arr[0] = R1K1ABCD; arr[1] = R1K2ABCD; arr[2] = R1K3ABCD; arr[3] = R1K4AB; arr[4] = R1K5AB; arr[5] = R1K6AB; arr[6] = R1K7AB; arr[7] = R1K8AB;
+	arr[8] = R1K9AB; arr[9] = R1K10AB; arr[10] = R1K11AB; arr[11] = R1K12ABCD; arr[12] = R1K13AB; arr[13] = R1K14AB; arr[14] = R1K15AB;
+
+	papiWriteScenario_boolarr(scn, "RELAYS1", arr, 15);
+
+	arr[0] = SIVBRestartDiff.GetState();
+
+	papiWriteScenario_boolarr(scn, "DIFFERENTIATORS", arr, 1);
+
+	oapiWriteLine(scn, MCP_GCC_END_STRING);
+}
+
+void MCP_GCC::LoadState(FILEHANDLE scn)
+{
+	char *line;
+	bool arr[15];
+
+	while (oapiReadScenario_nextline(scn, line)) {
+		if (!strnicmp(line, MCP_GCC_END_STRING, sizeof(MCP_GCC_END_STRING)))
+			break;
+
+		if (papiReadScenario_boolarr(line, "RELAYS1", arr, 15))
+		{
+			R1K1ABCD = arr[0]; R1K2ABCD = arr[1]; R1K3ABCD = arr[2]; R1K4AB = arr[3]; R1K5AB = arr[4]; R1K6AB = arr[5]; R1K7AB = arr[6]; R1K8AB = arr[7];
+			R1K9AB = arr[8]; R1K10AB = arr[9]; R1K11AB = arr[10]; R1K12ABCD = arr[11]; R1K13AB = arr[12]; R1K14AB = arr[13]; R1K15AB = arr[14];
+		}
+		else if (papiReadScenario_boolarr(line, "DIFFERENTIATORS", arr, 1))
+		{
+			SIVBRestartDiff.SetState(arr[0]);
+		}
 	}
 }
 
@@ -210,56 +465,76 @@ MCP_SCC::MCP_SCC() :
 	ImpactTimer(14.0*60.0),
 	Impact11sTimer(11.0),
 	HFPlus1sTimer(1.0),
-	HFPlus2sTimer(1.0)
+	HFPlus2sTimer(1.0),
+	RCSPurge80sTimer(80.0),
+	RCSPurge250sTimer(250.0),
+	GimbalMotors30sTimer(3.0),
+	GimbalMotors80sTimer(8.0),
+	GimbalMotorYaw1StartTimer(1.0),
+	GimbalMotorYaw1OnTimer(1.5),
+	GimbalMotorYaw2StartTimer(2.0),
+	GimbalMotorYaw2OnPitch2StartTimer(2.5),
+	GimbalMotorPitch2OnTimer(3.0),
+	StableIIPlus1MinTimer(60.0),
+	FillBagsTimer1(300.0),
+	FillBagsTimer2(300.0),
+	FillBagsTimer3(300.0)
 {
 	bPower = false;
 
-	R2K135 = false;
-	R2K9A = false;
-	R2K9B = false;
-	R2K15A = false;
-	R2K15B = false;
+	R2K1AB = false;
+	R2K2AB = false;
+	R2K3AB = false;
+	R2K6ABCD = false;
+	R2K7AB = false;
+	R2K8AB = false;
+	R2K9AB = false;
 	R2K10AB = false;
+	R2K11AB = false;
+	R2K12AB = false;
+	R2K13AB = false;
+	R2K14AB = false;
+	R2K15AB = false;
 	R2K16AB = false;
+	R2K17AB = false;
+	R2K18AB = false;
+	R2K19AB = false;
+	R2K20AB = false;
+	R2K21AB = false;
+	R2K22AB = false;
+	R2K23AB = false;
+	R2K24AB = false;
+	R2K25AB = false;
+	R2K26AB = false;
+	R2K27AB = false;
+	R2K28AB = false;
+	R2K32ABC = false;
+	R2K34ABC = false;
+	R2K63AB = false;
+	R2K66AB = false;
+	R2K68AB = false;
+	R2K69AB = false;
+
+	R2K135 = false;
 	R2K222 = false;
-	R2K11A = false;
-	R2K11B = false;
-	R2K17A = false;
-	R2K17B = false;
 	R2K188 = false;
-	R2K14A = false;
-	R2K14B = false;
-	R2K20A = false;
-	R2K20B = false;
+	
 	R2K140 = false;
 	R2K137 = false;
 	R2K132 = false;
 	R2K177 = false;
 	R2K141 = false;
-	R2K138A = false;
-	R2K138B = false;
-	R2K133A = false;
-	R2K133B = false;
-	R2K139A = false;
-	R2K139B = false;
+	R2K133AB = false;
+	R2K138AB = false;
+	R2K139AB = false;
 	R2K202 = false;
 	R2K133 = false;
 	R2K142 = false;
 	R2K131 = false;
-	R2K12A = false;
-	R2K12B = false;
-	R2K18A = false;
-	R2K18B = false;
 	R2K116 = false;
-	R2K13A = false;
-	R2K13B = false;
-	R2K19A = false;
-	R2K19B = false;
 	R2K181 = false;
-	R2K43A = false;
-	R2K43B = false;
-	R2K44A = false;
-	R2K44B = false;
+	R2K43AB = false;
+	R2K44AB = false;
 	R2K173 = false;
 	R2K174 = false;
 	R2K125 = false;
@@ -273,15 +548,24 @@ MCP_SCC::MCP_SCC() :
 	R2K67ABC = false;
 	R2K130 = false;
 	R2K149 = false;
-	R2K110 = false;
-	R2K111 = false;
+	R2K110 = true; //??
+	R2K111 = true; //??
 	R2K186 = false;
+	R2K145 = false;
+	R2K146 = false;
+	R2K56AB = false;
+	R2K132A_B = false;
+	R2K70AB = false;
+	R2K71AB = false;
+	R2K72AB = false;
+	R2K153ABC = false;
 
 	GNFailSignal = false;
 	NoAbort = false;
 	b12KBaroSwitchPlus20sSignal = false;
 	ImpactSignal = false;
 	ImpactPlus11DiffSignal = false;
+	GimbalMotorsOn = false;
 
 	ResetGSESignals();
 }
@@ -306,6 +590,19 @@ void MCP_SCC::Timestep(double simdt)
 	Impact11sTimer.Timestep(simdt);
 	HFPlus1sTimer.Timestep(simdt);
 	HFPlus2sTimer.Timestep(simdt);
+	RCSPurge80sTimer.Timestep(simdt);
+	RCSPurge250sTimer.Timestep(simdt);
+	GimbalMotors30sTimer.Timestep(simdt);
+	GimbalMotors80sTimer.Timestep(simdt);
+	GimbalMotorYaw1StartTimer.Timestep(simdt);
+	GimbalMotorYaw1OnTimer.Timestep(simdt);
+	GimbalMotorYaw2StartTimer.Timestep(simdt);
+	GimbalMotorYaw2OnPitch2StartTimer.Timestep(simdt);
+	GimbalMotorPitch2OnTimer.Timestep(simdt);
+	StableIIPlus1MinTimer.Timestep(simdt);
+	FillBagsTimer1.Timestep(simdt);
+	FillBagsTimer2.Timestep(simdt);
+	FillBagsTimer3.Timestep(simdt);
 
 	DeterminePowerState();
 
@@ -329,6 +626,7 @@ void MCP_SCC::Timestep(double simdt)
 	{
 		R2K132 = true;
 	}
+	bool LiftoffSignal = R2K132;
 
 	//CSM Sep
 	if (!R2K131 && (gcc->GetCSMSep() || Sat->dsky.GetCRelay(25)))
@@ -345,17 +643,42 @@ void MCP_SCC::Timestep(double simdt)
 	R2K174 = gcc->GetGNFailInhibit();
 	GNFailSignal = (gcc->GetGNFail() || (R2K173 && !R2K174));
 
-	CSMSepSignal = R2K131;
+	CSMSepSignal = IsPowered() && R2K131;
+	bool R2K113ABC = CSMSepSignal;
+	bool R2K114ABC = R2K113ABC;
 
 	R2K125 = LESAbortSignal;
 	R2K126 = GNFailSignal;
 
 	NoAbort = (IsPowered() && !R2K125 && !R2K126);
 	R2K129 = (LVSCSep25sSignal && NoAbort);
+	bool GNModesAllowed = R2K129;
 
-	if (ads->Get005GSwitch() || (CSMSepSignal && R2K129 && Sat->dsky.GetCRelay(28)))
+	//X-Translation
+	bool R2K42AB = GNModesAllowed && Sat->dsky.GetCRelay(26);
+	//G&N Attitude Control Mode
+	R2K32ABC = GNModesAllowed && Sat->dsky.GetCRelay(22);
+	//G&N Entry Mode
+	R2K34ABC = GNModesAllowed && Sat->dsky.GetCRelay(24);
+	//G&N DV Mode
+	bool R2K36ABC = GNModesAllowed && Sat->dsky.GetCRelay(23);
 
-	if (IsPowered() && R2K132)
+	bool LVSepAndGNFail = GNFailSignal && LVSCSepSignal;
+
+	//SCS DV Mode
+	bool R2K57AB = LVSepAndGNFail && !R2K114ABC;
+	//SCS Entry Mode
+	bool R2K35AB = LVSepAndGNFail && R2K113ABC;
+	//Monitor Mode
+	bool R2K31AB = R2K57AB || R2K35AB || R2K32ABC || R2K36ABC || R2K34ABC;
+
+	//0.05g
+	b005GSignal = (ads->Get005GSwitch() || (CSMSepSignal && R2K129 && Sat->dsky.GetCRelay(28)));
+
+	//FDAI Align
+	bool R2K38AB = NoAbort && (gcc->GetFDAIAlign() || Sat->dsky.GetCRelay(30));
+
+	if (IsPowered() && LiftoffSignal)
 		LiftoffTimer.SetRunning(true);
 
 	if (LiftoffTimer.ContactClosed())
@@ -363,14 +686,17 @@ void MCP_SCC::Timestep(double simdt)
 	else
 		R2K177 = false;
 
-	R2K141 = IsPowered() && R2K177;
+	bool LiftoffPlus42sSignal = R2K141 = IsPowered() && R2K177;
+	if (LiftoffPlus42sSignal && !R2K133)
+	{
+		R2K3AB = true;
+		R2K72AB = true;
+	}
 
 	if (LETJettisonSignal)
 	{
-		R2K9A = true;
-		R2K9B = true;
-		R2K15A = true;
-		R2K15B = true;
+		R2K9AB = true;
+		R2K15AB = true;
 		LESMotorFireTimer.SetRunning(true);
 	}
 
@@ -397,25 +723,43 @@ void MCP_SCC::Timestep(double simdt)
 		R2K142 = true;
 	}
 
-	R2K133 = IsPowered() && R2K142;
+	R2K132A_B = b12KBaroSwitchPlus20sSignal;
+	if (b12KBaroSwitchPlus20sSignal)
+	{
+		RCSPurge250sTimer.SetRunning(true);
+	}
+	bool LowLESAbortSignal = R2K133 = IsPowered() && R2K142;
+
+	if (LowLESAbortSignal && !R2K132A_B)
+	{
+		RCSPurge80sTimer.SetRunning(true);
+	}
+
+	if (b12KBaroSwitchPlus20sSignal)
+	{
+		R2K1AB = true;
+		R2K70AB = true;
+	}
+	if (RCSPurge250sTimer.ContactClosed())
+	{
+		R2K2AB = true;
+	}
+	if (RCSPurge80sTimer.ContactClosed())
+	{
+		R2K71AB = true;
+	}
 
 	if (CSMSepSignal || LESAbortSignal)
 	{
-		R2K138A = true;
-		R2K138B = true;
-		R2K133A = true;
-		R2K133B = true;
-		R2K139A = true;
-		R2K139B = true;
+		R2K138AB = true;
+		R2K133AB = true;
+		R2K139AB = true;
 	}
 	else
 	{
-		R2K138A = false;
-		R2K138B = false;
-		R2K133A = false;
-		R2K133B = false;
-		R2K139A = false;
-		R2K139B = false;
+		R2K138AB = false;
+		R2K133AB = false;
+		R2K139AB = false;
 	}
 
 	//LV/SC Sep
@@ -449,18 +793,14 @@ void MCP_SCC::Timestep(double simdt)
 
 	if (IsPowered() && R2K188)
 	{
-		R2K11A = true;
-		R2K11B = true;
-		R2K17A = true;
-		R2K17B = true;
+		R2K11AB = true;
+		R2K17AB = true;
 	}
 
-	if (b005GSignal)
+	if (CSMSepSignal && b005GSignal)
 	{
-		R2K14A = true;
-		R2K14B = true;
-		R2K20A = true;
-		R2K20B = true;
+		R2K14AB = true;
+		R2K20AB = true;
 	}
 
 	//MESC Power
@@ -469,42 +809,35 @@ void MCP_SCC::Timestep(double simdt)
 	bool CSMSepDiffSignal = CSMSepDiff.EvaluateState(CSMSepSignal);
 	if (CSMSepDiffSignal || GSEMESCLogicBusABArm)
 	{
-		R2K18A = true;
-		R2K18B = true;
-		R2K12A = true;
-		R2K12B = true;
+		R2K18AB = true;
+		R2K12AB = true;
 	}
 
 	bool LVSCSep60sDiffSignal = LVSCSep60sDiff.EvaluateState(IsPowered() && LVSCSep60sTimer.ContactClosed());
 	if (ImpactPlus11DiffSignal || LVSCSep60sDiffSignal || GSEMESCLogicBusASafe)
 	{
-		R2K18A = false;
-		R2K18B = false;
+		R2K18AB = false;
 	}
 	if (ImpactPlus11Signal || LVSCSep60sDiffSignal || GSEMESCLogicBusBSafe)
 	{
-		R2K12A = false;
-		R2K12B = false;
+		R2K12AB = false;
 	}
+	CountdownResetSignal = CountdownResetDiff.EvaluateState(ImpactPlus11Signal || LVSCSep60sDiffSignal || GSEMESCLogicBusBSafe);
 
 	//MESC Pyro
 	if (GSEMESCPyroBusABArm || CSMSepSignal)
 	{
-		R2K19A = true;
-		R2K19B = true;
-		R2K13A = true;
-		R2K13B = true;
+		R2K19AB = true;
+		R2K13AB = true;
 	}
 	bool HFOnPlus10sDiffSignal = HFOnPlus10sDiff.EvaluateState(HFOnPlus10sSignal);
 	if (HFOnPlus10sDiffSignal || LVSCSep60sDiffSignal || GSEMESCPyroBusASafe)
 	{
-		R2K19A = false;
-		R2K19B = false;
+		R2K19AB = false;
 	}
 	if (HFOnPlus10sDiffSignal || LVSCSep60sDiffSignal || GSEMESCPyroBusBSafe)
 	{
-		R2K13A = false;
-		R2K13B = false;
+		R2K13AB = false;
 	}
 
 	//Sep/Abort
@@ -512,10 +845,8 @@ void MCP_SCC::Timestep(double simdt)
 
 	if (SepAbortDiffSignal)
 	{
-		R2K43A = true;
-		R2K43B = true;
-		R2K44A = true;
-		R2K44B = true;
+		R2K43AB = true;
+		R2K44AB = true;
 	}
 
 	if (LVSCSep25sSignal) LVSCSep30sTimer.SetRunning(true);
@@ -523,16 +854,21 @@ void MCP_SCC::Timestep(double simdt)
 
 	if (IsPowered() && LVSCSep30sTimer.ContactClosed())
 	{
-		R2K43A = false;
-		R2K43B = false;
-		R2K44A = false;
-		R2K44B = false;
+		R2K43AB = false;
+		R2K44AB = false;
+	}
+
+	if (CSMSepSignal)
+	{
+		R2K68AB = true;
+		R2K69AB = true;
 	}
 
 	//ELS
-	R2K145_146 = Sat->els.BaroSwitch10k.IsClosed();
+	R2K146 = Sat->els.ELSCA.GetMainParachuteDeployRelay();
+	R2K145 = Sat->els.ELSCB.GetMainParachuteDeployRelay();
 
-	if (IsPowered() && R2K145_146)
+	if (IsPowered() && (R2K145 || R2K146))
 	{
 		BaroSwitchTimer.SetRunning(true);
 		ImpactTimer.SetRunning(true);
@@ -570,7 +906,7 @@ void MCP_SCC::Timestep(double simdt)
 		R2K130 = true;
 	}
 
-	bool FPLPower = true;
+	bool FPLPower = Sat->FlightPostLandingBus.Voltage() > SP_MIN_DCVOLTAGE;
 	bool ImpactFPL = FPLPower && R2K147ABC;
 
 	if (ImpactFPL && ads->GetAttitudeSwitch())
@@ -608,30 +944,170 @@ void MCP_SCC::Timestep(double simdt)
 	}
 
 	ImpactPlus11DiffSignal = ImpactPlus11Diff.EvaluateState(ImpactPlus11Signal);
+
+	if (StableIISignal)
+	{
+		StableIIPlus1MinTimer.SetRunning(true);
+	}
+	bool R2K194ABC = StableIIPlus1MinTimer.ContactClosed();
+	bool StableIIPlus1MinSignal = FPLPower && R2K194ABC;
+	if (StableIIPlus1MinSignal)
+	{
+		FillBagsTimer1.SetRunning(true);
+	}
+	bool R2K197ABC = FillBagsTimer1.ContactClosed();
+	bool R2K150AB = FPLPower && R2K197ABC;
+	bool StableIIPlus1MinDiffSignal = StableIIPlus1MinDiff.EvaluateState(StableIIPlus1MinSignal);
+	if (FPLPower && R2K197ABC)
+	{
+		FillBagsTimer2.SetRunning(true);
+	}
+	bool R2K195ABC = FillBagsTimer2.ContactClosed();
+	bool R2K151AB = FPLPower && R2K195ABC;
+	bool R2K60AB = FPLPower && R2K194ABC && !R2K150AB;
+	bool R2K61AB = FPLPower && R2K197ABC && !R2K151AB;
+	if (R2K151AB)
+	{
+		FillBagsTimer3.SetRunning(true);
+	}
+	bool R2K196ABC = FillBagsTimer3.ContactClosed();
+	bool R2K152AB = FPLPower && R2K196ABC;
+	bool R2K62AB = R2K151AB && !R2K152AB;
+
+	if (StableIIPlus1MinDiffSignal)
+	{
+		R2K63AB = true;
+		R2K66AB = true;
+	}
+	if (FPLPower && R2K196ABC)
+	{
+		R2K66AB = false;
+	}
+
+	//ECS
+	if (LETJettisonSignal)
+	{
+		R2K6ABCD = true;
+	}
+	if (CSMSepSignal || LESAbortSignal || GSEECSStart)
+	{
+		R2K8AB = true;
+		R2K7AB = true;
+	}
+	else if (CountdownResetSignal)
+	{
+		R2K8AB = false;
+		R2K7AB = false;
+	}
+	if (GSEECSStart)
+	{
+		R2K56AB = true;
+	}
+
+	//PROP
+	bool R2K154ABC = (NoAbort && Sat->dsky.GetCRelay(29));
+	bool GimbalMotorsOn1 = (IsPowered() && R2K154ABC);
+	bool GimbalMotorsOn2 = gcc->GetDirectUllage() || gcc->GetDirectThrustOn();
+	bool GimbalMotorsOn3 = LiftoffSignal && !R2K153ABC;
+	GimbalMotorsOn = GimbalMotorsOn1 || GimbalMotorsOn2 || GimbalMotorsOn3;
+	if (IsPowered() && !GimbalMotorsOn)
+	{
+		GimbalMotors30sTimer.SetRunning(true);
+	}
+	R2K153ABC = GimbalMotors30sTimer.ContactClosed();
+
+	if (LiftoffSignal && !R2K153ABC)
+	{
+		GimbalMotors80sTimer.SetRunning(true);
+	}
+	bool R2K122 = GimbalMotors80sTimer.ContactClosed();
+	bool GimbalMotorsStartSequence = GimbalMotorsOn && !R2K122;
+	bool GimbalMotorsStopSignal = GimbalMotorsDiff.EvaluateState(GimbalMotors30sTimer.ContactClosed());
+
+	if (GimbalMotorsStartSequence)
+	{
+		GimbalMotorYaw1StartTimer.SetRunning(true);
+		GimbalMotorYaw1OnTimer.SetRunning(true);
+		GimbalMotorYaw2StartTimer.SetRunning(true);
+		GimbalMotorYaw2OnPitch2StartTimer.SetRunning(true);
+		GimbalMotorPitch2OnTimer.SetRunning(true);
+	}
+	bool R2K167AB = GimbalMotorYaw1StartTimer.ContactClosed();
+	if (R2K167AB)
+	{
+		R2K21AB = true;
+	}
+	bool R2K168AB = GimbalMotorYaw1OnTimer.ContactClosed();
+	if (R2K168AB)
+	{
+		R2K22AB = true;
+		R2K24AB = true;
+	}
+	bool R2K169AB = GimbalMotorYaw2StartTimer.ContactClosed();
+	if (R2K169AB)
+	{
+		R2K23AB = true;
+		R2K25AB = true;
+	}
+	bool R2K170AB = GimbalMotorYaw2OnPitch2StartTimer.ContactClosed();
+	if (R2K170AB)
+	{
+		R2K26AB = true;
+		R2K27AB = true;
+	}
+	bool R2K171AB = GimbalMotorPitch2OnTimer.ContactClosed();
+	if (R2K171AB)
+	{
+		R2K28AB = true;
+	}
+	if (GimbalMotorsStopSignal)
+	{
+		R2K21AB = false;
+		R2K22AB = false;
+		R2K23AB = false;
+		R2K24AB = false;
+		R2K25AB = false;
+		R2K26AB = false;
+		R2K27AB = false;
+		R2K28AB = false;
+	}
+
+	//sprintf(oapiDebugString(), "Logic Bus %d %d Pyro Bus %d %d Oxid Dump %d %d Tower %d %d LES %d %d", R2K18AB, R2K12AB, R2K19AB, R2K13AB, R2K3AB, R2K72AB, R2K9AB, R2K15AB, R2K16AB, R2K10AB);
 }
 
 void MCP_SCC::ProgramerReset()
 {
-	R2K9A = false;
-	R2K9B = false;
-	R2K15A = false;
-	R2K15B = false;
-	R2K135 = false;
+	R2K6ABCD = false;
+	R2K7AB = false;
+	R2K8AB = false;
+	R2K9AB = false;
 	R2K10AB = false;
+	R2K11AB = false;
+	R2K15AB = false;
 	R2K16AB = false;
+	R2K17AB = false;
+	R2K21AB = false;
+	R2K22AB = false;
+	R2K23AB = false;
+	R2K24AB = false;
+	R2K25AB = false;
+	R2K26AB = false;
+	R2K27AB = false;
+	R2K28AB = false;
+
+	R2K63AB = false;
+	R2K66AB = false;
+	R2K68AB = false;
+	R2K69AB = false;
+
+	R2K135 = false;
 	R2K222 = false;
-	R2K11A = false;
-	R2K11B = false;
-	R2K17A = false;
-	R2K17B = false;
 	R2K137 = false;
 	R2K132 = false;
 	R2K142 = false;
 	R2K131 = false;
-	R2K43A = false;
-	R2K43B = false;
-	R2K44A = false;
-	R2K44B = false;
+	R2K43AB = false;
+	R2K44AB = false;
 	R2K173 = false;
 	R2K147ABC = false;
 	R2K147DEF = false;
@@ -640,11 +1116,16 @@ void MCP_SCC::ProgramerReset()
 	R2K110 = true; //Is this right?
 	R2K111 = true;
 	R2K130 = false;
+	R2K56AB = false;
+	R2K100 = false;
+	R2K70AB = false;
+	R2K71AB = false;
+	R2K72AB = false;
 }
 
 bool MCP_SCC::GetFireSafeA()
 {
-	if (!R2K15A || !R2K15B)
+	if (!R2K15AB)
 	{
 		return true;
 	}
@@ -653,7 +1134,7 @@ bool MCP_SCC::GetFireSafeA()
 
 bool MCP_SCC::GetFireSafeB()
 {
-	if (!R2K9A || !R2K9B)
+	if (!R2K9AB)
 	{
 		return true;
 	}
@@ -662,7 +1143,7 @@ bool MCP_SCC::GetFireSafeB()
 
 bool MCP_SCC::GetFireArmA()
 {
-	if (R2K15A && R2K15B)
+	if (R2K15AB)
 	{
 		return true;
 	}
@@ -671,7 +1152,7 @@ bool MCP_SCC::GetFireArmA()
 
 bool MCP_SCC::GetFireArmB()
 {
-	if (R2K9A && R2K9B)
+	if (R2K9AB)
 	{
 		return true;
 	}
@@ -736,13 +1217,13 @@ void MCP_SCC::DeterminePowerState()
 
 bool MCP_SCC::GetCMSMSepA()
 {
-	if (R2K11A && R2K11B) return true;
+	if (R2K11AB) return true;
 	return false;
 }
 
 bool MCP_SCC::GetCMSMSepB()
 {
-	if (R2K17A && R2K17B) return true;
+	if (R2K17AB) return true;
 	return false;
 }
 
@@ -754,13 +1235,13 @@ bool MCP_SCC::GetCMSMSep(bool IsSysA)
 
 bool MCP_SCC::GetELSActiveA()
 {
-	if (R2K20A && R2K20B) return true;
+	if (R2K20AB) return true;
 	return false;
 }
 
 bool MCP_SCC::GetELSActiveB()
 {
-	if (R2K14A && R2K14B) return true;
+	if (R2K14AB) return true;
 	return false;
 }
 
@@ -798,12 +1279,12 @@ bool MCP_SCC::GetMESCLogicBusArm(bool IsSysA)
 
 bool MCP_SCC::GetMESCLogicBusArmA()
 {
-	return (R2K18A || R2K18B);
+	return R2K18AB;
 }
 
 bool MCP_SCC::GetMESCLogicBusArmB()
 {
-	return (R2K12A || R2K12B);
+	return R2K12AB;
 }
 
 void MCP_SCC::MESCPyroBusesArm(bool set)
@@ -821,6 +1302,11 @@ void MCP_SCC::MESCPyroBusBSafe(bool set)
 	GSEMESCPyroBusBSafe = set;
 }
 
+void MCP_SCC::MasterControlTransfer()
+{
+	R2K100 = true;
+}
+
 void MCP_SCC::ResetGSESignals()
 {
 	GSEMESCLogicBusABArm = false;
@@ -829,6 +1315,7 @@ void MCP_SCC::ResetGSESignals()
 	GSEMESCPyroBusABArm = false;
 	GSEMESCPyroBusASafe = false;
 	GSEMESCPyroBusBSafe = false;
+	GSEECSStart = false;
 }
 
 bool MCP_SCC::GetMESCPyroBusArm(bool IsSysA)
@@ -839,12 +1326,12 @@ bool MCP_SCC::GetMESCPyroBusArm(bool IsSysA)
 
 bool MCP_SCC::GetMESCPyroBusArmA()
 {
-	return (R2K19A || R2K19B);
+	return R2K19AB;
 }
 
 bool MCP_SCC::GetMESCPyroBusArmB()
 {
-	return (R2K13A || R2K13B);
+	return R2K13AB;
 }
 
 bool MCP_SCC::GetSeparateAbortSignal(bool IsSysA)
@@ -855,10 +1342,323 @@ bool MCP_SCC::GetSeparateAbortSignal(bool IsSysA)
 
 bool MCP_SCC::GetSeparateAbortSignalA()
 {
-	return (R2K43A && R2K43B);
+	return R2K43AB;
 }
 
 bool MCP_SCC::GetSeparateAbortSignalB()
 {
-	return (R2K44A && R2K44B);
+	return R2K44AB;
+}
+
+bool MCP_SCC::GetRCSDump(bool IsSysA)
+{
+	if (IsSysA) return GetRCSDumpA();
+	return GetRCSDumpB();
+}
+
+bool MCP_SCC::GetRCSDumpA()
+{
+	return R2K1AB;
+}
+
+bool MCP_SCC::GetRCSDumpB()
+{
+	return R2K70AB;
+}
+
+bool MCP_SCC::GetOxidDump(bool IsSysA)
+{
+	if (IsSysA) return GetOxidDumpA();
+	return GetRCSDumpB();
+}
+
+bool MCP_SCC::GetOxidDumpA()
+{
+	return R2K3AB;
+}
+
+bool MCP_SCC::GetOxidDumpB()
+{
+	return R2K72AB;
+}
+
+bool MCP_SCC::GetRCSPurge(bool IsSysA)
+{
+	if (IsSysA) return GetRCSPurgeA();
+	return GetRCSPurgeB();
+}
+
+bool MCP_SCC::GetRCSPurgeA()
+{
+	return R2K2AB;
+}
+
+bool MCP_SCC::GetRCSPurgeB()
+{
+	return R2K71AB;
+}
+
+bool MCP_SCC::GetGimbalStart(bool yaw, int num)
+{
+	if (yaw)
+	{
+		if (num == 1)
+		{
+			return R2K21AB && !R2K22AB;
+		}
+		else
+		{
+			return R2K25AB && !R2K26AB;
+		}
+	}
+	else
+	{
+		if (num == 1)
+		{
+			return R2K24AB && !R2K23AB;
+		}
+		else
+		{
+			return R2K27AB && !R2K28AB;
+		}
+	}
+}
+
+bool MCP_SCC::GetGimbalOn(bool yaw, int num)
+{
+	if (yaw)
+	{
+		if (num == 1)
+		{
+			return R2K21AB && R2K22AB;
+		}
+		else
+		{
+			return R2K25AB && R2K26AB;
+		}
+	}
+	else
+	{
+		if (num == 1)
+		{
+			return R2K24AB && R2K23AB;
+		}
+		else
+		{
+			return R2K27AB && R2K28AB;
+		}
+	}
+}
+
+bool MCP_SCC::GetGimbalOff(bool yaw, int num)
+{
+	if (yaw)
+	{
+		if (num == 1)
+		{
+			return !R2K21AB;
+		}
+		else
+		{
+			return !R2K25AB;
+		}
+	}
+	else
+	{
+		if (num == 1)
+		{
+			return !R2K24AB;
+		}
+		else
+		{
+			return !R2K27AB;
+		}
+	}
+}
+
+void MCP_SCC::SaveState(FILEHANDLE scn)
+{
+	bool arr[15];
+
+	oapiWriteLine(scn, MCP_SCC_START_STRING);
+
+	arr[0] = GNFailSignal; arr[1] = GimbalMotorsOn; arr[2] = false; arr[3] = SPSEngineHold; arr[4] = LVSCSep25sSignal; arr[5] = LESAbortSignal; arr[6] = CSMSepSignal; arr[7] = LETJettisonSignal;
+	arr[8] = b005GSignal; arr[9] = NoAbort; arr[10] = b12KBaroSwitchPlus20sSignal; arr[11] = LVSCSepSignal; arr[12] = ImpactSignal; arr[13] = CountdownResetSignal; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "SIGNALS1", arr, 15);
+
+	arr[0] = ImpactPlus11Signal; arr[1] = HFOnPlus10sSignal; arr[2] = ImpactPlus11DiffSignal; arr[3] = GSEMESCLogicBusABArm; arr[4] = GSEMESCLogicBusASafe; arr[5] = GSEMESCLogicBusBSafe;
+	arr[6] = GSEMESCPyroBusABArm; arr[7] = GSEMESCPyroBusASafe; arr[8] = GSEMESCPyroBusBSafe;
+	papiWriteScenario_boolarr(scn, "SIGNALS2", arr, 9);
+
+	arr[0] = R2K1AB; arr[1] = R2K2AB; arr[2] = R2K3AB; arr[3] = R2K6ABCD; arr[4] = R2K7AB; arr[5] = R2K8AB; arr[6] = R2K9AB; arr[7] = R2K10AB;
+	arr[8] = R2K11AB; arr[9] = R2K12AB; arr[10] = R2K13AB; arr[11] = R2K14AB; arr[12] = R2K15AB; arr[13] = R2K16AB; arr[14] = R2K17AB;
+	papiWriteScenario_boolarr(scn, "RELAYS1", arr, 15);
+
+	arr[0] = R2K18AB; arr[1] = R2K19AB; arr[2] = R2K20AB; arr[3] = R2K21AB; arr[4] = R2K22AB; arr[5] = R2K23AB; arr[6] = R2K24AB; arr[7] = R2K25AB;
+	arr[8] = R2K26AB; arr[9] = R2K27AB; arr[10] = R2K28AB; arr[11] = R2K39AB; arr[12] = R2K40AB; arr[13] = R2K43AB; arr[14] = R2K44AB;
+	papiWriteScenario_boolarr(scn, "RELAYS2", arr, 15);
+
+	arr[0] = R2K53AB; arr[1] = R2K55ABC; arr[2] = R2K56AB; arr[3] = R2K63AB; arr[4] = R2K66AB; arr[5] = R2K67ABC; arr[6] = R2K68AB; arr[7] = R2K69AB;
+	arr[8] = R2K70AB; arr[9] = R2K71AB; arr[10] = R2K72AB; arr[11] = R2K100; arr[12] = R2K110; arr[13] = R2K111; arr[14] = R2K116;
+	papiWriteScenario_boolarr(scn, "RELAYS3", arr, 15);
+
+	arr[0] = R2K130; arr[1] = R2K132; arr[2] = R2K135; arr[3] = R2K137; arr[4] = R2K142; arr[5] = R2K147ABC; arr[6] = R2K147DEF; arr[7] = R2K147DEF;
+	arr[8] = R2K173; arr[9] = R2K222;
+	papiWriteScenario_boolarr(scn, "RELAYS4", arr, 10);
+
+	arr[0] = CSMSepDiff.GetState(); arr[1] = LVSCSep60sDiff.GetState(); arr[2] = HFOnPlus10sDiff.GetState(); arr[3] = SepAbortDiff.GetState(); arr[4] = ImpactDiff.GetState();
+	arr[5] = ImpactPlus11Diff.GetState(); arr[6] = GimbalMotorsDiff.GetState(); arr[7] = CountdownResetDiff.GetState(); arr[8] = StableIIPlus1MinDiff.GetState();
+	papiWriteScenario_boolarr(scn, "DIFFERENTIATORS", arr, 9);
+
+	LESMotorFireTimer.SaveState(scn, "LESMotorFireTimer_BEGIN", "TD_END");
+	LiftoffTimer.SaveState(scn, "LiftoffTimer_BEGIN", "TD_END");
+	LVSCSep25sTimer.SaveState(scn, "LVSCSep25sTimer_BEGIN", "TD_END");
+	LVSCSep30sTimer.SaveState(scn, "LVSCSep30sTimer_BEGIN", "TD_END");
+	LVSCSep60sTimer.SaveState(scn, "LVSCSep60sTimer_BEGIN", "TD_END");
+	BaroSwitchTimer.SaveState(scn, "BaroSwitchTimer_BEGIN", "TD_END");
+	ImpactTimer.SaveState(scn, "ImpactTimer_BEGIN", "TD_END");
+	Impact11sTimer.SaveState(scn, "Impact11sTimer_BEGIN", "TD_END");
+	HFPlus1sTimer.SaveState(scn, "HFPlus1sTimer_BEGIN", "TD_END");
+	HFPlus2sTimer.SaveState(scn, "HFPlus2sTimer_BEGIN", "TD_END");
+	RCSPurge80sTimer.SaveState(scn, "RCSPurge80sTimer_BEGIN", "TD_END");
+	RCSPurge250sTimer.SaveState(scn, "RCSPurge250sTimer_BEGIN", "TD_END");
+	GimbalMotors30sTimer.SaveState(scn, "GimbalMotors30sTimer_BEGIN", "TD_END");
+	GimbalMotors80sTimer.SaveState(scn, "GimbalMotors80sTimer_BEGIN", "TD_END");
+	GimbalMotorYaw1StartTimer.SaveState(scn, "GimbalMotorYaw1StartTimer_BEGIN", "TD_END");
+	GimbalMotorYaw1OnTimer.SaveState(scn, "GimbalMotorYaw1OnTimer_BEGIN", "TD_END");
+	GimbalMotorYaw2StartTimer.SaveState(scn, "GimbalMotorYaw2StartTimer_BEGIN", "TD_END");
+	GimbalMotorYaw2OnPitch2StartTimer.SaveState(scn, "GimbalMotorYaw2OnPitch2StartTimer_BEGIN", "TD_END");
+	GimbalMotorPitch2OnTimer.SaveState(scn, "GimbalMotorPitch2OnTimer_BEGIN", "TD_END");
+	StableIIPlus1MinTimer.SaveState(scn, "StableIIPlus1MinTimer_BEGIN", "TD_END");
+	FillBagsTimer1.SaveState(scn, "FillBagsTimer1_BEGIN", "TD_END");
+	FillBagsTimer2.SaveState(scn, "FillBagsTimer2_BEGIN", "TD_END");
+	FillBagsTimer3.SaveState(scn, "FillBagsTimer3_BEGIN", "TD_END");
+
+	oapiWriteLine(scn, MCP_SCC_END_STRING);
+}
+
+void MCP_SCC::LoadState(FILEHANDLE scn)
+{
+	bool arr[15];
+	char *line;
+
+	while (oapiReadScenario_nextline(scn, line)) {
+		if (!strnicmp(line, MCP_SCC_END_STRING, sizeof(MCP_SCC_END_STRING)))
+			break;
+
+		if (papiReadScenario_boolarr(line, "SIGNALS1", arr, 15))
+		{
+			GNFailSignal = arr[0]; GimbalMotorsOn = arr[1]; SPSEngineHold = arr[3]; LVSCSep25sSignal = arr[4]; LESAbortSignal = arr[5]; CSMSepSignal = arr[6]; LETJettisonSignal = arr[7];
+			b005GSignal = arr[8]; NoAbort = arr[9]; b12KBaroSwitchPlus20sSignal = arr[10]; LVSCSepSignal = arr[11]; ImpactSignal = arr[12]; CountdownResetSignal = arr[13];
+		}
+		else if (papiReadScenario_boolarr(line, "SIGNALS2", arr, 9))
+		{
+			ImpactPlus11Signal = arr[0];
+			HFOnPlus10sSignal = arr[1];
+			ImpactPlus11DiffSignal = arr[2];
+			GSEMESCLogicBusABArm = arr[3];
+			GSEMESCLogicBusASafe = arr[4];
+			GSEMESCLogicBusBSafe = arr[5];
+			GSEMESCPyroBusABArm = arr[6];
+			GSEMESCPyroBusASafe = arr[7];
+			GSEMESCPyroBusBSafe = arr[8];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS1", arr, 15))
+		{
+			R2K1AB = arr[0]; R2K2AB = arr[1]; R2K3AB = arr[2]; R2K6ABCD = arr[3]; R2K7AB = arr[4]; R2K8AB = arr[5]; R2K9AB = arr[6]; R2K10AB = arr[7];
+			R2K11AB = arr[8]; R2K12AB = arr[9]; R2K13AB = arr[10]; R2K14AB = arr[11]; R2K15AB = arr[12]; R2K16AB = arr[13]; R2K17AB = arr[14];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS2", arr, 15))
+		{
+			R2K18AB = arr[0]; R2K19AB = arr[1]; R2K20AB = arr[2]; R2K21AB = arr[3]; R2K22AB = arr[4]; R2K23AB = arr[5]; R2K24AB = arr[6]; R2K25AB = arr[7];
+			R2K26AB = arr[8]; R2K27AB = arr[9]; R2K28AB = arr[10]; R2K39AB = arr[11]; R2K40AB = arr[12]; R2K43AB = arr[13]; R2K44AB = arr[14];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS3", arr, 15))
+		{
+			R2K53AB = arr[0]; R2K55ABC = arr[1]; R2K56AB = arr[2]; R2K63AB = arr[3]; R2K66AB = arr[4]; R2K67ABC = arr[5]; R2K68AB = arr[6]; R2K69AB = arr[7];
+			R2K70AB = arr[8]; R2K71AB = arr[9]; R2K72AB = arr[10]; R2K100 = arr[11]; R2K110 = arr[12]; R2K111 = arr[13]; R2K116 = arr[14];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS4", arr, 10))
+		{
+			R2K130 = arr[0]; R2K131 = arr[1]; R2K132 = arr[2]; R2K135 = arr[3]; R2K137 = arr[4]; R2K142 = arr[5]; R2K147ABC = arr[6]; R2K147DEF = arr[7];
+			R2K173 = arr[8]; R2K222 = arr[9];
+		}
+		else if (papiReadScenario_boolarr(line, "DIFFERENTIATORS", arr, 9))
+		{
+			CSMSepDiff.SetState(arr[0]); LVSCSep60sDiff.SetState(arr[1]); HFOnPlus10sDiff.SetState(arr[2]); SepAbortDiff.SetState(arr[3]); ImpactDiff.SetState(arr[4]);
+			ImpactPlus11Diff.SetState(arr[5]); GimbalMotorsDiff.SetState(arr[6]); CountdownResetDiff.SetState(arr[7]); StableIIPlus1MinDiff.SetState(arr[8]);
+		}
+		else if (!strnicmp(line, "LESMotorFireTimer_BEGIN", sizeof("LESMotorFireTimer_BEGIN"))) {
+			LESMotorFireTimer.LoadState(scn, "LESMotorFireTimer_END");
+		}
+		else if (!strnicmp(line, "CMSMSepTimer_BEGIN", sizeof("CMSMSepTimer_BEGIN"))) {
+			CMSMSepTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "LiftoffTimer_BEGIN", sizeof("LiftoffTimer_BEGIN"))) {
+			LiftoffTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "LVSCSep25sTimer_BEGIN", sizeof("LVSCSep25sTimer_BEGIN"))) {
+			LVSCSep25sTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "LVSCSep30sTimer_BEGIN", sizeof("LVSCSep30sTimer_BEGIN"))) {
+			LVSCSep30sTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "LVSCSep60sTimer_BEGIN", sizeof("LVSCSep60sTimer_BEGIN"))) {
+			LVSCSep60sTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "BaroSwitchTimer_BEGIN", sizeof("BaroSwitchTimer_BEGIN"))) {
+			BaroSwitchTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "ImpactTimer_BEGIN", sizeof("ImpactTimer_BEGIN"))) {
+			ImpactTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "Impact11sTimer_BEGIN", sizeof("Impact11sTimer_BEGIN"))) {
+			Impact11sTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "HFPlus1sTimer_BEGIN", sizeof("HFPlus1sTimer_BEGIN"))) {
+			HFPlus1sTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "HFPlus2sTimer_BEGIN", sizeof("HFPlus2sTimer_BEGIN"))) {
+			HFPlus2sTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "RCSPurge80sTimer_BEGIN", sizeof("RCSPurge80sTimer_BEGIN"))) {
+			RCSPurge80sTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "RCSPurge250sTimer_BEGIN", sizeof("RCSPurge250sTimer_BEGIN"))) {
+			RCSPurge250sTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "GimbalMotors30sTimer_BEGIN", sizeof("GimbalMotors30sTimer_BEGIN"))) {
+			GimbalMotors30sTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "GimbalMotors80sTimer_BEGIN", sizeof("GimbalMotors80sTimer_BEGIN"))) {
+			GimbalMotors80sTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "GimbalMotorYaw1StartTimer_BEGIN", sizeof("GimbalMotorYaw1StartTimer_BEGIN"))) {
+			GimbalMotorYaw1StartTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "GimbalMotorYaw1OnTimer_BEGIN", sizeof("GimbalMotorYaw1OnTimer_BEGIN"))) {
+			GimbalMotorYaw1OnTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "GimbalMotorYaw2StartTimer_BEGIN", sizeof("GimbalMotorYaw2StartTimer_BEGIN"))) {
+			GimbalMotorYaw2StartTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "GimbalMotorYaw2OnPitch2StartTimer_BEGIN", sizeof("GimbalMotorYaw2OnPitch2StartTimer_BEGIN"))) {
+			GimbalMotorYaw2OnPitch2StartTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "GimbalMotorPitch2OnTimer_BEGIN", sizeof("GimbalMotorPitch2OnTimer_BEGIN"))) {
+			GimbalMotorPitch2OnTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "StableIIPlus1MinTimer_BEGIN", sizeof("StableIIPlus1MinTimer_BEGIN"))) {
+			StableIIPlus1MinTimer.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "FillBagsTimer1_BEGIN", sizeof("FillBagsTimer1_BEGIN"))) {
+			FillBagsTimer1.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "FillBagsTimer2_BEGIN", sizeof("FillBagsTimer2_BEGIN"))) {
+			FillBagsTimer2.LoadState(scn, "TD_END");
+		}
+		else if (!strnicmp(line, "FillBagsTimer3_BEGIN", sizeof("FillBagsTimer3_BEGIN"))) {
+			FillBagsTimer3.LoadState(scn, "TD_END");
+		}
+	}
 }

@@ -30,9 +30,66 @@
 
 class Saturn;
 class FloatBag;
+class MESC;
+class MCP_SCC;
+
+//Reaction Control System Controller (Block I)
+class RCSC_BlockI
+{
+public:
+	RCSC_BlockI();
+	void Init(Saturn *v, MESC *m, CircuitBrakerSwitch *logiccb, bool IsSysA);
+	void Timestep(double simdt);
+	void SaveState(FILEHANDLE scn, char *start_str, char *end_str);
+	void LoadState(FILEHANDLE scn, char *end_str);
+
+	bool GetOxidizerDumpInhibitRelay() { return OxidizerDumpInhibitRelay; }
+	bool GetCMTransferMotor() { return CMTransferMotor; };
+	bool GetPCMFireEnable() { return OxidizerDumpRelays; };
+	bool GetOxidizerDumpRelay() { return OxidizerDumpRelays; }
+	bool GetInterconnectAndPropellantBurnRelay() { return InterconnectAndPropellantBurn; }
+	bool GetOxidFuelPurgeRelay() { return FuelAndOxidBypassPurge; }
+	bool GetFuelDumpRelay() { return false; }
+
+	void SetPropellantDumpInhibitTimer(double del) { TD1.SetDelay(del); }
+protected:
+
+	void TimerTimestep(double simdt);
+	bool CMRCSLogic();
+
+	//Propellant Dump and Purge Disable Timer
+	RestartableDelayTimer TD1;
+	//CM RCS Helium Dump Delay
+	RestartableDelayTimer TD2;
+
+	//Motor Switch
+
+	//S1
+	bool CMTransferMotor;
+
+	//Relays
+
+	//K1
+	bool OxidizerDumpInhibitRelay;
+	//K3
+	bool RCSCCMSMTransfer;
+	//K4, K5
+	bool OxidizerDumpRelays;
+	//K6, K7
+	bool InterconnectAndPropellantBurn;
+	//K8, K9
+	bool FuelAndOxidBypassPurge;
+	//K12, K13
+	bool HeliumDumpRelay;
+
+	MESC *mesc;
+	bool IsSystemA;
+	CircuitBrakerSwitch *RCSLogicCB;
+	Saturn *Sat;
+};
 
 //Reaction Control System Controller
-class RCSC
+/*class RCSC
 {
 public:
 	RCSC();
@@ -118,14 +175,14 @@ protected:
 	Saturn *Sat;
 
 	//NOTEHANDLE RCSCDisplay;
-};
+};*/
 
 //Master Events Sequence Controller
 class MESC
 {
 public:
 	MESC();
-	void Init(Saturn *v, DCbus *LogicBus, DCbus *PyroBus, MissionTimer *MT, ThreePosSwitch *MTC, EventTimer *ET, ThreePosSwitch *ETC, MESC* OtherMESCSystem, int IsSysA);
+	void Init(Saturn *v, DCbus *LogicBus, DCbus *PyroBus, MissionTimer *MT, ThreePosSwitch *MTC, EventTimer *ET, ThreePosSwitch *ETC, MESC* OtherMESCSystem, RCSC_BlockI *r, int IsSysA);
 	void CBInit(CircuitBrakerSwitch *SECSLogic, CircuitBrakerSwitch *SECSArm, CircuitBrakerSwitch *RCSLogicCB, CircuitBrakerSwitch *ELSBatteryCB, CircuitBrakerSwitch *EDSBreaker);
 	void Timestep(double simdt);
 
@@ -244,6 +301,7 @@ protected:
 	bool SSSInput2;
 	bool IsSystemA;
 	MESC* OtherMESC;
+	RCSC_BlockI *rcsc;
 
 	//Abort Start Delay
 	DelayTimer TD1;
@@ -384,8 +442,10 @@ public:
 	MESC MESCA;
 	//Master Events Sequence Controller B
 	MESC MESCB;
-	//Reaction Control System Controller
-	RCSC rcsc;
+	//Reaction Control System Controller A
+	RCSC_BlockI RCSCA;
+	//Reaction Control System Controller A
+	RCSC_BlockI RCSCB;
 	//Lunar Docking Events Controller A
 	LDEC LDECA;
 	//Lunar Docking Events Controller B

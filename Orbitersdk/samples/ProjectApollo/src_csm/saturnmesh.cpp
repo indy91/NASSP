@@ -560,9 +560,9 @@ void Saturn::SetCSMStage ()
 	ClearLVGuidLight();
 	ClearLVRateLight();
 	ClearSIISep();
-	agc.SetInputChannelBit(030, LiftOff, false);
-	agc.SetInputChannelBit(030, GuidanceReferenceRelease, false);
-	agc.SetInputChannelBit(030, UllageThrust, false);
+	agc.SetInputChannelBit(06, LiftOff, false);
+	agc.SetInputChannelBit(06, GuidanceReferenceRelease, false);
+	agc.SetInputChannelBit(06, UllageThrust, false);
 
 	//
 	// Delete any dangling propellant resources.
@@ -1053,9 +1053,9 @@ void Saturn::SetReentryStage ()
 	ClearLVGuidLight();
 	ClearLVRateLight();
 	ClearSIISep();
-	agc.SetInputChannelBit(030, LiftOff, false);
-	agc.SetInputChannelBit(030, GuidanceReferenceRelease, false);
-	agc.SetInputChannelBit(030, UllageThrust, false);
+	agc.SetInputChannelBit(06, LiftOff, false);
+	agc.SetInputChannelBit(06, GuidanceReferenceRelease, false);
+	agc.SetInputChannelBit(06, UllageThrust, false);
 
 	hga.DeleteAnimations();
 	SPSEngine.DeleteAnimations();

@@ -1460,29 +1460,23 @@ void ARCore::GetStateVectorFromAGC(bool csm)
 	}
 
 	unsigned short SVoct[16];
-	int SVadd, MoonBit;
+	int SVadd;
 	
 	if (csm)
 	{
-		SVadd = 01554;
-		MoonBit = 11;
+		SVadd = 0765;
 	}
 	else
 	{
 		SVadd = 01626;
-		MoonBit = 10;
 	}
 	
-	bool MoonFlag;
-
 	for (int i = 0;i < 14;i++)
 	{
 		SVoct[i] = vagc->memory[SVadd + i];
 	}
 	SVoct[14] = vagc->memory[SVadd + 38];
 	SVoct[15] = vagc->memory[SVadd + 39];
-
-	MoonFlag = (vagc->memory[0104] & (1 << MoonBit));
 
 	MATRIX3 Rot;
 	VECTOR3 R, V;
@@ -1496,24 +1490,12 @@ void ARCore::GetStateVectorFromAGC(bool csm)
 	V.z = OrbMech::DecToDouble(SVoct[10], SVoct[11])*100.0;
 	GET = (OrbMech::DecToDouble(SVoct[12], SVoct[13]) - OrbMech::DecToDouble(SVoct[14], SVoct[15])) / 100.0*pow(2, 28);
 
-	if (MoonFlag)
-	{
-		R.x *= pow(2, 27);
-		R.y *= pow(2, 27);
-		R.z *= pow(2, 27);
-		V.x *= pow(2, 5);
-		V.y *= pow(2, 5);
-		V.z *= pow(2, 5);
-	}
-	else
-	{
-		R.x *= pow(2, 29);
-		R.y *= pow(2, 29);
-		R.z *= pow(2, 29);
-		V.x *= pow(2, 7);
-		V.y *= pow(2, 7);
-		V.z *= pow(2, 7);
-	}
+	R.x *= pow(2, 29);
+	R.y *= pow(2, 29);
+	R.z *= pow(2, 29);
+	V.x *= pow(2, 7);
+	V.y *= pow(2, 7);
+	V.z *= pow(2, 7);
 
 	Rot = OrbMech::J2000EclToBRCS(GC->rtcc->SystemParameters.AGCEpoch);
 
@@ -1529,14 +1511,7 @@ void ARCore::GetStateVectorFromAGC(bool csm)
 		sv.GMT = GET + GC->rtcc->GetLGCClockZero();
 	}
 	
-	if (MoonFlag)
-	{
-		sv.RBI = BODY_MOON;
-	}
-	else
-	{
-		sv.RBI = BODY_EARTH;
-	}
+	sv.RBI = BODY_EARTH;
 
 	if (csm)
 	{

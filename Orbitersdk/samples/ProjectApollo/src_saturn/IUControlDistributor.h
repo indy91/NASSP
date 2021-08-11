@@ -55,6 +55,7 @@ public:
 	void SetExcessiveRateRollAutoAbortInhibit(bool set) { ExcessiveRateRollAutoAbortInhibit = set; }
 	void SetTwoEngOutAutoAbortInhibitEnable() { TwoEngOutAutoAbortInhibitEnable = true; }
 	void SetQBallPower(bool set) { QBallPowerOn = set; }
+	void SetLVSCSeparationSequenceStart() { LVSCSeparationSequenceStartA = LVSCSeparationSequenceStartB = true; }
 
 	//For FCC
 	bool GetFCCPowerOn() { return FCCPowerOn; }
@@ -89,6 +90,8 @@ public:
 
 	//For Spacecraft
 	bool GetQBallPower() { return QBallPowerOn; }
+	bool GetLVSCSepCmdA() { return LVSCSeparationSequenceStartA; }
+	bool GetLVSCSepCmdB() { return LVSCSeparationSequenceStartB; }
 protected:
 	IU *iu;
 
@@ -130,6 +133,10 @@ protected:
 	//A7K2/3
 	bool SIVBThrustNotOK;
 	bool ControlSignalProcessorPowerOn;
+
+	//K156, K165
+	bool LVSCSeparationSequenceStartA;
+	bool LVSCSeparationSequenceStartB;
 };
 
 class IUControlDistributor1B : public IUControlDistributor

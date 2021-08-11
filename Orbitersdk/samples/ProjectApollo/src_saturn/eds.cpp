@@ -103,8 +103,6 @@ EDS::EDS(IU *iu)
 	AutoAbortBusGSEMonitor = false;
 	TowerJettisonA = false;
 	TowerJettisonB = false;
-	LVSCSeparationA = false;
-	LVSCSeparationB = false;
 
 	AutoAbortBus = false;
 	IUEDSBusPowered = true;
@@ -200,7 +198,7 @@ void EDS::Timestep(double simdt)
 		TwoEngineOutAutoAbortInhibitNo2 = false;
 
 	if (iu->ESEGetTwoEngineOutAutoAbortInhibit(3) || tempsignal1)
-		TwoEngineOutAutoAbortInhibitNo2 = true;
+		TwoEngineOutAutoAbortInhibitNo3 = true;
 	else
 		TwoEngineOutAutoAbortInhibitNo3 = false;
 
@@ -407,11 +405,11 @@ void EDS::Timestep(double simdt)
 		iu->GetLVIMU()->SetFailed();
 	}
 
-	//Guidance Reference Release
-	if (iu->ESEGetGuidanceReferenceRelease())
+	//Guidance Reference Release. Apparently not sent on Apollo 4
+	/*if (iu->ESEGetGuidanceReferenceRelease())
 		iu->GetCommandConnector()->SetAGCInputChannelBit(06, GuidanceReferenceRelease, true);
 	else
-		iu->GetCommandConnector()->SetAGCInputChannelBit(06, GuidanceReferenceRelease, false);
+		iu->GetCommandConnector()->SetAGCInputChannelBit(06, GuidanceReferenceRelease, false);*/
 
 	//Liftoff
 	if (LiftoffRelay)
@@ -606,6 +604,8 @@ void EDS::SaveState(FILEHANDLE scn) {
 	papiWriteScenario_bool(scn, "IUCOMMANDSYSTEMENABLE", IUCommandSystemEnable);
 	papiWriteScenario_bool(scn, "ABORTLIGHTSIGNAL", AbortLightSignal);
 	papiWriteScenario_bool(scn, "LIFTOFFRELAY", LiftoffRelay);
+	papiWriteScenario_bool(scn, "TowerJettisonA", TowerJettisonA);
+	papiWriteScenario_bool(scn, "TowerJettisonB", TowerJettisonB);
 }
 
 void EDS::LoadState(char *line)
@@ -631,6 +631,8 @@ void EDS::LoadState(char *line)
 	papiReadScenario_bool(line, "IUCOMMANDSYSTEMENABLE", IUCommandSystemEnable);
 	papiReadScenario_bool(line, "ABORTLIGHTSIGNAL", AbortLightSignal);
 	papiReadScenario_bool(line, "LIFTOFFRELAY", LiftoffRelay);
+	papiReadScenario_bool(line, "TowerJettisonA", TowerJettisonA);
+	papiReadScenario_bool(line, "TowerJettisonB", TowerJettisonB);
 }
 
 EDS1B::EDS1B(IU *iu) : EDS(iu)

@@ -1410,6 +1410,9 @@ void Saturn::clbkSaveState(FILEHANDLE scn)
 	igcdu.SaveState(scn, "IGCDU_START", "CDU_END");
 	mgcdu.SaveState(scn, "MGCDU_START", "CDU_END");
 	cws.SaveState(scn);
+	mcp_ads.SaveState(scn);
+	mcp_gcc.SaveState(scn);
+	mcp_scc.SaveState(scn);
 	secs.SaveState(scn);
 	els.SaveState(scn);
 
@@ -2065,6 +2068,15 @@ bool Saturn::ProcessConfigFileLine(FILEHANDLE scn, char *line)
 	}
 	else if (!strnicmp(line, CWS_START_STRING, sizeof(CWS_START_STRING))) {
 		cws.LoadState(scn);
+	}
+	else if (!strnicmp(line, MCP_ADS_START_STRING, sizeof(MCP_ADS_START_STRING))) {
+		mcp_ads.LoadState(scn);
+	}
+	else if (!strnicmp(line, MCP_GCC_START_STRING, sizeof(MCP_GCC_START_STRING))) {
+		mcp_gcc.LoadState(scn);
+	}
+	else if (!strnicmp(line, MCP_SCC_START_STRING, sizeof(MCP_SCC_START_STRING))) {
+		mcp_scc.LoadState(scn);
 	}
 	else if (!strnicmp(line, SECS_START_STRING, sizeof(SECS_START_STRING))) {
 		secs.LoadState(scn);
@@ -4657,6 +4669,21 @@ void Saturn::SetAPSAttitudeEngine(int n, bool on)
 	if (stage != LAUNCH_STAGE_SIVB && stage != STAGE_ORBIT_SIVB) return;
 
 	sivb->SetAPSAttitudeEngine(n, on);
+}
+
+void Saturn::MLMESCLogicBusesArm()
+{
+	mcp_scc.MESCLogicBusesArm(true);
+}
+
+void Saturn::MLMESCPyroBusesArm()
+{
+	mcp_scc.MESCPyroBusesArm(true);
+}
+
+void Saturn::MLResetGSESignals()
+{
+	mcp_scc.ResetGSESignals();
 }
 
 bool Saturn::GetCMCSIVBTakeover()

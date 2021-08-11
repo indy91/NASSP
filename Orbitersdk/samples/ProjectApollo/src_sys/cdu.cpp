@@ -314,6 +314,7 @@ BlockICDU::BlockICDU(ApolloGuidance &comp, int sb, int reg) : agc(comp)
 	SystemBit = sb;
 	AGCRegister = reg;
 	sin_05x = sin_1x = sin_16x = 0.0;
+	cos_1x = 0.0;
 }
 
 void BlockICDU::Timestep(double simdt)

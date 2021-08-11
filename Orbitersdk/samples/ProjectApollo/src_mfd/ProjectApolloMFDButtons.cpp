@@ -115,8 +115,8 @@ ProjectApolloMFDButtons::ProjectApolloMFDButtons()
 		{ "Change Reference Body", 0, 'R' },
 		{ "Ascent Engine Arming",0,'A' },
 		{ "Clock Update", 0, 'C' },
-		{ "Sunburst Suborbital Abort",0,'F' },
-		{ "Sunburst COI",0,'G' },
+		{ "Solarium Abort",0,'F' },
+		{ "CSM RTC",0,'G' },
 		{ "State Vector Slot", 0, 'T' }
 	};
 
@@ -131,8 +131,8 @@ ProjectApolloMFDButtons::ProjectApolloMFDButtons()
 
 	RegisterFunction("AEAA", OAPI_KEY_A, &ProjectApolloMFD::menuAEAACommands);
 	RegisterFunction("CLK", OAPI_KEY_C, &ProjectApolloMFD::menuClockUpdate);
-	RegisterFunction("SAB", OAPI_KEY_F, &ProjectApolloMFD::menuSunburstSuborbitalAbort);
-	RegisterFunction("COI", OAPI_KEY_G, &ProjectApolloMFD::menuSunburstCOI);
+	RegisterFunction("ABO", OAPI_KEY_F, &ProjectApolloMFD::menuSolariumAbort);
+	RegisterFunction("RTC", OAPI_KEY_G, &ProjectApolloMFD::menuCSMRTCCommand);
 	RegisterFunction("SLT", OAPI_KEY_T, &ProjectApolloMFD::menuSetSVSlot);
 
 
