@@ -308,13 +308,14 @@ void CDU::LoadState(FILEHANDLE scn, char *end_str) {
 	}
 }
 
-BlockICDU::BlockICDU(ApolloGuidance &comp, int sb, int reg) : agc(comp)
+BlockICDU::BlockICDU(ApolloGuidance &comp, int sb, int reg, bool isogcdu) : agc(comp)
 {
 	ShaftAngle = 0.0;
 	SystemBit = sb;
 	AGCRegister = reg;
 	sin_05x = sin_1x = sin_16x = 0.0;
 	cos_1x = 0.0;
+	ogcdu = isogcdu;
 }
 
 void BlockICDU::Timestep(double simdt)
@@ -338,8 +339,17 @@ void BlockICDU::Timestep(double simdt)
 	{
 		sin_1x_theta = sin(*GimbalAngle);
 		cos_1x_theta = cos(*GimbalAngle);
-		sin_16x_theta = sin(16.0*(*GimbalAngle));
-		cos_16x_theta = cos(16.0*(*GimbalAngle));
+		
+		if (ogcdu && agc.GetEntryMode())
+		{
+			sin_16x_theta = sin((*GimbalAngle));
+			cos_16x_theta = cos((*GimbalAngle));
+		}
+		else
+		{
+			sin_16x_theta = sin(16.0*(*GimbalAngle));
+			cos_16x_theta = cos(16.0*(*GimbalAngle));
+		}
 	}
 	else
 	{
@@ -352,6 +362,11 @@ void BlockICDU::Timestep(double simdt)
 	sin_05x = agc.GetZeroEncoderMode() ? -sin(0.5*ShaftAngle) : 0.0;
 	sin_1x = sin_1x_theta * cos(ShaftAngle) - cos_1x_theta * sin(ShaftAngle);
 	sin_16x = sin_16x_theta * cos(16.0*ShaftAngle) - cos_16x_theta * sin(16.0*ShaftAngle);
+
+	if (ogcdu)
+	{
+		sprintf(oapiDebugString(), "Entry %d IMU %lf IMU/16 %lf sin %lf cos %lf Shaft %lf sin_16x %lf", agc.GetEntryMode(), (*GimbalAngle)*DEG, (*GimbalAngle) / 16.0, sin_16x_theta, cos_16x_theta, ShaftAngle*DEG, sin_16x);
+	}
 
 	//Motor Drive Amp
 	ShaftAngle += simdt*0.5*(sin_05x + (agc.GetIMUFineAlign() ? (sin_1x + 0.1*sin_16x) : 0.0));
@@ -418,11 +433,22 @@ void BlockICDU::SetAngleDevice(double *pAngle)
 	GimbalAngle = pAngle;
 }
 
+double BlockICDU::Resolver1xOutput()
+{
+	if (ogcdu && agc.GetEntryMode())
+	{
+		return sin_16x;
+	}
+	else
+	{
+		return sin_1x;
+	}
+}
+
 double BlockICDU::GetAttitudeError()
 {
 	if (agc.GetIMUCoarseAlign()) return 0.0;
-
-	return sin_1x;
+	return Resolver1xOutput();
 }
 
 bool BlockICDU::IsPowered()

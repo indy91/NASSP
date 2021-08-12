@@ -303,6 +303,7 @@ public:
 	virtual bool GetIMUTurnedOn() { return false; }
 	virtual bool GetIMUCoarseAlign() { return false; }
 	virtual bool GetIMUFineAlign() { return false; }
+	virtual bool GetEntryMode() { return false; }
 protected:
 
 	void SaveState(FILEHANDLE scn);
@@ -339,6 +340,7 @@ protected:
 	void GenericWriteMemory(unsigned int loc, int val);
 
 	int16_t ConvertDecimalToAGCOctal(double x, bool highByte);
+	double ConvertAGCDoubleToDouble(int word1, int word2, double scale);
 
 	///
 	/// \brief Are we running the reset program?

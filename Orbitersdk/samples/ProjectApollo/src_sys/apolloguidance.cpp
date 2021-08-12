@@ -858,18 +858,10 @@ bool ApolloGuidance::GetInputChannelBit(int channel, int bit)
 unsigned int ApolloGuidance::GetInputChannel(int channel)
 
 {
-	//if (channel < 0 || channel >= NUM_CHANNELS)
-	//	return 0;
+	if (channel < 0 || channel >= MAX_INPUT_CHANNELS)
+		return 0;
 
-	//
-	// Virtual AGC code stores values in native form. C++ AGC expects to read them out in
-	// 0 = false, 1 = true form.
-	//
-
-	unsigned int val = 0;//vagc->InputChannel[channel];
-	
-	if ((channel >= 030) && (channel <= 034))
-		val ^= 077777;
+	unsigned int val = vagc->memory[channel];
 
 	return val;
 }
@@ -902,6 +894,19 @@ void ApolloGuidance::GenericWriteMemory(unsigned int loc, int val)
 	if (loc < 02000)
 		vagc->memory[loc] = val;
 	return;
+}
+
+double ApolloGuidance::ConvertAGCDoubleToDouble(int word1, int word2, double scale)
+{
+	if (word1 > 037777)
+	{
+		word1 = -(077777 - word1);
+	}
+	if (word2 > 037777)
+	{
+		word2 = -(077777 - word2);
+	}
+	return scale * pow(2, -14)*((double)word1 + pow(2, -14)*(double)word2);
 }
 
 int16_t ApolloGuidance::ConvertDecimalToAGCOctal(double x, bool highByte) 

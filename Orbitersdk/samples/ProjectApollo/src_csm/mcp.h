@@ -89,10 +89,14 @@ public:
 
 	bool GetGNFail() { return R1K60; }
 	bool GetGNFailInhibit() { return R1K61; }
+	bool GetSCSDirectThrustOn() { return R1K12ABCD; }
 	bool GetDirectThrustOn() { return R1K78ABCD; }
 	bool GetDirectThrustOff() { return R1K77AB; }
 	bool GetDirectUllage() { return R1K72ABCD; }
 	bool GetFDAIAlign() { return R1K71AB; }
+	bool GetSPSInjectorValves12Open() { return R1K47AB; }
+	bool GetSPSInjectorValves34Open() { return R1K56AB; }
+	bool GetSCSDirectUllage() { return R1K31; }
 protected:
 
 	void InputReset();
@@ -139,10 +143,12 @@ protected:
 	bool R1K16AB;	// -Yaw Direct Rotation
 	bool R1K17AB;	// +Roll Direct Rotation
 	bool R1K18AB;	// -Roll Direct Rotation
-
+	bool R1K31;		// Direct Ullage
 	bool R1K33;
 	bool R1K34;
 	bool R1K37ABC;	// Receiver
+	bool R1K47AB;
+	bool R1K56AB;
 
 	bool R1K60;
 	bool R1K61;
@@ -203,6 +209,15 @@ public:
 	bool GetGimbalOff(bool yaw, int num);
 	bool GetGNAttitudeControl() { return R2K32ABC; }
 	bool GetGNEntryMode() { return R2K34ABC; }
+	bool GetGNDVMode() { return R2K36ABC; }
+	bool GetMonitorMode() { return R2K31AB; }
+	bool GetSCSDVMode() { return R2K57AB; }
+	bool GetSPSPrePilotValveAOpen() { return R2K58AB; }
+	bool GetSPSPrePilotValveBOpen() { return R2K59AB; }
+	bool GetSPSArmSignal() { return SPSArmSignal; }
+	bool Get005gSignal() { return R2K29; }
+	bool GetXTranslation() { return R2K42AB; }
+	bool GetDeadbandSelect() { return IsPowered() && R2K100 && R2K69AB; }
 protected:
 
 	bool IsPowered();
@@ -263,6 +278,7 @@ protected:
 	bool ImpactPlus11Signal;
 	bool HFOnPlus10sSignal;
 	bool ImpactPlus11DiffSignal;
+	bool SPSArmSignal;
 
 	bool GSEMESCLogicBusABArm;
 	bool GSEMESCLogicBusASafe;
@@ -272,7 +288,7 @@ protected:
 	bool GSEMESCPyroBusBSafe;
 	bool GSEECSStart;
 
-	//Relays (latching)
+	//Relays
 
 	bool R2K1AB;	// RCS Dump A
 	bool R2K2AB;	// RCS Purge Activate
@@ -300,8 +316,14 @@ protected:
 	bool R2K26AB;	// Yaw 2 On
 	bool R2K27AB;	// Pitch 2 Start
 	bool R2K28AB;	// Pitch 2 On
+	bool R2K29;		// 0.05g
+	bool R2K30;		// Lift Entry?
+	bool R2K31AB;	// Monitor Mode
+	bool R2K32ABC;	// G&N Attitude Control
+	bool R2K34ABC;	// G&N Entry Mode
 	bool R2K39AB;	// Gimbal Position Set
 	bool R2K40AB;	// Gimbal Position Set
+	bool R2K42AB;	// X-Translation
 	bool R2K43AB;	// Sep/Abort A Off
 	bool R2K44AB;	// Sep/Abort B Off
 	bool R2K53AB;	// Gimbal Position Set
@@ -318,7 +340,7 @@ protected:
 	bool R2K100;	// Master Control
 	bool R2K110;	// Stable II
 	bool R2K111;	// Stable II plus 11 seconds?
-	bool R2K116;	//VHF Antenna
+	bool R2K116;	// VHF Antenna
 	bool R2K130;	// Impact + 11s
 	bool R2K131;	// CSM Sep
 	bool R2K132;	// Liftoff TBD: Check number
@@ -331,8 +353,12 @@ protected:
 	bool R2K222;	// S-IVB Restart
 
 	//Relays (non-latching)
-	bool R2K32ABC;	// G&N Attitude Control
-	bool R2K34ABC;	// G&N Entry Mode
+	
+	bool R2K36ABC;	// G&N DV Mode
+	bool R2K57AB;	// SCS DV Mode
+	bool R2K58AB;	// SPS Pre-Pilot Valve A
+	bool R2K59AB;	// SPS Pre-Pilot Valve B
+	bool R2K119;	// Direct Thrust Off
 	bool R2K133AB;	// CSM Sep
 	bool R2K138AB;	// CSM Sep
 	bool R2K139AB;	// CSM Sep

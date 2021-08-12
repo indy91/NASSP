@@ -589,6 +589,9 @@ public:
 	double GetPitchAutoTVCPosition() { return pitchAutoTVCPosition; }
 	double GetYawAutoTVCPosition() { return yawAutoTVCPosition; }
 
+	bool GetGNDVMode() { return X34; }
+	bool GetSCSDVMode() { return X35; }
+
 	long thc_x,thc_y,thc_z;											// THC position
 	int accel_roll_trigger;                                         // Joystick triggered roll thrust in RATE CMD mode
 	int mnimp_roll_trigger;                                         // Joystick triggered roll thrust in MIN IMP mode
@@ -710,6 +713,13 @@ protected:
 	bool T3QS43;
 	//Pitch Pseudo Rate Disable
 	bool T3QS44;
+
+	//Signals
+
+	//G&N DV Mode
+	bool X34; 
+	//SCS DV Mode
+	bool X35;
 };
 
 class ServoAmplifierModule

@@ -76,14 +76,14 @@ protected:
 class BlockICDU
 {
 public:
-	BlockICDU(ApolloGuidance &comp, int sb, int reg);
+	BlockICDU(ApolloGuidance &comp, int sb, int reg, bool isogcdu = false);
 	void Timestep(double simdt);
 	void ProcessChannel12(ChannelValue val);
 	void SetAngleDevice(double *pAngle);
-	double Resolver1xOutput() { return sin_1x; }
 	void SaveState(FILEHANDLE scn, char *start_str, char *end_str);
 	void LoadState(FILEHANDLE scn, char *end_str);
 	double GetAttitudeError();
+	double Resolver1xOutput();
 	double GetShaftAngle() { return ShaftAngle; }
 protected:
 	bool IsPowered();
@@ -93,6 +93,7 @@ protected:
 	double ShaftAngle;
 	int SystemBit; //8 = Z, 9 = Y, 10 = X
 	int AGCRegister;
+	bool ogcdu;
 
 	ApolloGuidance &agc;
 

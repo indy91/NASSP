@@ -155,7 +155,7 @@ Saturn::Saturn(OBJHANDLE hObj, int fmodel) : ProjectApolloConnectorVessel (hObj,
 	imu(agc, Panelsdk),
 	scdu(agc, 052, 0140, 2),
 	tcdu(agc, 053, 0141, 2),
-	ogcdu(agc, IMUX, 047),
+	ogcdu(agc, IMUX, 047, true),
 	igcdu(agc, IMUY, 050),
 	mgcdu(agc, IMUZ, 051),
 	cws(SMasterAlarm, Bclick, Panelsdk),
@@ -4684,6 +4684,8 @@ void Saturn::MLMESCPyroBusesArm()
 void Saturn::MLResetGSESignals()
 {
 	mcp_scc.ResetGSESignals();
+	mcp_scc.MasterControlTransfer();
+	mcp_gcc.MasterControlTransfer();
 }
 
 bool Saturn::GetCMCSIVBTakeover()

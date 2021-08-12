@@ -311,11 +311,13 @@ void DSKY::KeyClick()
 
 void DSKY::SendKeyCode(int val)
 {
+	unsigned int chanval = agc.GetInputChannel(KeyCodeIOChannel);
+	chanval &= 077700; //Zeroes out the last six bits?
 	if (val != 0)
 	{
 		val = val | 040;
 	}
-	agc.SetInputChannel(KeyCodeIOChannel, val);
+	agc.SetInputChannel(KeyCodeIOChannel, chanval | (val & 077));
 }
 
 void DSKY::KeyRel()

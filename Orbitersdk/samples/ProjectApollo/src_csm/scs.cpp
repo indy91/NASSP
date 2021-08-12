@@ -34,6 +34,7 @@
 #include "saturn.h"
 #include "tracer.h"
 #include "papi.h"
+#include "ioChannels.h"
 
 #include <time.h>
 
@@ -690,7 +691,7 @@ void GDC::Timestep(double simdt) {
 		S50_2 = false;
 
 	//51-2
-	if (sat->GSwitch.IsUp() && sat->SCSLogicBus4.Voltage() > SP_MIN_DCVOLTAGE)
+	if ((sat->mcp_scc.Get005gSignal() || sat->GSwitch.IsUp()) && sat->SCSLogicBus4.Voltage() > SP_MIN_DCVOLTAGE)
 		S51_2 = true;
 	else
 		S51_2 = false;
@@ -1991,7 +1992,7 @@ void EDA::Timestep(double simdt)
 		S22_3 = false;
 
 	//51-1
-	if (sat->GSwitch.IsDown() && sat->SCSLogicBus2.Voltage() > SP_MIN_DCVOLTAGE)
+	if ((!sat->mcp_scc.Get005gSignal() && sat->GSwitch.IsDown()) && sat->SCSLogicBus2.Voltage() > SP_MIN_DCVOLTAGE)
 		S51_1 = true;
 	else
 		S51_1 = false;
@@ -3288,6 +3289,51 @@ void RJEC::TimeStep(double simdt){
 	}
 
 	//SPS ENGINE ON/OFF LOGIC
+
+	/*bool X07, X28, UllageInput, TranslationControlInput, UllageLogic1, UllageLogic2, UllageLogic3, DVMode, S25, ThrustOnLogic1, ThrustOnLogic2, ThrustOnLogic3, cmclogic;
+	bool FinalThrustOnLogic2, FinalThrustOnLogic3, DV_EMS_Set, FinalFinalThrustOnLogic, SCSLatchUpLogic;
+	ChannelValue val11;
+
+	X07 = scslogic1 || scslogic2;
+	X28 = X07 && sat->mcp_gcc.GetSCSDirectUllage();
+	UllageInput = X28 || sat->secs.MESCA.FireUllage() || sat->secs.MESCB.FireUllage();
+	TranslationControlInput = td[1] && td[2] && td[5] && td[6];
+	UllageLogic1 = SCSLatchUpA || UllageInput || TranslationControlInput;
+	DVMode = sat->eca.GetGNDVMode() || sat->eca.GetSCSDVMode();
+	S25 = sat->ThrustOnButton.GetState() == 1 && scslogic1;
+	ThrustOnLogic1 = S25 || SCSLatchUpB;
+	UllageLogic2 = DVMode && UllageLogic1;
+	UllageLogic3 = !UllageLogic2 && DVMode;
+	ThrustOnLogic2 = ThrustOnLogic1 && DVMode;
+	ThrustOnLogic3 = !ThrustOnLogic2 && DVMode;
+	val11 = sat->agc.GetOutputChannel(011);
+	cmclogic = val11[12] && ThrustOnLogic3;
+	SCSLatchUpA = UllageLogic3 && sat->eca.GetGNDVMode() && cmclogic;
+	FinalThrustOnLogic2 = sat->eca.GetGNDVMode() && cmclogic;
+	DV_EMS_Set = sat->ems.IsdVMode() && sat->ems.GetdVRangeCounter() >= 0;
+	FinalThrustOnLogic3 = !ThrustOnLogic3 && DV_EMS_Set;
+	SCSLatchUpB = DV_EMS_Set && !ThrustOnLogic3 && DVMode;
+	FinalFinalThrustOnLogic = !SCSLatchUpA && !SCSLatchUpB;
+	SPSEnableA = (!FinalFinalThrustOnLogic || sat->mcp_gcc.GetSCSDirectThrustOn()) && sat->SIGCondDriverBiasPower1Switch.IsPowered();
+	SPSEnableB = (!FinalFinalThrustOnLogic || sat->mcp_gcc.GetSCSDirectThrustOn()) && sat->SIGCondDriverBiasPower2Switch.IsPowered();
+
+	bool SPSEnableLogic, SPSValvesLogic;
+	SPSEnableLogic = SPSEnableA && SPSEnableB;
+	SPSValvesLogic = sat->SPSEngine.GetInjectorValves12Open() || sat->SPSEngine.GetInjectorValves34Open();
+	SCSLatchUpLogic = !SPSEnableLogic && SPSValvesLogic;
+
+	engineOnDelayA.SetRunning(SCSLatchUpLogic);
+	//engineOnDelayB.SetRunning(SCSLatchUpLogic);
+	engineofflogic1 = engineOnDelayA.ContactClosed() && scsmode;
+	engineOffDelay.SetRunning(engineofflogic1);
+	engineofflogic2 = (engineOnDelayB.ContactClosed() || engineOffDelay.ContactClosed()) && scsmode;
+	IGN1 = engineofflogic1 || engineofflogic2;
+	IGN2 = SCSLatchUpLogic || IGN1;
+
+	sprintf(oapiDebugString(), "X07 %d X28 %d Ull %d Trans %d Ull1 %d DV %d TO1 %d Ull2 %d Ull3 %d TO2 %d TO3 %d cmc %d LatA %d Fin2 %d EMS %d Fin3 %d LatB %d FinFin %d EnaA %d EnaB %d",
+		X07, X28, UllageInput, TranslationControlInput, UllageLogic1, DVMode, ThrustOnLogic1, UllageLogic2, UllageLogic3, ThrustOnLogic2, ThrustOnLogic3, cmclogic, SCSLatchUpA, FinalThrustOnLogic2,
+		DV_EMS_Set, FinalThrustOnLogic3, SCSLatchUpB, FinalFinalThrustOnLogic, SPSEnableA, SPSEnableB);*/
+
 	bool S24, S25, S26, S59, AB_X16, AB_X70, AB_X71, scsmode, scsengineon;
 	bool scsengineonA1, scsengineonB1, scsengineonA2, scsengineonB2, DV_EMS_Set, cmcsignal, cmcengineon, logicA, logicB;
 	ChannelValue val11;
@@ -3295,8 +3341,8 @@ void RJEC::TimeStep(double simdt){
 	//Switches
 	S24 = sat->DirectUllageButton.GetState() == 1 && scslogic1;
 	S25 = sat->ThrustOnButton.GetState() == 1 && scslogic1;
-	S26 = sat->dVThrust1Switch.Voltage() > SP_MIN_DCVOLTAGE;
-	S59 = sat->dVThrust2Switch.Voltage() > SP_MIN_DCVOLTAGE;
+	S26 = true;//sat->dVThrust1Switch.Voltage() > SP_MIN_DCVOLTAGE;
+	S59 = true;//sat->dVThrust2Switch.Voltage() > SP_MIN_DCVOLTAGE;
 	AB_X16 = td[1] && td[2] && td[5] && td[6];	//TBD: This can be done better with a THC class
 	AB_X70 = sat->secs.MESCA.FireUllage() && sat->RCSLogicMnACircuitBraker.IsPowered();
 	AB_X71 = sat->secs.MESCB.FireUllage() && sat->RCSLogicMnBCircuitBraker.IsPowered();
@@ -3327,7 +3373,7 @@ void RJEC::TimeStep(double simdt){
 	scsengineonB1 = scsengineon || SCSLatchUpB;
 	scsengineonA2 = scsmode && scsengineonA1 && DV_EMS_Set;
 	scsengineonB2 = scsmode && scsengineonB1 && DV_EMS_Set;
-	cmcengineon = !scsmode && cmcsignal;
+	cmcengineon = cmcsignal; //TBD
 	logicA = scsengineonA2 || cmcengineon;
 	logicB = scsengineonB2 || cmcengineon;
 	SPSEnableA = logicA && S26 && sat->SIGCondDriverBiasPower1Switch.IsPowered();
@@ -3469,6 +3515,9 @@ ECA::ECA() :
 	pitchMTVCPosition = 0.0;
 	yawAutoTVCPosition = 0.0;
 	pitchAutoTVCPosition = 0.0;
+
+	X34 = false;
+	X35 = false;
 
 	sat = NULL;
 
@@ -3630,7 +3679,7 @@ void ECA::TimeStep(double simdt) {
 	S9_1 = sat->ManualAttYawSwitch.IsUp() && scslogic1;
 	S9_3 = sat->ManualAttYawSwitch.IsDown() && scslogic1;
 	S10_2 = sat->LimitCycleSwitch.IsDown() && scslogic1;
-	S11_2 = sat->AttDeadbandSwitch.IsDown() && scslogic1;
+	S11_2 = ((sat->AttDeadbandSwitch.IsDown() || !sat->mcp_scc.GetDeadbandSelect()) && scslogic1);
 	S12_1 = sat->AttRateSwitch.IsUp() && scslogic1;
 	S18_1 = sat->SCContSwitch.IsUp() && scslogic2;
 	
@@ -3643,14 +3692,14 @@ void ECA::TimeStep(double simdt) {
 	S22_1 = sat->BMAGYawSwitch.IsUp() && scslogic3;
 	S22_2 = sat->BMAGYawSwitch.IsCenter() && scslogic3;
 	S22_3 = sat->BMAGYawSwitch.IsDown() && scslogic1;
-	S51_1 = sat->GSwitch.IsUp() && scslogic4;
+	S51_1 = (sat->mcp_scc.Get005gSignal() || sat->GSwitch.IsUp()) && scslogic4;
 	S38_1 = sat->SCSTvcPitchSwitch.IsUp() && scslogic3;
 	S38_2 = sat->SCSTvcPitchSwitch.IsCenter() && scslogic3;
 	S38_3 = sat->SCSTvcPitchSwitch.IsDown() && scslogic3;
 	S39_1 = sat->SCSTvcYawSwitch.IsUp() && scslogic3;
 	S39_2 = sat->SCSTvcYawSwitch.IsCenter() && scslogic3;
 	S39_3 = sat->SCSTvcYawSwitch.IsDown() && scslogic3;
-	S54_1 = sat->CGSwitch.IsUp() && scslogic3;
+	S54_1 = (sat->mcp_scc.Get005gSignal() || sat->CGSwitch.IsUp()) && scslogic3;
 	
 	IGN2 = sat->rjec.GetIGN2();
 	RHCRollBO = sat->rhc1.GetPlusRollBreakoutSwitch() || sat->rhc1.GetMinusRollBreakoutSwitch() || sat->rhc2.GetPlusRollBreakoutSwitch() || sat->rhc2.GetMinusRollBreakoutSwitch();
@@ -3838,6 +3887,38 @@ void ECA::TimeStep(double simdt) {
 		T3QS12 = false;
 	}
 
+	X34 = sat->mcp_scc.GetGNDVMode();
+	X35 = sat->mcp_scc.GetSCSDVMode();
+
+	if (sat->mcp_scc.GetGNAttitudeControl())
+	{
+		sat->agc.SetInputChannelBit(04, GNAttitudeControlMode, true);
+	}
+	else
+	{
+		sat->agc.SetInputChannelBit(04, GNAttitudeControlMode, false);
+	}
+	if (sat->mcp_scc.GetGNEntryMode())
+	{
+		sat->agc.SetInputChannelBit(04, GNEntryMode, true);
+	}
+	else
+	{
+		sat->agc.SetInputChannelBit(04, GNEntryMode, false);
+	}
+	if (sat->mcp_scc.GetGNDVMode())
+	{
+		sat->agc.SetInputChannelBit(04, GNDVMode, true);
+	}
+	else
+	{
+		sat->agc.SetInputChannelBit(04, GNDVMode, false);
+	}
+
+	sat->agc.SetInputChannelBit(06, GNMonitorMode, sat->mcp_scc.GetMonitorMode());
+	sat->agc.SetInputChannelBit(06, SCSDVMode, sat->mcp_scc.GetSCSDVMode());
+
+	bool K4 = sat->mcp_scc.GetGNAttitudeControl() || sat->mcp_scc.GetGNDVMode() || sat->mcp_scc.GetGNEntryMode();
 
 	int accel_roll_flag = 0;
 	int mnimp_roll_flag = 0;
@@ -3881,24 +3962,27 @@ void ECA::TimeStep(double simdt) {
 	VECTOR3 CDUAttitudeErrors = _V(sat->ogcdu.GetAttitudeError(), -sat->igcdu.GetAttitudeError(), -sat->mgcdu.GetAttitudeError()); //Same signs as old logic?
 	VECTOR3 E_NB = _V(CDUAttitudeErrors.x, CDUAttitudeErrors.y*cos(IMUAngles.x) + CDUAttitudeErrors.z*sin(IMUAngles.x), -CDUAttitudeErrors.y*sin(IMUAngles.x) + CDUAttitudeErrors.z*cos(IMUAngles.x));
 	VECTOR3 E_Body = _V(E_NB.z*cos(33.0*RAD) - E_NB.x*sin(33.0*RAD), E_NB.y, E_NB.z*sin(33.0*RAD) + E_NB.x*cos(33.0*RAD));
+	VECTOR3 E_Entry = _V(-E_NB.x, E_NB.y, E_NB.z);
 
 	VECTOR3 CDUAngles = _V(sat->ogcdu.GetShaftAngle(), sat->igcdu.GetShaftAngle(), sat->mgcdu.GetShaftAngle());
-
 	VECTOR3 AGCAngles = _V(pow(2, -14)*180.0*(double)sat->agc.vagc->memory[0700], pow(2, -14)*180.0*(double)sat->agc.vagc->memory[0701], pow(2, -14)*180.0*(double)sat->agc.vagc->memory[0702]);
 
-	sprintf(oapiDebugString(), "IMU %lf %lf %lf CDU %lf %lf %lf AGC %lf %lf %lf", IMUAngles.x*DEG, IMUAngles.y*DEG, IMUAngles.z*DEG, CDUAngles.x*DEG, CDUAngles.y*DEG, CDUAngles.z*DEG, AGCAngles.x, AGCAngles.y, AGCAngles.z);
+	//sprintf(oapiDebugString(), "IMU %lf %lf %lf CDU %lf %lf %lf AGC %lf %lf %lf", IMUAngles.x*DEG, IMUAngles.y*DEG, IMUAngles.z*DEG, CDUAngles.x*DEG, CDUAngles.y*DEG, CDUAngles.z*DEG, AGCAngles.x, AGCAngles.y, AGCAngles.z);
 
 	VECTOR3 target, errors;
 	if (true) {
 		// Get BMAG1 attitude errors
 		// Attitude hold automatic mode only when BMAG 1 uncaged and powered
-		if (sat->mcp_scc.GetGNAttitudeControl())
+		if (K4)
 		{
-			target = E_Body;
-		}
-		else if (sat->mcp_scc.GetGNEntryMode())
-		{
-			target = E_Body;//E_Entry;
+			if (sat->mcp_scc.GetGNEntryMode())
+			{
+				target = E_Entry;
+			}
+			else
+			{
+				target = E_Body;
+			}
 		}
 		else
 		{

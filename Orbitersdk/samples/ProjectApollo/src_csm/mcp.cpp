@@ -135,9 +135,12 @@ MCP_GCC::MCP_GCC()
 	R1K16AB = false;
 	R1K17AB = false;
 	R1K18AB = false;
+	R1K31 = false;
 	R1K33 = false;
 	R1K34 = false;
 	R1K37ABC = false;
+	R1K47AB = false;
+	R1K56AB = false;
 	R1K62 = false;
 	R1K63 = false;
 	R1K64 = false;
@@ -188,6 +191,7 @@ void MCP_GCC::Timestep(double simdt)
 	{
 		R1K61 = true;
 	}
+	R1K31 = R1K72ABCD;
 
 	//Comm
 	if (RTC52PlusVHFAntennaOn) //TBD: Signal from SCC
@@ -213,6 +217,17 @@ void MCP_GCC::Timestep(double simdt)
 	//PROP
 	R1K12ABCD = R1K78ABCD;
 
+	if (scc->GetSPSArmSignal())
+	{
+		R1K47AB = true;
+		R1K56AB = true;
+	}
+	else if (R1K77AB)
+	{
+		R1K47AB = false;
+		R1K56AB = false;
+	}
+
 	//UDL input duration is 25-35 milliseconds, so just reset it all on the next timestep. SCC has one timestep to recognize signal
 	InputReset();
 }
@@ -223,6 +238,8 @@ void MCP_GCC::ProgramerReset()
 	R1K34 = false;
 	R1K37ABC = false;
 	R1K100 = false;
+	R1K47AB = false;
+	R1K56AB = false;
 }
 
 void MCP_GCC::MasterControlTransfer()
@@ -508,8 +525,14 @@ MCP_SCC::MCP_SCC() :
 	R2K26AB = false;
 	R2K27AB = false;
 	R2K28AB = false;
+	R2K29 = false;
+	R2K30 = false;
+	R2K31AB = false;
 	R2K32ABC = false;
 	R2K34ABC = false;
+	R2K36ABC = false;
+	R2K42AB = false;
+	R2K57AB = false;
 	R2K63AB = false;
 	R2K66AB = false;
 	R2K68AB = false;
@@ -559,6 +582,9 @@ MCP_SCC::MCP_SCC() :
 	R2K71AB = false;
 	R2K72AB = false;
 	R2K153ABC = false;
+	R2K119 = false;
+	R2K58AB = false;
+	R2K59AB = false;
 
 	GNFailSignal = false;
 	NoAbort = false;
@@ -566,6 +592,7 @@ MCP_SCC::MCP_SCC() :
 	ImpactSignal = false;
 	ImpactPlus11DiffSignal = false;
 	GimbalMotorsOn = false;
+	SPSArmSignal = false;
 
 	ResetGSESignals();
 }
@@ -655,25 +682,28 @@ void MCP_SCC::Timestep(double simdt)
 	bool GNModesAllowed = R2K129;
 
 	//X-Translation
-	bool R2K42AB = GNModesAllowed && Sat->dsky.GetCRelay(26);
+	R2K42AB = GNModesAllowed && Sat->dsky.GetCRelay(26);
 	//G&N Attitude Control Mode
 	R2K32ABC = GNModesAllowed && Sat->dsky.GetCRelay(22);
 	//G&N Entry Mode
 	R2K34ABC = GNModesAllowed && Sat->dsky.GetCRelay(24);
 	//G&N DV Mode
-	bool R2K36ABC = GNModesAllowed && Sat->dsky.GetCRelay(23);
+	R2K36ABC = GNModesAllowed && Sat->dsky.GetCRelay(23);
 
 	bool LVSepAndGNFail = GNFailSignal && LVSCSepSignal;
 
 	//SCS DV Mode
-	bool R2K57AB = LVSepAndGNFail && !R2K114ABC;
+	R2K57AB = LVSepAndGNFail && !R2K114ABC;
 	//SCS Entry Mode
 	bool R2K35AB = LVSepAndGNFail && R2K113ABC;
 	//Monitor Mode
-	bool R2K31AB = R2K57AB || R2K35AB || R2K32ABC || R2K36ABC || R2K34ABC;
+	R2K31AB = R2K57AB || R2K35AB || R2K32ABC || R2K36ABC || R2K34ABC;
 
 	//0.05g
 	b005GSignal = (ads->Get005GSwitch() || (CSMSepSignal && R2K129 && Sat->dsky.GetCRelay(28)));
+	R2K29 = b005GSignal;
+
+	//sprintf(oapiDebugString(), "0.05g %d ADS %d CSMSep %d R2K129 %d AGC %d", b005GSignal, ads->Get005GSwitch(), CSMSepSignal, R2K129, Sat->dsky.GetCRelay(28));
 
 	//FDAI Align
 	bool R2K38AB = NoAbort && (gcc->GetFDAIAlign() || Sat->dsky.GetCRelay(30));
@@ -1005,7 +1035,7 @@ void MCP_SCC::Timestep(double simdt)
 	}
 
 	//PROP
-	bool R2K154ABC = (NoAbort && Sat->dsky.GetCRelay(29));
+	bool R2K154ABC = (NoAbort && Sat->dsky.GetCRelay(29)); //Gimbal Motors On
 	bool GimbalMotorsOn1 = (IsPowered() && R2K154ABC);
 	bool GimbalMotorsOn2 = gcc->GetDirectUllage() || gcc->GetDirectThrustOn();
 	bool GimbalMotorsOn3 = LiftoffSignal && !R2K153ABC;
@@ -1072,6 +1102,20 @@ void MCP_SCC::Timestep(double simdt)
 		R2K28AB = false;
 	}
 
+	R2K119 = gcc->GetDirectThrustOff(); //TBD: Programer Reset?
+	SPSArmSignal = LVSCSep25sSignal && !R2K119;
+	if (SPSArmSignal && GimbalMotorsOn)
+	{
+		R2K58AB = true;
+		R2K59AB = true;
+	}
+	else
+	{
+		R2K58AB = false;
+		R2K59AB = false;
+	}
+
+	//sprintf(oapiDebugString(), "SPSArm %d GimbalMotorsOn %d GimbalTimers %lf %lf Stop %d", SPSArmSignal, GimbalMotorsOn, GimbalMotors30sTimer.GetTime(),GimbalMotors80sTimer.GetTime(), GimbalMotorsStopSignal);
 	//sprintf(oapiDebugString(), "Logic Bus %d %d Pyro Bus %d %d Oxid Dump %d %d Tower %d %d LES %d %d", R2K18AB, R2K12AB, R2K19AB, R2K13AB, R2K3AB, R2K72AB, R2K9AB, R2K15AB, R2K16AB, R2K10AB);
 }
 

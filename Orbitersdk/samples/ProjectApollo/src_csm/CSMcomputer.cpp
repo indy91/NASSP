@@ -130,6 +130,16 @@ void CSMcomputer::Timestep(double simt, double simdt)
 {
 	IMUTurnOnDelayTimer.Timestep(simdt);
 
+	/*VECTOR3 RN, VN;
+	RN.x = ConvertAGCDoubleToDouble(vagc->memory[0765], vagc->memory[0766], pow(2, 25));
+	RN.y = ConvertAGCDoubleToDouble(vagc->memory[0767], vagc->memory[0770], pow(2, 25));
+	RN.z = ConvertAGCDoubleToDouble(vagc->memory[0771], vagc->memory[0772], pow(2, 25));
+	VN.x = ConvertAGCDoubleToDouble(vagc->memory[0773], vagc->memory[0774], pow(2, 7)*100.0);
+	VN.y = ConvertAGCDoubleToDouble(vagc->memory[0775], vagc->memory[0776], pow(2, 7)*100.0);
+	VN.z = ConvertAGCDoubleToDouble(vagc->memory[0777], vagc->memory[01000], pow(2, 7)*100.0);
+
+	sprintf(oapiDebugString(), "RN %lf %lf %lf VN %lf %lf %lf R %lf V %lf", RN.x, RN.y, RN.z, VN.x, VN.y, VN.z, length(RN), length(VN));*/
+
 	// DS20060302 For joystick stuff below
 	sat = (Saturn *) OurVessel;
 

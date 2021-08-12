@@ -2237,7 +2237,7 @@ void Saturn::JoystickTimestep()
 	}
 
 	//SPS Abort Ullage
-	if ((secs.MESCA.FireUllage() && RCSLogicMnACircuitBraker.IsPowered()) || (secs.MESCB.FireUllage() && RCSLogicMnBCircuitBraker.IsPowered()))
+	if (((secs.MESCA.FireUllage() || mcp_scc.GetXTranslation()) && RCSLogicMnACircuitBraker.IsPowered()) || ((secs.MESCB.FireUllage() || mcp_scc.GetXTranslation()) && RCSLogicMnBCircuitBraker.IsPowered()))
 	{
 		SetRCSState(RCS_SM_QUAD_B, 4, true);
 		SetRCSState(RCS_SM_QUAD_D, 3, true);

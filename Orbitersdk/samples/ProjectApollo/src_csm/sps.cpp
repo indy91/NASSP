@@ -537,11 +537,11 @@ void SPSEngine::Timestep(double simt, double simdt) {
 	bool injectorPreValveAOpen = false;
 	bool injectorPreValveBOpen = false;
 
-	if (saturn->HeValveMnACircuitBraker.Voltage() > SP_MIN_DCVOLTAGE && saturn->dVThrust1Switch.IsUp()) {
+	if (saturn->HeValveMnACircuitBraker.Voltage() > SP_MIN_DCVOLTAGE && (saturn->dVThrust1Switch.IsUp() || saturn->mcp_scc.GetSPSPrePilotValveAOpen())) {
 		injectorPreValveAOpen = true;
 	}
 
-	if (saturn->HeValveMnBCircuitBraker.Voltage() > SP_MIN_DCVOLTAGE && saturn->dVThrust2Switch.IsUp()) {
+	if (saturn->HeValveMnBCircuitBraker.Voltage() > SP_MIN_DCVOLTAGE && (saturn->dVThrust2Switch.IsUp() || saturn->mcp_scc.GetSPSPrePilotValveBOpen())) {
 		injectorPreValveBOpen = true;
 	}
 
@@ -557,12 +557,12 @@ void SPSEngine::Timestep(double simt, double simdt) {
 	//
 	// Thrust on/off logic
 	//
-	if (saturn->GetStage() <= CSM_LEM_STAGE && saturn->dVThrust1Switch.Voltage() > SP_MIN_DCVOLTAGE)
+	if (saturn->GetStage() <= CSM_LEM_STAGE)
 		thrustOnA = saturn->rjec.GetSPSEnableA() || saturn->SPSswitch.IsUp();
 	else
 		thrustOnA = false;
 
-	if (saturn->GetStage() <= CSM_LEM_STAGE && saturn->dVThrust2Switch.Voltage() > SP_MIN_DCVOLTAGE)
+	if (saturn->GetStage() <= CSM_LEM_STAGE)
 		thrustOnB = saturn->rjec.GetSPSEnableB() || saturn->SPSswitch.IsUp();
 	else
 		thrustOnB = false;
@@ -572,7 +572,7 @@ void SPSEngine::Timestep(double simt, double simdt) {
 	//
 
 	if (saturn->GetStage() <= CSM_LEM_STAGE) {
-		if (thrustOnA && saturn->dVThrust1Switch.Voltage() > SP_MIN_DCVOLTAGE) {
+		if (thrustOnA && (saturn->dVThrust1Switch.Voltage() > SP_MIN_DCVOLTAGE || saturn->mcp_gcc.GetSPSInjectorValves12Open())) {
 			if (injectorPreValveAOpen && !injectorValves12Open && nitrogenPressureAPSI > 400.0) {	// N2 pressure condition see http://www.history.nasa.gov/alsj/a11/a11transcript_pao.htm
 				injectorValves12Open = true;
 				nitrogenPressureAPSI -= 50.0;	// Average pressure decay, see Apollo 11 Mission report, 16.1.1
@@ -581,7 +581,7 @@ void SPSEngine::Timestep(double simt, double simdt) {
 			injectorValves12Open = false;
 		}
 
-		if (thrustOnB && saturn->dVThrust2Switch.Voltage() > SP_MIN_DCVOLTAGE) {
+		if (thrustOnB && (saturn->dVThrust2Switch.Voltage() > SP_MIN_DCVOLTAGE || saturn->mcp_gcc.GetSPSInjectorValves12Open())) {
 			if (injectorPreValveBOpen && !injectorValves34Open && nitrogenPressureBPSI > 400.0) {
 				injectorValves34Open = true;
 				nitrogenPressureBPSI -= 50.0;
@@ -722,6 +722,8 @@ void SPSEngine::Timestep(double simt, double simdt) {
 		spsvector.z = 1;
 		saturn->SetThrusterDir(spsThruster, spsvector);
 	}
+
+	//sprintf(oapiDebugString(), "%d %d %d %d %d %d", injectorPreValveAOpen, injectorPreValveBOpen, thrustOnA, thrustOnB, injectorValves12Open, injectorValves34Open);
 }
 
 double SPSEngine::SPSThrustOnDelayDual(double t)

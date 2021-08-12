@@ -107,6 +107,7 @@ public:
 	bool GetIMUTurnedOn() { return KRelays[5]; }
 	bool GetIMUCoarseAlign() { return KRelays[1]; }
 	bool GetIMUFineAlign() { return KRelays[3]; }
+	bool GetEntryMode() { return KRelays[4]; }
 protected:
 
 	void ProcessChannel10(ChannelValue val);
