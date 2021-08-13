@@ -618,17 +618,17 @@ protected:
 
 	//RELAYS
 
-	//Roll Min Deadband Enable
-	bool R1K22;
-	//Roll High Rate Enable
-	bool R1K25;
+	//Entry Gain Yaw, Roll, Pitch
+	bool K9;
+	//Pitch and Yaw RJC Attitude
+	bool K10;
+	//Minimum Deadband Select Pitch, Yaw, Roll
+	bool K12;
+	//Roll to Yaw Coupling
+	bool K18;
 
 	//Yaw TVC Integrator Enable
 	bool R2K11;
-	//Yaw Min Deadband Enable
-	bool R2K22;
-	//Yaw High Rate Enable
-	bool R2K25;
 	//MTVC Yaw Rate 2 Enable
 	bool R2K30;
 	//MTVC Yaw Rate 1 Enable
@@ -636,10 +636,6 @@ protected:
 
 	//Pitch TVC Integrator Enable
 	bool R3K11;
-	//Pitch Min Deadband Enable
-	bool R3K22;
-	//Pitch High Rate Enable
-	bool R3K25;
 	//MTVC Pitch Rate 2 Enable
 	bool R3K30;
 	//MTVC Pitch Rate 1 Enable
@@ -649,10 +645,6 @@ protected:
 
 	//Roll Attitude Signal No. 1 Enable
 	bool T1QS21;
-	//Roll High Rate Enable
-	bool T1QS25;
-	//Cross Coupling Enable
-	bool T1QS26;
 	//Roll Rate 1 Enable
 	bool T1QS28;
 	//Roll Rate 2 Enable
@@ -672,8 +664,6 @@ protected:
 	bool T2QS12;
 	//Yaw Attitude Signal No. 1 Enable
 	bool T2QS21;
-	//Yaw High Rate Enable
-	bool T2QS25;
 	//Yaw Rate 1 Enable
 	bool T2QS28;
 	//Yaw Rate 2 Enable
@@ -697,8 +687,6 @@ protected:
 	bool T3QS12;
 	//Pitch Attitude Signal No. 1 Enable
 	bool T3QS21;
-	//Pitch High Rate Enable
-	bool T3QS25;
 	//Pitch Rate 1 Enable
 	bool T3QS28;
 	//Pitch Rate 2 Enable
@@ -713,6 +701,8 @@ protected:
 	bool T3QS43;
 	//Pitch Pseudo Rate Disable
 	bool T3QS44;
+
+	bool T1QS25, T2QS25, T3QS25;
 
 	//Signals
 

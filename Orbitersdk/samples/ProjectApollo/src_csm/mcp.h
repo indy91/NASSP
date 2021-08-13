@@ -148,6 +148,7 @@ protected:
 	bool R1K34;
 	bool R1K37ABC;	// Receiver
 	bool R1K47AB;
+	bool R1K50;		// Batteries off at impact + 11 seconds
 	bool R1K56AB;
 
 	bool R1K60;
@@ -212,12 +213,16 @@ public:
 	bool GetGNDVMode() { return R2K36ABC; }
 	bool GetMonitorMode() { return R2K31AB; }
 	bool GetSCSDVMode() { return R2K57AB; }
+	bool GetSCSEntryMode() { return false; }
 	bool GetSPSPrePilotValveAOpen() { return R2K58AB; }
 	bool GetSPSPrePilotValveBOpen() { return R2K59AB; }
 	bool GetSPSArmSignal() { return SPSArmSignal; }
 	bool Get005gSignal() { return R2K29; }
 	bool GetXTranslation() { return R2K42AB; }
-	bool GetDeadbandSelect() { return IsPowered() && R2K100 && R2K69AB; }
+	bool GetDeadbandSelect() { return IsPowered() && R2K100 && !R2K69AB; }
+	bool GetEntryBattsOnMainSignal() { return EntryBattsOnMainSignal; }
+	bool GetEntryBattsOffMainSignal() { return EntryBattsOffMainSignal; }
+	bool GetImpactPlus11SecondsSignal() { return ImpactPlus11Signal; }
 protected:
 
 	bool IsPowered();
@@ -279,6 +284,8 @@ protected:
 	bool HFOnPlus10sSignal;
 	bool ImpactPlus11DiffSignal;
 	bool SPSArmSignal;
+	bool EntryBattsOnMainSignal;
+	bool EntryBattsOffMainSignal;
 
 	bool GSEMESCLogicBusABArm;
 	bool GSEMESCLogicBusASafe;
@@ -321,6 +328,7 @@ protected:
 	bool R2K31AB;	// Monitor Mode
 	bool R2K32ABC;	// G&N Attitude Control
 	bool R2K34ABC;	// G&N Entry Mode
+	bool R2K35AB;	// SCS Entry Mode
 	bool R2K39AB;	// Gimbal Position Set
 	bool R2K40AB;	// Gimbal Position Set
 	bool R2K42AB;	// X-Translation
@@ -352,7 +360,7 @@ protected:
 	bool R2K173;	// G&N Fail
 	bool R2K222;	// S-IVB Restart
 
-	//Relays (non-latching)
+	//Relays
 	
 	bool R2K36ABC;	// G&N DV Mode
 	bool R2K57AB;	// SCS DV Mode
@@ -408,6 +416,8 @@ protected:
 	Differentiator GimbalMotorsDiff;
 	Differentiator CountdownResetDiff;
 	Differentiator StableIIPlus1MinDiff;
+	Differentiator EntryBattsOnMainDiff;
+	Differentiator EntryBattsOffMainDiff;
 
 	//Timers
 	DelayTimer LESMotorFireTimer;

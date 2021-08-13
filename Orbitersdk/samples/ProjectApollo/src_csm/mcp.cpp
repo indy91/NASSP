@@ -140,6 +140,7 @@ MCP_GCC::MCP_GCC()
 	R1K34 = false;
 	R1K37ABC = false;
 	R1K47AB = false;
+	R1K50 = false;
 	R1K56AB = false;
 	R1K62 = false;
 	R1K63 = false;
@@ -228,6 +229,21 @@ void MCP_GCC::Timestep(double simdt)
 		R1K56AB = false;
 	}
 
+	if (scc->GetImpactPlus11SecondsSignal())
+	{
+		R1K50 = true;
+	}
+	if (scc->GetEntryBattsOnMainSignal())
+	{
+		Sat->MainBusAController.SetTieState(2);
+		Sat->MainBusBController.SetTieState(2);
+	}
+	else if (scc->GetEntryBattsOffMainSignal() || R1K50)
+	{
+		Sat->MainBusAController.SetTieState(0);
+		Sat->MainBusBController.SetTieState(0);
+	}
+
 	//UDL input duration is 25-35 milliseconds, so just reset it all on the next timestep. SCC has one timestep to recognize signal
 	InputReset();
 }
@@ -239,6 +255,7 @@ void MCP_GCC::ProgramerReset()
 	R1K37ABC = false;
 	R1K100 = false;
 	R1K47AB = false;
+	R1K50 = false;
 	R1K56AB = false;
 }
 
@@ -530,6 +547,7 @@ MCP_SCC::MCP_SCC() :
 	R2K31AB = false;
 	R2K32ABC = false;
 	R2K34ABC = false;
+	R2K35AB = false;
 	R2K36ABC = false;
 	R2K42AB = false;
 	R2K57AB = false;
@@ -593,6 +611,8 @@ MCP_SCC::MCP_SCC() :
 	ImpactPlus11DiffSignal = false;
 	GimbalMotorsOn = false;
 	SPSArmSignal = false;
+	EntryBattsOnMainSignal = false;
+	EntryBattsOffMainSignal = false;
 
 	ResetGSESignals();
 }
@@ -695,7 +715,7 @@ void MCP_SCC::Timestep(double simdt)
 	//SCS DV Mode
 	R2K57AB = LVSepAndGNFail && !R2K114ABC;
 	//SCS Entry Mode
-	bool R2K35AB = LVSepAndGNFail && R2K113ABC;
+	R2K35AB = LVSepAndGNFail && R2K113ABC;
 	//Monitor Mode
 	R2K31AB = R2K57AB || R2K35AB || R2K32ABC || R2K36ABC || R2K34ABC;
 
@@ -1040,7 +1060,7 @@ void MCP_SCC::Timestep(double simdt)
 	bool GimbalMotorsOn2 = gcc->GetDirectUllage() || gcc->GetDirectThrustOn();
 	bool GimbalMotorsOn3 = LiftoffSignal && !R2K153ABC;
 	GimbalMotorsOn = GimbalMotorsOn1 || GimbalMotorsOn2 || GimbalMotorsOn3;
-	if (IsPowered() && !GimbalMotorsOn)
+	if (IsPowered() && !(GimbalMotorsOn1 || GimbalMotorsOn2))
 	{
 		GimbalMotors30sTimer.SetRunning(true);
 	}
@@ -1053,6 +1073,8 @@ void MCP_SCC::Timestep(double simdt)
 	bool R2K122 = GimbalMotors80sTimer.ContactClosed();
 	bool GimbalMotorsStartSequence = GimbalMotorsOn && !R2K122;
 	bool GimbalMotorsStopSignal = GimbalMotorsDiff.EvaluateState(GimbalMotors30sTimer.ContactClosed());
+
+	//sprintf(oapiDebugString(), "R2K153 %d R2K154 %d Gim1 %d Gim2 %d Gim3 %d Start %d Stop %d StopState %d", R2K153ABC, R2K154ABC, GimbalMotorsOn1, GimbalMotorsOn2, GimbalMotorsOn3, GimbalMotorsStartSequence, GimbalMotorsStopSignal, GimbalMotorsDiff.GetState());
 
 	if (GimbalMotorsStartSequence)
 	{
@@ -1114,6 +1136,11 @@ void MCP_SCC::Timestep(double simdt)
 		R2K58AB = false;
 		R2K59AB = false;
 	}
+
+	//EPS
+	EntryBattsOnMainSignal = EntryBattsOnMainDiff.EvaluateState(CSMSepSignal || GimbalMotorsOn);
+	bool R2K144ABC = CSMSepSignal || GimbalMotorsOn || LESAbortSignal;
+	EntryBattsOffMainSignal = EntryBattsOffMainDiff.EvaluateState(IsPowered() && !R2K144ABC);
 
 	//sprintf(oapiDebugString(), "SPSArm %d GimbalMotorsOn %d GimbalTimers %lf %lf Stop %d", SPSArmSignal, GimbalMotorsOn, GimbalMotors30sTimer.GetTime(),GimbalMotors80sTimer.GetTime(), GimbalMotorsStopSignal);
 	//sprintf(oapiDebugString(), "Logic Bus %d %d Pyro Bus %d %d Oxid Dump %d %d Tower %d %d LES %d %d", R2K18AB, R2K12AB, R2K19AB, R2K13AB, R2K3AB, R2K72AB, R2K9AB, R2K15AB, R2K16AB, R2K10AB);
@@ -1552,7 +1579,8 @@ void MCP_SCC::SaveState(FILEHANDLE scn)
 
 	arr[0] = CSMSepDiff.GetState(); arr[1] = LVSCSep60sDiff.GetState(); arr[2] = HFOnPlus10sDiff.GetState(); arr[3] = SepAbortDiff.GetState(); arr[4] = ImpactDiff.GetState();
 	arr[5] = ImpactPlus11Diff.GetState(); arr[6] = GimbalMotorsDiff.GetState(); arr[7] = CountdownResetDiff.GetState(); arr[8] = StableIIPlus1MinDiff.GetState();
-	papiWriteScenario_boolarr(scn, "DIFFERENTIATORS", arr, 9);
+	arr[9] = EntryBattsOnMainDiff.GetState(); arr[10] = EntryBattsOffMainDiff.GetState();
+	papiWriteScenario_boolarr(scn, "DIFFERENTIATORS", arr, 11);
 
 	LESMotorFireTimer.SaveState(scn, "LESMotorFireTimer_BEGIN", "TD_END");
 	LiftoffTimer.SaveState(scn, "LiftoffTimer_BEGIN", "TD_END");
@@ -1627,10 +1655,11 @@ void MCP_SCC::LoadState(FILEHANDLE scn)
 			R2K130 = arr[0]; R2K131 = arr[1]; R2K132 = arr[2]; R2K135 = arr[3]; R2K137 = arr[4]; R2K142 = arr[5]; R2K147ABC = arr[6]; R2K147DEF = arr[7];
 			R2K173 = arr[8]; R2K222 = arr[9];
 		}
-		else if (papiReadScenario_boolarr(line, "DIFFERENTIATORS", arr, 9))
+		else if (papiReadScenario_boolarr(line, "DIFFERENTIATORS", arr, 11))
 		{
 			CSMSepDiff.SetState(arr[0]); LVSCSep60sDiff.SetState(arr[1]); HFOnPlus10sDiff.SetState(arr[2]); SepAbortDiff.SetState(arr[3]); ImpactDiff.SetState(arr[4]);
 			ImpactPlus11Diff.SetState(arr[5]); GimbalMotorsDiff.SetState(arr[6]); CountdownResetDiff.SetState(arr[7]); StableIIPlus1MinDiff.SetState(arr[8]);
+			EntryBattsOnMainDiff.SetState(arr[9]); EntryBattsOffMainDiff.SetState(arr[10]);
 		}
 		else if (!strnicmp(line, "LESMotorFireTimer_BEGIN", sizeof("LESMotorFireTimer_BEGIN"))) {
 			LESMotorFireTimer.LoadState(scn, "LESMotorFireTimer_END");

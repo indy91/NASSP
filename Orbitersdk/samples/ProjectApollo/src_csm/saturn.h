@@ -4574,6 +4574,7 @@ protected:
 	friend class LeftCOASPowerSwitch;
 	friend class SCE;
 	friend class MCP_SCC;
+	friend class MCP_GCC;
 	// Friend class the MFD too so it can steal our data
 	friend class ProjectApolloMFD;
 	friend class ARCore;

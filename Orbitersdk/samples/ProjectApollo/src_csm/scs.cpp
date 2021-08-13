@@ -3531,16 +3531,14 @@ void ECA::Init(Saturn *vessel) {
 
 void ECA::ResetRelays()
 {
-	R1K22 = false;
-	R1K25 = false;
+	K9 = false;
+	K10 = false;
+	K12 = false;
+	K18 = false;
 	R2K11 = false;
-	R2K22 = false;
-	R2K25 = false;
 	R2K30 = false;
 	R2K31 = false;
 	R3K11 = false;
-	R3K22 = false;
-	R3K25 = false;
 	R3K30 = false;
 	R3K31 = false;
 }
@@ -3548,8 +3546,6 @@ void ECA::ResetRelays()
 void ECA::ResetTransistors()
 {
 	T1QS21 = false;
-	T1QS25 = false;
-	T1QS26 = false;
 	T1QS28 = false;
 	T1QS29 = false;
 	T1QS43 = false;
@@ -3558,7 +3554,6 @@ void ECA::ResetTransistors()
 	T2QS11 = false;
 	T2QS12 = false;
 	T2QS21 = false;
-	T2QS25 = false;
 	T2QS28 = false;
 	T2QS29 = false;
 	T2QS30 = false;
@@ -3569,7 +3564,6 @@ void ECA::ResetTransistors()
 	T3QS11 = false;
 	T3QS12 = false;
 	T3QS21 = false;
-	T3QS25 = false;
 	T3QS28 = false;
 	T3QS29 = false;
 	T3QS30 = false;
@@ -3665,8 +3659,8 @@ void ECA::TimeStep(double simdt) {
 
 	bool logic1, logic2, logic3;
 	bool scslogic1, scslogic4;
-	bool S7_1, S7_3, S8_1, S8_3, S9_1, S9_3, S10_2, S11_2, S12_1, S18_1, S20_1, S20_2, S20_3, S21_1, S21_2, S21_3, S22_1, S22_2, S22_3;
-	bool S38_1, S38_2, S38_3, S39_1, S39_2, S39_3, S51_1, S54_1;
+	bool S7_1, S7_3, S8_1, S8_3, S9_1, S9_3, S10_2, S12_1, S18_1, S20_1, S20_2, S20_3, S21_1, S21_2, S21_3, S22_1, S22_2, S22_3;
+	bool S38_1, S38_2, S38_3, S39_1, S39_2, S39_3, S54_1;
 	bool IGN2, RHCRollBO, RHCPitchBO, RHCYawBO;
 
 	scslogic1 = sat->SCSLogicBus1.Voltage() > SP_MIN_DCVOLTAGE;
@@ -3679,7 +3673,10 @@ void ECA::TimeStep(double simdt) {
 	S9_1 = sat->ManualAttYawSwitch.IsUp() && scslogic1;
 	S9_3 = sat->ManualAttYawSwitch.IsDown() && scslogic1;
 	S10_2 = sat->LimitCycleSwitch.IsDown() && scslogic1;
-	S11_2 = ((sat->AttDeadbandSwitch.IsDown() || !sat->mcp_scc.GetDeadbandSelect()) && scslogic1);
+	K9 = sat->mcp_scc.GetSCSEntryMode() || sat->mcp_scc.GetGNEntryMode();
+	K10 = (sat->GSwitch.IsUp() || sat->mcp_scc.Get005gSignal()) && scslogic4;
+	K12 = ((sat->AttDeadbandSwitch.IsDown() || sat->mcp_scc.GetDeadbandSelect()) && scslogic1);
+	K18 = K12;
 	S12_1 = sat->AttRateSwitch.IsUp() && scslogic1;
 	S18_1 = sat->SCContSwitch.IsUp() && scslogic2;
 	
@@ -3692,7 +3689,6 @@ void ECA::TimeStep(double simdt) {
 	S22_1 = sat->BMAGYawSwitch.IsUp() && scslogic3;
 	S22_2 = sat->BMAGYawSwitch.IsCenter() && scslogic3;
 	S22_3 = sat->BMAGYawSwitch.IsDown() && scslogic1;
-	S51_1 = (sat->mcp_scc.Get005gSignal() || sat->GSwitch.IsUp()) && scslogic4;
 	S38_1 = sat->SCSTvcPitchSwitch.IsUp() && scslogic3;
 	S38_2 = sat->SCSTvcPitchSwitch.IsCenter() && scslogic3;
 	S38_3 = sat->SCSTvcPitchSwitch.IsDown() && scslogic3;
@@ -3706,9 +3702,12 @@ void ECA::TimeStep(double simdt) {
 	RHCPitchBO = sat->rhc1.GetPlusPitchBreakoutSwitch() || sat->rhc1.GetMinusPitchBreakoutSwitch() || sat->rhc2.GetPlusPitchBreakoutSwitch() || sat->rhc2.GetMinusPitchBreakoutSwitch();
 	RHCYawBO = sat->rhc1.GetPlusYawBreakoutSwitch() || sat->rhc1.GetMinusYawBreakoutSwitch() || sat->rhc2.GetPlusYawBreakoutSwitch() || sat->rhc2.GetMinusYawBreakoutSwitch();
 
+	X34 = sat->mcp_scc.GetGNDVMode();
+	X35 = sat->mcp_scc.GetSCSDVMode();
+
 	//GYRO UNCAGE LOGIC (Module A8)
-	logic1 = S20_1 || S20_3 || S51_1 || !IGN2;
-	logic2 = S20_1 || S20_3 || S51_1 || RHCRollBO || (S7_1 || S7_3);
+	logic1 = S20_1 || S20_3 || K10 || !IGN2;
+	logic2 = S20_1 || S20_3 || K10 || RHCRollBO || (S7_1 || S7_3);
 
 	if (!logic1 || !logic2)
 	{
@@ -3721,8 +3720,8 @@ void ECA::TimeStep(double simdt) {
 		sat->bmag1.Cage(0);
 	}
 
-	logic1 = S22_1 || S22_3 || S51_1 || !IGN2;
-	logic2 = S22_1 || S22_3 || S51_1 || RHCYawBO || (S9_1 || S9_3);
+	logic1 = S22_1 || S22_3 || K10 || !IGN2;
+	logic2 = S22_1 || S22_3 || K10 || RHCYawBO || (S9_1 || S9_3);
 
 	if (!logic1 || !logic2)
 	{
@@ -3735,8 +3734,8 @@ void ECA::TimeStep(double simdt) {
 		sat->bmag1.Cage(2);
 	}
 
-	logic1 = S21_1 || S21_3 || S51_1 || !IGN2;
-	logic2 = S21_1 || S21_3 || S51_1 || RHCPitchBO || (S8_1 || S8_3);
+	logic1 = S21_1 || S21_3 || K10 || !IGN2;
+	logic2 = S21_1 || S21_3 || K10 || RHCPitchBO || (S8_1 || S8_3);
 
 	if (!logic1 || !logic2)
 	{
@@ -3801,39 +3800,11 @@ void ECA::TimeStep(double simdt) {
 		T3QS44 = false;
 	}
 
-	if (S11_2)
-	{
-		R1K22 = true;
-		R2K22 = true;
-		R3K22 = true;
-	}
-	else
-	{
-		R1K22 = false;
-		R2K22 = false;
-		R3K22 = false;
-	}
-
-	if (S12_1)
-	{
-		R1K25 = true;
-		R2K25 = true;
-		R3K25 = true;
-	}
-	else
-	{
-		R1K25 = false;
-		R2K25 = false;
-		R3K25 = false;
-	}
-
 	T1QS25 = T2QS25 = T3QS25 = S12_1 || IGN2;
 
 	T1QS43 = S7_3 || S7_1;
 	T2QS43 = S9_3 || S9_1;
 	T3QS43 = S8_3 || S8_1;
-
-	T1QS26 = S51_1;
 
 	//THRUST VECTOR CONTROL (Modules A1 and A5)
 	T2QS1 = !((S18_1 || !(S39_1 && thc_cw)) && (S39_1 || (S18_1 && !thc_cw)));
@@ -3870,7 +3841,7 @@ void ECA::TimeStep(double simdt) {
 		T3QS31 = true;
 	}
 
-	R2K11 = R3K11 = IGN2 && (S18_2 || thc_cw);
+	R2K11 = R3K11 = X35 && IGN2 && (S18_2 || thc_cw);
 
 	if (S54_1)
 	{
@@ -3886,9 +3857,6 @@ void ECA::TimeStep(double simdt) {
 		T2QS12 = false;
 		T3QS12 = false;
 	}
-
-	X34 = sat->mcp_scc.GetGNDVMode();
-	X35 = sat->mcp_scc.GetSCSDVMode();
 
 	if (sat->mcp_scc.GetGNAttitudeControl())
 	{
@@ -3993,27 +3961,42 @@ void ECA::TimeStep(double simdt) {
 
 		//sprintf(oapiDebugString(), "GN Att %d Entry %d target %lf %lf %lf", sat->mcp_scc.GetGNAttitudeControl(), sat->mcp_scc.GetGNEntryMode(), target.x*DEG, target.y*DEG, target.z*DEG);
 				
-		// Now process
-		if(target.x > 0){ // Positive Error
-			if(target.x > PI){ 
-				errors.x = -(TWO_PI-target.x); }else{ errors.x = target.x;	}
-		}else{
-			if(target.x < -PI){
-				errors.x = TWO_PI+target.x; }else{ errors.x = target.x;	}
+			// Now process
+		if (target.x > 0) { // Positive Error
+			if (target.x > PI) {
+				errors.x = -(TWO_PI - target.x);
+			}
+			else { errors.x = target.x; }
 		}
-		if(target.y > 0){ 
-			if(target.y > PI){ 
-				errors.y = TWO_PI-target.y; }else{ errors.y = -target.y;	}
-		}else{
-			if(target.y < -PI){
-				errors.y = -(TWO_PI+target.y); }else{ errors.y = -target.y;	}
+		else {
+			if (target.x < -PI) {
+				errors.x = TWO_PI + target.x;
+			}
+			else { errors.x = target.x; }
 		}
-		if(target.z > 0){ 
-			if(target.z > PI){ 
-				errors.z = -(TWO_PI-target.z); }else{ errors.z = target.z;	}
-		}else{
-			if(target.z < -PI){
-				errors.z = TWO_PI+target.z; }else{ errors.z = target.z;	}
+		if (target.y > 0) {
+			if (target.y > PI) {
+				errors.y = TWO_PI - target.y;
+			}
+			else { errors.y = -target.y; }
+		}
+		else {
+			if (target.y < -PI) {
+				errors.y = -(TWO_PI + target.y);
+			}
+			else { errors.y = -target.y; }
+		}
+		if (target.z > 0) {
+			if (target.z > PI) {
+				errors.z = -(TWO_PI - target.z);
+			}
+			else { errors.z = target.z; }
+		}
+		else {
+			if (target.z < -PI) {
+				errors.z = TWO_PI + target.z;
+			}
+			else { errors.z = target.z; }
 		}
 		//Limit
 		if (errors.x > 15.0*RAD) errors.x = 15.0*RAD;
@@ -4024,7 +4007,7 @@ void ECA::TimeStep(double simdt) {
 		if (errors.z < -14.0*RAD) errors.z = -14.0*RAD;
 
 		//Attitude error deadband
-		if (!R1K22)
+		if (!K12)
 		{
 			if (errors.x < -4.0 * RAD)
 				cmd_rate.x = (errors.x + 4.0 * RAD);
@@ -4034,7 +4017,7 @@ void ECA::TimeStep(double simdt) {
 		else
 			cmd_rate.x = errors.x;
 
-		if (!R3K22)
+		if (!K12)
 		{
 			if (errors.y < -4.0 * RAD)
 				cmd_rate.y = (-errors.y - 4.0 * RAD);
@@ -4044,7 +4027,7 @@ void ECA::TimeStep(double simdt) {
 		else
 			cmd_rate.y = -errors.y;
 
-		if (!R2K22)
+		if (!K12)
 		{
 			if (errors.z < -4.0 * RAD)
 				cmd_rate.z = (-errors.z - 4.0 * RAD);
@@ -4053,17 +4036,17 @@ void ECA::TimeStep(double simdt) {
 		}
 		else
 			cmd_rate.z = -errors.z;
-		
+
 		//Attitude error gain
-		if (R1K25)
+		if (S12_1)
 			cmd_rate.x *= 0.5;
 		else
 			cmd_rate.x *= 10.0;
-		if (R3K25)
+		if (S12_1)
 			cmd_rate.y *= 0.5;
 		else
 			cmd_rate.y *= 10.0;
-		if (R2K25)
+		if (S12_1)
 			cmd_rate.z *= 0.5;
 		else
 			cmd_rate.z *= 10.0;
@@ -4081,7 +4064,7 @@ void ECA::TimeStep(double simdt) {
 			if (E2_509) rhc_rate.x += sat->rhc2.GetRollPropRate();
 			rhc_rate.x *= 9.0*RAD;
 			//High Roll Rate
-			if (R1K25) rhc_rate.x *= 22.0 / 9.0;
+			if (S12_1) rhc_rate.x *= 22.0 / 9.0;
 
 			if (E1_509) rhc_rate.y += sat->rhc1.GetPitchPropRate();
 			if (E2_509) rhc_rate.y += sat->rhc2.GetPitchPropRate();
@@ -4156,61 +4139,73 @@ void ECA::TimeStep(double simdt) {
 		if (rate_damp.z < -25.0*RAD) rate_damp.z = -25.0*RAD;
 
 		//Roll to yaw cross coupling
-		if (T1QS26)
+		if (K10)
 			rate_damp.z += -rate_damp.x * 0.38386; //tan(21.0°)
 
 		// PSEUDORATE FEEDBACK
-		if (E1_506 && !T1QS44 && sat->ManualAttRollSwitch.GetState() == THREEPOSSWITCH_CENTER){
+		if (E1_506 && !T1QS44 && sat->ManualAttRollSwitch.GetState() == THREEPOSSWITCH_CENTER) {
 			if (sat->rjec.GetThruster(9) || sat->rjec.GetThruster(11) ||
-			    sat->rjec.GetThruster(13) || sat->rjec.GetThruster(15)) {
-				pseudorate.x += 0.1 * simdt; 
-			} else if (sat->rjec.GetThruster(10) || sat->rjec.GetThruster(12) ||
-			    sat->rjec.GetThruster(14) || sat->rjec.GetThruster(16)) {
+				sat->rjec.GetThruster(13) || sat->rjec.GetThruster(15)) {
+				pseudorate.x += 0.1 * simdt;
+			}
+			else if (sat->rjec.GetThruster(10) || sat->rjec.GetThruster(12) ||
+				sat->rjec.GetThruster(14) || sat->rjec.GetThruster(16)) {
 				pseudorate.x -= 0.1 * simdt;
-			} else {
+			}
+			else {
 				if (pseudorate.x > 0) {
-					pseudorate.x -= 0.02 * simdt; 
+					pseudorate.x -= 0.02 * simdt;
 					pseudorate.x = max(0, pseudorate.x);
-				} else {
-					pseudorate.x += 0.02 * simdt; 
+				}
+				else {
+					pseudorate.x += 0.02 * simdt;
 					pseudorate.x = min(0, pseudorate.x);
 				}
 			}
-		} else {
+		}
+		else {
 			pseudorate.x = 0;
 		}
-		if (E1_506 && !T3QS44 && sat->ManualAttPitchSwitch.GetState() == THREEPOSSWITCH_CENTER){
+		if (E1_506 && !T3QS44 && sat->ManualAttPitchSwitch.GetState() == THREEPOSSWITCH_CENTER) {
 			if (sat->rjec.GetThruster(1) || sat->rjec.GetThruster(3)) {
-				pseudorate.y += 0.1 * simdt; 
-			} else if (sat->rjec.GetThruster(2) || sat->rjec.GetThruster(4)) {
+				pseudorate.y += 0.1 * simdt;
+			}
+			else if (sat->rjec.GetThruster(2) || sat->rjec.GetThruster(4)) {
 				pseudorate.y -= 0.1 * simdt;
-			} else {
+			}
+			else {
 				if (pseudorate.y > 0) {
-					pseudorate.y -= 0.02 * simdt; 
+					pseudorate.y -= 0.02 * simdt;
 					pseudorate.y = max(0, pseudorate.y);
-				} else {
-					pseudorate.y += 0.02 * simdt; 
+				}
+				else {
+					pseudorate.y += 0.02 * simdt;
 					pseudorate.y = min(0, pseudorate.y);
 				}
 			}
-		} else {
+		}
+		else {
 			pseudorate.y = 0;
 		}
-		if (E1_506 && !T2QS44 && sat->ManualAttYawSwitch.GetState() == THREEPOSSWITCH_CENTER){
+		if (E1_506 && !T2QS44 && sat->ManualAttYawSwitch.GetState() == THREEPOSSWITCH_CENTER) {
 			if (sat->rjec.GetThruster(6) || sat->rjec.GetThruster(8)) {
-				pseudorate.z += 0.1 * simdt; 
-			} else if (sat->rjec.GetThruster(5) || sat->rjec.GetThruster(7)) {
+				pseudorate.z += 0.1 * simdt;
+			}
+			else if (sat->rjec.GetThruster(5) || sat->rjec.GetThruster(7)) {
 				pseudorate.z -= 0.1 * simdt;
-			} else {
+			}
+			else {
 				if (pseudorate.z > 0) {
-					pseudorate.z -= 0.02 * simdt; 
+					pseudorate.z -= 0.02 * simdt;
 					pseudorate.z = max(0, pseudorate.z);
-				} else {
-					pseudorate.z += 0.02 * simdt; 
+				}
+				else {
+					pseudorate.z += 0.02 * simdt;
 					pseudorate.z = min(0, pseudorate.z);
 				}
 			}
-		} else {
+		}
+		else {
 			pseudorate.z = 0;
 		}
 
@@ -4218,7 +4213,7 @@ void ECA::TimeStep(double simdt) {
 		rate_err.x = cmd_rate.x - (rate_damp.x + pseudorate.x);
 		rate_err.y = cmd_rate.y - (rate_damp.y + pseudorate.y);
 		rate_err.z = cmd_rate.z - (rate_damp.z + pseudorate.z);
-		
+
 		// sprintf(oapiDebugString(),"SCS: RATE CMD r%.3f p%.3f y%.3f ERR r%.3f p%.3f y%.3f",
 		//	cmd_rate.x * DEG, cmd_rate.y * DEG, cmd_rate.z * DEG, 
 		//	rate_err.x * DEG, rate_err.y * DEG, rate_err.z * DEG);	
@@ -4231,144 +4226,144 @@ void ECA::TimeStep(double simdt) {
 		//
 
 		// Roll
-		switch(sat->ManualAttRollSwitch.GetState()){
-			case THREEPOSSWITCH_UP:
-				// ACCEL CMD is handled in RJEC
-				break;
-			case THREEPOSSWITCH_CENTER:  // RATE CMD
-				// Automatic mode and proportional-rate mode
-				if (rate_err.x > 0.034906585) {
-					// ACCEL PLUS
-					sat->rjec.SetThruster(9,1);
-					sat->rjec.SetThruster(11,1);
-					sat->rjec.SetThruster(13,1);
-					sat->rjec.SetThruster(15,1);
-					sat->rjec.SetThruster(10,0);
-					sat->rjec.SetThruster(12,0);
-					sat->rjec.SetThruster(14,0);
-					sat->rjec.SetThruster(16,0);
-					accel_roll_trigger=1; accel_roll_flag=1;
+		switch (sat->ManualAttRollSwitch.GetState()) {
+		case THREEPOSSWITCH_UP:
+			// ACCEL CMD is handled in RJEC
+			break;
+		case THREEPOSSWITCH_CENTER:  // RATE CMD
+			// Automatic mode and proportional-rate mode
+			if (rate_err.x > 0.034906585) {
+				// ACCEL PLUS
+				sat->rjec.SetThruster(9, 1);
+				sat->rjec.SetThruster(11, 1);
+				sat->rjec.SetThruster(13, 1);
+				sat->rjec.SetThruster(15, 1);
+				sat->rjec.SetThruster(10, 0);
+				sat->rjec.SetThruster(12, 0);
+				sat->rjec.SetThruster(14, 0);
+				sat->rjec.SetThruster(16, 0);
+				accel_roll_trigger = 1; accel_roll_flag = 1;
+			}
+			if (rate_err.x < -0.034906585) {
+				// ACCEL MINUS
+				sat->rjec.SetThruster(10, 1);
+				sat->rjec.SetThruster(12, 1);
+				sat->rjec.SetThruster(14, 1);
+				sat->rjec.SetThruster(16, 1);
+				sat->rjec.SetThruster(9, 0);
+				sat->rjec.SetThruster(11, 0);
+				sat->rjec.SetThruster(13, 0);
+				sat->rjec.SetThruster(15, 0);
+				accel_roll_trigger = 1; accel_roll_flag = -1;
+			}
+			break;
+		case THREEPOSSWITCH_DOWN:    // MIN IMP
+			// ECA auto-control is inhibited. Auto fire one-shot commands are generated from the breakout switches.
+			if (sat->rhc1.GetMinusRollBreakoutSwitch() || sat->rhc2.GetMinusRollBreakoutSwitch()) {  // MINUS
+				if (!mnimp_roll_trigger) {
+					sat->rjec.SetThruster(10, 1);
+					sat->rjec.SetThruster(12, 1);
+					sat->rjec.SetThruster(14, 1);
+					sat->rjec.SetThruster(16, 1);
 				}
-				if (rate_err.x < -0.034906585) {
-					// ACCEL MINUS
-					sat->rjec.SetThruster(10,1);
-					sat->rjec.SetThruster(12,1);
-					sat->rjec.SetThruster(14,1);
-					sat->rjec.SetThruster(16,1);
-					sat->rjec.SetThruster(9,0);
-					sat->rjec.SetThruster(11,0);
-					sat->rjec.SetThruster(13,0);
-					sat->rjec.SetThruster(15,0);
-					accel_roll_trigger=1; accel_roll_flag=-1;						
-				}							
-				break;
-			case THREEPOSSWITCH_DOWN:    // MIN IMP
-				// ECA auto-control is inhibited. Auto fire one-shot commands are generated from the breakout switches.
-				if (sat->rhc1.GetMinusRollBreakoutSwitch() || sat->rhc2.GetMinusRollBreakoutSwitch()) {  // MINUS
-					if(!mnimp_roll_trigger){
-						sat->rjec.SetThruster(10,1);
-						sat->rjec.SetThruster(12,1);
-						sat->rjec.SetThruster(14,1);
-						sat->rjec.SetThruster(16,1);
-					}
-					mnimp_roll_trigger=1; mnimp_roll_flag=1;
+				mnimp_roll_trigger = 1; mnimp_roll_flag = 1;
+			}
+			if (sat->rhc1.GetPlusRollBreakoutSwitch() || sat->rhc2.GetPlusRollBreakoutSwitch()) { // PLUS
+				if (!mnimp_roll_trigger) {
+					sat->rjec.SetThruster(9, 1);
+					sat->rjec.SetThruster(11, 1);
+					sat->rjec.SetThruster(13, 1);
+					sat->rjec.SetThruster(15, 1);
 				}
-				if (sat->rhc1.GetPlusRollBreakoutSwitch() || sat->rhc2.GetPlusRollBreakoutSwitch()) { // PLUS
-					if(!mnimp_roll_trigger){
-						sat->rjec.SetThruster(9,1);
-						sat->rjec.SetThruster(11,1);
-						sat->rjec.SetThruster(13,1);
-						sat->rjec.SetThruster(15,1);
-					}
-					mnimp_roll_trigger=1; mnimp_roll_flag=1;
-				}
-				break;
+				mnimp_roll_trigger = 1; mnimp_roll_flag = 1;
+			}
+			break;
 		}
 
 		// Pitch
-		switch(sat->ManualAttPitchSwitch.GetState()){
-			case THREEPOSSWITCH_UP:
-				// ACCEL CMD is handled in RJEC
-				break;
-			case THREEPOSSWITCH_CENTER:  // RATE CMD
-				// Automatic mode and proportional-rate mode
-				if(rate_err.y > 0.034906585){
-					// ACCEL PLUS
-					sat->rjec.SetThruster(1,1);
-					sat->rjec.SetThruster(3,1);
-					sat->rjec.SetThruster(2,0);
-					sat->rjec.SetThruster(4,0);
-					accel_pitch_trigger=1; accel_pitch_flag=1;
+		switch (sat->ManualAttPitchSwitch.GetState()) {
+		case THREEPOSSWITCH_UP:
+			// ACCEL CMD is handled in RJEC
+			break;
+		case THREEPOSSWITCH_CENTER:  // RATE CMD
+			// Automatic mode and proportional-rate mode
+			if (rate_err.y > 0.034906585) {
+				// ACCEL PLUS
+				sat->rjec.SetThruster(1, 1);
+				sat->rjec.SetThruster(3, 1);
+				sat->rjec.SetThruster(2, 0);
+				sat->rjec.SetThruster(4, 0);
+				accel_pitch_trigger = 1; accel_pitch_flag = 1;
+			}
+			if (rate_err.y < -0.034906585) {
+				// ACCEL MINUS
+				sat->rjec.SetThruster(2, 1);
+				sat->rjec.SetThruster(4, 1);
+				sat->rjec.SetThruster(1, 0);
+				sat->rjec.SetThruster(3, 0);
+				accel_pitch_trigger = 1; accel_pitch_flag = -1;
+			}
+			break;
+		case THREEPOSSWITCH_DOWN:    // MIN IMP
+			// ECA auto-control is inhibited. Auto fire one-shot commands are generated from the breakout switches.
+			if (sat->rhc1.GetMinusPitchBreakoutSwitch() || sat->rhc2.GetMinusPitchBreakoutSwitch()) {  // MINUS
+				if (!mnimp_pitch_trigger) {
+					sat->rjec.SetThruster(2, 1);
+					sat->rjec.SetThruster(4, 1);
 				}
-				if(rate_err.y < -0.034906585){
-					// ACCEL MINUS
-					sat->rjec.SetThruster(2,1);
-					sat->rjec.SetThruster(4,1);
-					sat->rjec.SetThruster(1,0);
-					sat->rjec.SetThruster(3,0);
-					accel_pitch_trigger=1; accel_pitch_flag=-1;
-				}							
-				break;
-			case THREEPOSSWITCH_DOWN:    // MIN IMP
-				// ECA auto-control is inhibited. Auto fire one-shot commands are generated from the breakout switches.
-				if (sat->rhc1.GetMinusPitchBreakoutSwitch() || sat->rhc2.GetMinusPitchBreakoutSwitch()) {  // MINUS
-					if(!mnimp_pitch_trigger){
-						sat->rjec.SetThruster(2,1);
-						sat->rjec.SetThruster(4,1);
-					}
-					mnimp_pitch_trigger=1; mnimp_pitch_flag=1;
+				mnimp_pitch_trigger = 1; mnimp_pitch_flag = 1;
+			}
+			if (sat->rhc1.GetPlusPitchBreakoutSwitch() || sat->rhc2.GetPlusPitchBreakoutSwitch()) { // PLUS
+				if (!mnimp_pitch_trigger) {
+					sat->rjec.SetThruster(1, 1);
+					sat->rjec.SetThruster(3, 1);
 				}
-				if (sat->rhc1.GetPlusPitchBreakoutSwitch() || sat->rhc2.GetPlusPitchBreakoutSwitch()) { // PLUS
-					if(!mnimp_pitch_trigger){
-						sat->rjec.SetThruster(1,1);
-						sat->rjec.SetThruster(3,1);
-					}
-					mnimp_pitch_trigger=1; mnimp_pitch_flag=1;
-				}
-				break;
+				mnimp_pitch_trigger = 1; mnimp_pitch_flag = 1;
+			}
+			break;
 		}
 
 		// Yaw
-		switch(sat->ManualAttYawSwitch.GetState()){
-			case THREEPOSSWITCH_UP:
-				// ACCEL CMD is handled in RJEC
-				break;
-			case THREEPOSSWITCH_CENTER:  // RATE CMD
-				// Automatic mode and proportional-rate mode
-				if(rate_err.z > 0.034906585){
-					// ACCEL PLUS
-					sat->rjec.SetThruster(6,1);
-					sat->rjec.SetThruster(8,1);
-					sat->rjec.SetThruster(5,0);
-					sat->rjec.SetThruster(7,0);
-					accel_yaw_trigger=1; accel_yaw_flag=-1;
+		switch (sat->ManualAttYawSwitch.GetState()) {
+		case THREEPOSSWITCH_UP:
+			// ACCEL CMD is handled in RJEC
+			break;
+		case THREEPOSSWITCH_CENTER:  // RATE CMD
+			// Automatic mode and proportional-rate mode
+			if (rate_err.z > 0.034906585) {
+				// ACCEL PLUS
+				sat->rjec.SetThruster(6, 1);
+				sat->rjec.SetThruster(8, 1);
+				sat->rjec.SetThruster(5, 0);
+				sat->rjec.SetThruster(7, 0);
+				accel_yaw_trigger = 1; accel_yaw_flag = -1;
+			}
+			if (rate_err.z < -0.034906585) {
+				// ACCEL MINUS
+				sat->rjec.SetThruster(5, 1);
+				sat->rjec.SetThruster(7, 1);
+				sat->rjec.SetThruster(6, 0);
+				sat->rjec.SetThruster(8, 0);
+				accel_yaw_trigger = 1; accel_yaw_flag = 1;
+			}
+			break;
+		case THREEPOSSWITCH_DOWN:    // MIN IMP
+			if (sat->rhc1.GetMinusYawBreakoutSwitch() || sat->rhc2.GetMinusYawBreakoutSwitch()) {  // MINUS
+				if (!mnimp_yaw_trigger) {
+					sat->rjec.SetThruster(6, 1);
+					sat->rjec.SetThruster(8, 1);
 				}
-				if(rate_err.z < -0.034906585){
-					// ACCEL MINUS
-					sat->rjec.SetThruster(5,1);
-					sat->rjec.SetThruster(7,1);
-					sat->rjec.SetThruster(6,0);
-					sat->rjec.SetThruster(8,0);
-					accel_yaw_trigger=1; accel_yaw_flag=1;
-				}							
-				break;
-			case THREEPOSSWITCH_DOWN:    // MIN IMP
-				if (sat->rhc1.GetMinusYawBreakoutSwitch() || sat->rhc2.GetMinusYawBreakoutSwitch()) {  // MINUS
-					if(!mnimp_yaw_trigger){
-						sat->rjec.SetThruster(6,1);
-						sat->rjec.SetThruster(8,1);
-					}
-					mnimp_yaw_trigger=1; mnimp_yaw_flag=1;
+				mnimp_yaw_trigger = 1; mnimp_yaw_flag = 1;
+			}
+			if (sat->rhc1.GetPlusYawBreakoutSwitch() || sat->rhc2.GetPlusYawBreakoutSwitch()) { // PLUS
+				if (!mnimp_yaw_trigger) {
+					sat->rjec.SetThruster(5, 1);
+					sat->rjec.SetThruster(7, 1);
 				}
-				if (sat->rhc1.GetPlusYawBreakoutSwitch() || sat->rhc2.GetPlusYawBreakoutSwitch()) { // PLUS
-					if(!mnimp_yaw_trigger){
-						sat->rjec.SetThruster(5,1);
-						sat->rjec.SetThruster(7,1);
-					}
-					mnimp_yaw_trigger=1; mnimp_yaw_flag=1;
-				}
-				// ECA auto-control is inhibited. Auto fire one-shot commands are generated from the breakout switches.
-				break;
+				mnimp_yaw_trigger = 1; mnimp_yaw_flag = 1;
+			}
+			// ECA auto-control is inhibited. Auto fire one-shot commands are generated from the breakout switches.
+			break;
 		}
 
 		//THRUST VECTOR CONTROL
