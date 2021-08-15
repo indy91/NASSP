@@ -4039,9 +4039,20 @@ void ECA::TimeStep(double simdt) {
 
 		//Attitude error gain
 		if (S12_1)
-			cmd_rate.x *= 0.5;
+		{
+			if (K9)
+			{
+				cmd_rate.x *= 1.0; //?
+			}
+			else
+			{
+				cmd_rate.x *= 0.5;
+			}
+		}
 		else
+		{
 			cmd_rate.x *= 10.0;
+		}
 		if (S12_1)
 			cmd_rate.y *= 0.5;
 		else
@@ -4050,6 +4061,11 @@ void ECA::TimeStep(double simdt) {
 			cmd_rate.z *= 0.5;
 		else
 			cmd_rate.z *= 10.0;
+
+		if (K10)
+		{
+			cmd_rate.y = cmd_rate.z = 0.0; //Pitch and yaw off
+		}
 
 		// Proportional Rate Demand 
 		// The proportional rate commands are powered by AC, the signals are routed through the breakout switches, 
@@ -4585,6 +4601,7 @@ void TVSA::TimeStep(double simdt)
 	{
 		return;
 	}
+	bool cmstage = sat->GetStage() > CSM_LEM_STAGE;
 	//POWER
 
 	bool acpower1, acpower2;
@@ -4683,8 +4700,15 @@ void TVSA::TimeStep(double simdt)
 		double YawServo1Position = 0.0;
 
 		//Position transducers
-		curPitchPosition1 = sat->SPSEngine.pitchGimbalActuator.GetCommandedPosition();
-		curYawPosition1 = sat->SPSEngine.yawGimbalActuator.GetCommandedPosition();
+		if (cmstage)
+		{
+			curPitchPosition1 = curYawPosition1 = 0.0;
+		}
+		else
+		{
+			curPitchPosition1 = sat->SPSEngine.pitchGimbalActuator.GetCommandedPosition();
+			curYawPosition1 = sat->SPSEngine.yawGimbalActuator.GetCommandedPosition();
+		}
 
 		//Pitch Servo No. 1
 		//SCS only if the logic is true
@@ -4704,13 +4728,16 @@ void TVSA::TimeStep(double simdt)
 		//CMC in any case
 		if (tvcenable) YawServo1Position += 0.023725*RAD*(double)sat->tcdu.GetErrorCounter();
 
-		if (pitchServoAmp.IsClutch1Powered())
+		if (!cmstage)
 		{
-			sat->SPSEngine.pitchGimbalActuator.CommandedPositionInc(PitchServo1Position - curPitchPosition1);
-		}
-		if (yawServoAmp.IsClutch1Powered())
-		{
-			sat->SPSEngine.yawGimbalActuator.CommandedPositionInc(YawServo1Position - curYawPosition1);
+			if (pitchServoAmp.IsClutch1Powered())
+			{
+				sat->SPSEngine.pitchGimbalActuator.CommandedPositionInc(PitchServo1Position - curPitchPosition1);
+			}
+			if (yawServoAmp.IsClutch1Powered())
+			{
+				sat->SPSEngine.yawGimbalActuator.CommandedPositionInc(YawServo1Position - curYawPosition1);
+			}
 		}
 	}
 
@@ -4720,8 +4747,15 @@ void TVSA::TimeStep(double simdt)
 		double PitchServo2Position = 0.0;
 		double YawServo2Position = 0.0;
 
-		curPitchPosition2 = sat->SPSEngine.pitchGimbalActuator.GetCommandedPosition();
-		curYawPosition2 = sat->SPSEngine.yawGimbalActuator.GetCommandedPosition();
+		if (cmstage)
+		{
+			curPitchPosition2 = curYawPosition2 = 0.0;
+		}
+		else
+		{
+			curPitchPosition2 = sat->SPSEngine.pitchGimbalActuator.GetCommandedPosition();
+			curYawPosition2 = sat->SPSEngine.yawGimbalActuator.GetCommandedPosition();
+		}
 
 		//Pitch Servo No. 2
 		//SCS only if the logic is true
@@ -4741,21 +4775,24 @@ void TVSA::TimeStep(double simdt)
 		//CMC in any case
 		if (tvcenable) YawServo2Position += 0.023725*RAD*(double)sat->tcdu.GetErrorCounter();
 
-		if (pitchServoAmp.IsClutch2Powered())
+		if (!cmstage)
 		{
-			sat->SPSEngine.pitchGimbalActuator.CommandedPositionInc(PitchServo2Position - curPitchPosition2);
-		}
+			if (pitchServoAmp.IsClutch2Powered())
+			{
+				sat->SPSEngine.pitchGimbalActuator.CommandedPositionInc(PitchServo2Position - curPitchPosition2);
+			}
 
-		if (yawServoAmp.IsClutch2Powered())
-		{
-			sat->SPSEngine.yawGimbalActuator.CommandedPositionInc(YawServo2Position - curYawPosition2);
+			if (yawServoAmp.IsClutch2Powered())
+			{
+				sat->SPSEngine.yawGimbalActuator.CommandedPositionInc(YawServo2Position - curYawPosition2);
+			}
 		}
 	}
 
 	//sprintf(oapiDebugString(), "%d %d %d %d CMC Pitch: %d CMC Yaw: %d", T2QS2, T2QS3, T3QS2, T3QS3, sat->scdu.GetErrorCounter(), sat->tcdu.GetErrorCounter());
 
 	//Transducers
-	if (acpower1)
+	if (!cmstage && acpower1)
 	{
 		pitchGimbalPosition1 = sat->SPSEngine.pitchGimbalActuator.GetPosition()*RAD;
 		yawGimbalPosition1 = sat->SPSEngine.yawGimbalActuator.GetPosition()*RAD;
@@ -4763,7 +4800,7 @@ void TVSA::TimeStep(double simdt)
 	else
 		pitchGimbalPosition1 = yawGimbalPosition1 = 0.0;
 
-	if (acpower2)
+	if (!cmstage && acpower2)
 	{
 		pitchGimbalPosition2 = sat->SPSEngine.pitchGimbalActuator.GetPosition()*RAD;
 		yawGimbalPosition2 = sat->SPSEngine.yawGimbalActuator.GetPosition()*RAD;

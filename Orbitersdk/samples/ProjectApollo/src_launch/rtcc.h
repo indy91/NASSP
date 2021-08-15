@@ -4467,7 +4467,7 @@ public:
 		std::string PrimarySite;
 		std::string BackupSite;
 		double GETofGeneration = 0.0;
-		int Octals[17] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+		int Octals[14] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 		EphemerisData sv; //For display
 		std::string DCCode;
 		double AnchorVectorTime = 0.0;

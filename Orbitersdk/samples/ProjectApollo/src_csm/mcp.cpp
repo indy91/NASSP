@@ -457,11 +457,29 @@ void MCP_GCC::SaveState(FILEHANDLE scn)
 
 	arr[0] = R1K1ABCD; arr[1] = R1K2ABCD; arr[2] = R1K3ABCD; arr[3] = R1K4AB; arr[4] = R1K5AB; arr[5] = R1K6AB; arr[6] = R1K7AB; arr[7] = R1K8AB;
 	arr[8] = R1K9AB; arr[9] = R1K10AB; arr[10] = R1K11AB; arr[11] = R1K12ABCD; arr[12] = R1K13AB; arr[13] = R1K14AB; arr[14] = R1K15AB;
-
 	papiWriteScenario_boolarr(scn, "RELAYS1", arr, 15);
 
-	arr[0] = SIVBRestartDiff.GetState();
+	arr[0] = R1K16AB; arr[1] = R1K17AB; arr[2] = R1K18AB; arr[3] = false; arr[4] = false; arr[5] = false; arr[6] = false; arr[7] = false;
+	arr[8] = false; arr[9] = false; arr[10] = false; arr[11] = false; arr[12] = false; arr[13] = false; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "RELAYS2", arr, 15);
 
+	arr[0] = R1K31; arr[1] = false; arr[2] = R1K33; arr[3] = R1K34; arr[4] = false; arr[5] = false; arr[6] = R1K37ABC; arr[7] = false;
+	arr[8] = false; arr[9] = false; arr[10] = false; arr[11] = false; arr[12] = false; arr[13] = false; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "RELAYS3", arr, 15);
+
+	arr[0] = false; arr[1] = R1K47AB; arr[2] = false; arr[3] = false; arr[4] = R1K50; arr[5] = false; arr[6] = false; arr[7] = false;
+	arr[8] = false; arr[9] = false; arr[10] = R1K56AB; arr[11] = false; arr[12] = false; arr[13] = false; arr[14] = R1K60;
+	papiWriteScenario_boolarr(scn, "RELAYS4", arr, 15);
+
+	arr[0] = R1K61; arr[1] = R1K62; arr[2] = R1K63; arr[3] = R1K64; arr[4] = R1K65; arr[5] = false; arr[6] = false; arr[7] = false;
+	arr[8] = false; arr[9] = false; arr[10] = R1K71AB; arr[11] = R1K72ABCD; arr[12] = false; arr[13] = false; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "RELAYS5", arr, 15);
+
+	arr[0] = false; arr[1] = R1K77AB; arr[2] = R1K78ABCD; arr[3] = false; arr[4] = false; arr[5] = false; arr[6] = false; arr[7] = false;
+	arr[8] = false; arr[9] = false; arr[10] = false; arr[11] = false; arr[12] = false; arr[13] = false; arr[14] = R1K100;
+	papiWriteScenario_boolarr(scn, "RELAYS6", arr, 15);
+
+	arr[0] = SIVBRestartDiff.GetState();
 	papiWriteScenario_boolarr(scn, "DIFFERENTIATORS", arr, 1);
 
 	oapiWriteLine(scn, MCP_GCC_END_STRING);
@@ -480,6 +498,26 @@ void MCP_GCC::LoadState(FILEHANDLE scn)
 		{
 			R1K1ABCD = arr[0]; R1K2ABCD = arr[1]; R1K3ABCD = arr[2]; R1K4AB = arr[3]; R1K5AB = arr[4]; R1K6AB = arr[5]; R1K7AB = arr[6]; R1K8AB = arr[7];
 			R1K9AB = arr[8]; R1K10AB = arr[9]; R1K11AB = arr[10]; R1K12ABCD = arr[11]; R1K13AB = arr[12]; R1K14AB = arr[13]; R1K15AB = arr[14];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS2", arr, 15))
+		{
+			R1K16AB = arr[0]; R1K17AB = arr[1]; R1K18AB = arr[2];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS3", arr, 15))
+		{
+			R1K31 = arr[0]; R1K33 = arr[2]; R1K34 = arr[3]; R1K37ABC = arr[6];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS4", arr, 15))
+		{
+			R1K47AB = arr[1]; R1K50 = arr[4]; R1K56AB = arr[10]; R1K60 = arr[14];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS5", arr, 15))
+		{
+			R1K61 = arr[0]; R1K62 = arr[1]; R1K63 = arr[2]; R1K64 = arr[3]; R1K65 = arr[4]; R1K71AB = arr[10]; R1K72ABCD = arr[11];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS6", arr, 15))
+		{
+			R1K77AB = arr[1]; R1K78ABCD = arr[2]; R1K100 = arr[14];
 		}
 		else if (papiReadScenario_boolarr(line, "DIFFERENTIATORS", arr, 1))
 		{
@@ -516,77 +554,84 @@ MCP_SCC::MCP_SCC() :
 {
 	bPower = false;
 
-	R2K1AB = false;
-	R2K2AB = false;
-	R2K3AB = false;
-	R2K6ABCD = false;
-	R2K7AB = false;
-	R2K8AB = false;
-	R2K9AB = false;
-	R2K10AB = false;
-	R2K11AB = false;
-	R2K12AB = false;
-	R2K13AB = false;
-	R2K14AB = false;
-	R2K15AB = false;
-	R2K16AB = false;
-	R2K17AB = false;
-	R2K18AB = false;
-	R2K19AB = false;
-	R2K20AB = false;
-	R2K21AB = false;
-	R2K22AB = false;
-	R2K23AB = false;
-	R2K24AB = false;
-	R2K25AB = false;
-	R2K26AB = false;
-	R2K27AB = false;
-	R2K28AB = false;
+	R2K1 = false;
+	R2K2 = false;
+	R2K3 = false;
+	R2K6 = false;
+	R2K7 = false;
+	R2K8 = false;
+	R2K9 = false;
+	R2K10 = false;
+	R2K11 = false;
+	R2K12 = false;
+	R2K13 = false;
+	R2K14 = false;
+	R2K15 = false;
+	R2K16 = false;
+	R2K17 = false;
+	R2K18 = false;
+	R2K19 = false;
+	R2K20 = false;
+	R2K21 = false;
+	R2K22 = false;
+	R2K23 = false;
+	R2K24 = false;
+	R2K25 = false;
+	R2K26 = false;
+	R2K27 = false;
+	R2K28 = false;
 	R2K29 = false;
 	R2K30 = false;
-	R2K31AB = false;
-	R2K32ABC = false;
-	R2K34ABC = false;
-	R2K35AB = false;
-	R2K36ABC = false;
-	R2K42AB = false;
-	R2K57AB = false;
-	R2K63AB = false;
-	R2K66AB = false;
-	R2K68AB = false;
-	R2K69AB = false;
-
-	R2K135 = false;
-	R2K222 = false;
-	R2K188 = false;
-	
-	R2K140 = false;
-	R2K137 = false;
+	R2K31 = false;
+	R2K32 = false;
+	R2K34 = false;
+	R2K35 = false;
+	R2K36 = false;
+	R2K42 = false;
+	R2K43 = false;
+	R2K44 = false;
+	R2K55 = false;
+	R2K56 = false;
+	R2K57 = false;
+	R2K58 = false;
+	R2K59 = false;
+	R2K63 = false;
+	R2K66 = false;
+	R2K67 = false;
+	R2K68 = false;
+	R2K69 = false;
+	R2K70 = false;
+	R2K71 = false;
+	R2K72 = false;
 	R2K132 = false;
-	R2K177 = false;
+	R2K134 = false;
+	R2K135 = false;
+	R2K136 = false;
+	R2K137 = false;
+	R2K138 = false;
+	R2K139 = false;
+	R2K140 = false;
+	R2K147 = false;
+	R2K156 = false;
 	R2K141 = false;
-	R2K133AB = false;
-	R2K138AB = false;
-	R2K139AB = false;
+	R2K177 = false;
+	R2K188 = false;
+	R2K222 = false;	
 	R2K202 = false;
 	R2K133 = false;
 	R2K142 = false;
 	R2K131 = false;
 	R2K116 = false;
 	R2K181 = false;
-	R2K43AB = false;
-	R2K44AB = false;
+	
 	R2K173 = false;
 	R2K174 = false;
 	R2K125 = false;
 	R2K126 = false;
 	R2K129 = false;
-	R2K147ABC = false;
-	R2K147DEF = false;
 	R2K192 = false;
 	R2K193 = false;
-	R2K55ABC = false;
-	R2K67ABC = false;
+
 	R2K130 = false;
 	R2K149 = false;
 	R2K110 = true; //??
@@ -594,22 +639,26 @@ MCP_SCC::MCP_SCC() :
 	R2K186 = false;
 	R2K145 = false;
 	R2K146 = false;
-	R2K56AB = false;
-	R2K132A_B = false;
-	R2K70AB = false;
-	R2K71AB = false;
-	R2K72AB = false;
-	R2K153ABC = false;
+	
+	R2K153 = false;
 	R2K119 = false;
-	R2K58AB = false;
-	R2K59AB = false;
 
 	GNFailSignal = false;
+	GimbalMotorsOn = false;
+	SPSEngineHold = false;
+	LVSCSep25sSignal = false;
+	LESAbortSignal = false;
+	CSMSepSignal = false;
+	LETJettisonSignal = false;
+	b005GSignal = false;
 	NoAbort = false;
 	b12KBaroSwitchPlus20sSignal = false;
+	LVSCSepSignal = false;
 	ImpactSignal = false;
+	CountdownResetSignal = false;
+	ImpactPlus11Signal = false;
+	HFOnPlus10sSignal = false;
 	ImpactPlus11DiffSignal = false;
-	GimbalMotorsOn = false;
 	SPSArmSignal = false;
 	EntryBattsOnMainSignal = false;
 	EntryBattsOffMainSignal = false;
@@ -669,11 +718,11 @@ void MCP_SCC::Timestep(double simdt)
 	}
 
 	//Liftoff
-	if (!R2K132 && (Sat->iuCommandConnector.GetLiftOffCircuit(true) || Sat->iuCommandConnector.GetLiftOffCircuit(false)))
+	if (!R2K134 && (Sat->iuCommandConnector.GetLiftOffCircuit(true) || Sat->iuCommandConnector.GetLiftOffCircuit(false)))
 	{
-		R2K132 = true;
+		R2K134 = true;
 	}
-	bool LiftoffSignal = R2K132;
+	bool LiftoffSignal = R2K134;
 
 	//CSM Sep
 	if (!R2K131 && (gcc->GetCSMSep() || Sat->dsky.GetCRelay(25)))
@@ -702,22 +751,22 @@ void MCP_SCC::Timestep(double simdt)
 	bool GNModesAllowed = R2K129;
 
 	//X-Translation
-	R2K42AB = GNModesAllowed && Sat->dsky.GetCRelay(26);
+	R2K42 = GNModesAllowed && Sat->dsky.GetCRelay(26);
 	//G&N Attitude Control Mode
-	R2K32ABC = GNModesAllowed && Sat->dsky.GetCRelay(22);
+	R2K32 = GNModesAllowed && Sat->dsky.GetCRelay(22);
 	//G&N Entry Mode
-	R2K34ABC = GNModesAllowed && Sat->dsky.GetCRelay(24);
+	R2K34 = GNModesAllowed && Sat->dsky.GetCRelay(24);
 	//G&N DV Mode
-	R2K36ABC = GNModesAllowed && Sat->dsky.GetCRelay(23);
+	R2K36 = GNModesAllowed && Sat->dsky.GetCRelay(23);
 
 	bool LVSepAndGNFail = GNFailSignal && LVSCSepSignal;
 
 	//SCS DV Mode
-	R2K57AB = LVSepAndGNFail && !R2K114ABC;
+	R2K57 = LVSepAndGNFail && !R2K114ABC;
 	//SCS Entry Mode
-	R2K35AB = LVSepAndGNFail && R2K113ABC;
+	R2K35 = LVSepAndGNFail && R2K113ABC;
 	//Monitor Mode
-	R2K31AB = R2K57AB || R2K35AB || R2K32ABC || R2K36ABC || R2K34ABC;
+	R2K31 = R2K57 || R2K35 || R2K32 || R2K36 || R2K34;
 
 	//0.05g
 	b005GSignal = (ads->Get005GSwitch() || (CSMSepSignal && R2K129 && Sat->dsky.GetCRelay(28)));
@@ -739,14 +788,14 @@ void MCP_SCC::Timestep(double simdt)
 	bool LiftoffPlus42sSignal = R2K141 = IsPowered() && R2K177;
 	if (LiftoffPlus42sSignal && !R2K133)
 	{
-		R2K3AB = true;
-		R2K72AB = true;
+		R2K3 = true;
+		R2K72 = true;
 	}
 
 	if (LETJettisonSignal)
 	{
-		R2K9AB = true;
-		R2K15AB = true;
+		R2K9 = true;
+		R2K15 = true;
 		LESMotorFireTimer.SetRunning(true);
 	}
 
@@ -761,8 +810,8 @@ void MCP_SCC::Timestep(double simdt)
 
 	if (IsPowered() && R2K187)
 	{
-		R2K10AB = true;
-		R2K16AB = true;
+		R2K10 = true;
+		R2K16 = true;
 	}
 
 	//LES Abort
@@ -773,48 +822,48 @@ void MCP_SCC::Timestep(double simdt)
 		R2K142 = true;
 	}
 
-	R2K132A_B = b12KBaroSwitchPlus20sSignal;
+	R2K132 = b12KBaroSwitchPlus20sSignal;
 	if (b12KBaroSwitchPlus20sSignal)
 	{
 		RCSPurge250sTimer.SetRunning(true);
 	}
 	bool LowLESAbortSignal = R2K133 = IsPowered() && R2K142;
 
-	if (LowLESAbortSignal && !R2K132A_B)
+	if (LowLESAbortSignal && !R2K132)
 	{
 		RCSPurge80sTimer.SetRunning(true);
 	}
 
 	if (b12KBaroSwitchPlus20sSignal)
 	{
-		R2K1AB = true;
-		R2K70AB = true;
+		R2K1 = true;
+		R2K70 = true;
 	}
 	if (RCSPurge250sTimer.ContactClosed())
 	{
-		R2K2AB = true;
+		R2K2 = true;
 	}
 	if (RCSPurge80sTimer.ContactClosed())
 	{
-		R2K71AB = true;
+		R2K71 = true;
 	}
 
 	if (CSMSepSignal || LESAbortSignal)
 	{
-		R2K138AB = true;
-		R2K133AB = true;
-		R2K139AB = true;
+		R2K138 = true;
+		R2K136 = true;
+		R2K139 = true;
 	}
 	else
 	{
-		R2K138AB = false;
-		R2K133AB = false;
-		R2K139AB = false;
+		R2K138 = false;
+		R2K136 = false;
+		R2K139 = false;
 	}
 
 	//LV/SC Sep
-	R2K136 = LETJettisonSignal;
-	if (!R2K137 && ((R2K136 && gcc->GetAbort())|| (Sat->iuCommandConnector.GetLVSCSepCmdA() || Sat->iuCommandConnector.GetLVSCSepCmdB())))
+	R2K156 = LETJettisonSignal;
+	if (!R2K137 && ((R2K156 && gcc->GetAbort())|| (Sat->iuCommandConnector.GetLVSCSepCmdA() || Sat->iuCommandConnector.GetLVSCSepCmdB())))
 	{
 		R2K137 = true;
 	}
@@ -843,14 +892,14 @@ void MCP_SCC::Timestep(double simdt)
 
 	if (IsPowered() && R2K188)
 	{
-		R2K11AB = true;
-		R2K17AB = true;
+		R2K11 = true;
+		R2K17 = true;
 	}
 
 	if (CSMSepSignal && b005GSignal)
 	{
-		R2K14AB = true;
-		R2K20AB = true;
+		R2K14 = true;
+		R2K20 = true;
 	}
 
 	//MESC Power
@@ -859,35 +908,35 @@ void MCP_SCC::Timestep(double simdt)
 	bool CSMSepDiffSignal = CSMSepDiff.EvaluateState(CSMSepSignal);
 	if (CSMSepDiffSignal || GSEMESCLogicBusABArm)
 	{
-		R2K18AB = true;
-		R2K12AB = true;
+		R2K18 = true;
+		R2K12 = true;
 	}
 
 	bool LVSCSep60sDiffSignal = LVSCSep60sDiff.EvaluateState(IsPowered() && LVSCSep60sTimer.ContactClosed());
 	if (ImpactPlus11DiffSignal || LVSCSep60sDiffSignal || GSEMESCLogicBusASafe)
 	{
-		R2K18AB = false;
+		R2K18 = false;
 	}
 	if (ImpactPlus11Signal || LVSCSep60sDiffSignal || GSEMESCLogicBusBSafe)
 	{
-		R2K12AB = false;
+		R2K12 = false;
 	}
 	CountdownResetSignal = CountdownResetDiff.EvaluateState(ImpactPlus11Signal || LVSCSep60sDiffSignal || GSEMESCLogicBusBSafe);
 
 	//MESC Pyro
 	if (GSEMESCPyroBusABArm || CSMSepSignal)
 	{
-		R2K19AB = true;
-		R2K13AB = true;
+		R2K19 = true;
+		R2K13 = true;
 	}
 	bool HFOnPlus10sDiffSignal = HFOnPlus10sDiff.EvaluateState(HFOnPlus10sSignal);
 	if (HFOnPlus10sDiffSignal || LVSCSep60sDiffSignal || GSEMESCPyroBusASafe)
 	{
-		R2K19AB = false;
+		R2K19 = false;
 	}
 	if (HFOnPlus10sDiffSignal || LVSCSep60sDiffSignal || GSEMESCPyroBusBSafe)
 	{
-		R2K13AB = false;
+		R2K13 = false;
 	}
 
 	//Sep/Abort
@@ -895,8 +944,8 @@ void MCP_SCC::Timestep(double simdt)
 
 	if (SepAbortDiffSignal)
 	{
-		R2K43AB = true;
-		R2K44AB = true;
+		R2K43 = true;
+		R2K44 = true;
 	}
 
 	if (LVSCSep25sSignal) LVSCSep30sTimer.SetRunning(true);
@@ -904,14 +953,14 @@ void MCP_SCC::Timestep(double simdt)
 
 	if (IsPowered() && LVSCSep30sTimer.ContactClosed())
 	{
-		R2K43AB = false;
-		R2K44AB = false;
+		R2K43 = false;
+		R2K44 = false;
 	}
 
 	if (CSMSepSignal)
 	{
-		R2K68AB = true;
-		R2K69AB = true;
+		R2K68 = true;
+		R2K69 = true;
 	}
 
 	//ELS
@@ -929,24 +978,20 @@ void MCP_SCC::Timestep(double simdt)
 	b12KBaroSwitchPlus20sSignal = R2K193;
 	bool ImpactDiffSignal = ImpactDiff.EvaluateState(ads->GetImpactSwitch());
 
-	if (R2K192)
-	{
-		R2K147DEF = true;
-	}
 	if (R2K192 || (b12KBaroSwitchPlus20sSignal && ImpactDiffSignal))
 	{
-		R2K147ABC = true;
+		R2K147 = true;
 	}
 
-	ImpactSignal = (IsPowered() && R2K147DEF);
+	ImpactSignal = (IsPowered() && R2K147);
 
 	if (ImpactSignal)
 	{
-		R2K55ABC = true;
-		R2K67ABC = true;
+		R2K55 = true;
+		R2K67 = true;
 	}
 
-	if (ImpactSignal || (R2K147ABC && !R2K111))
+	if (ImpactSignal || (R2K147 && !R2K111))
 	{
 		Impact11sTimer.SetRunning(true);
 	}
@@ -957,7 +1002,7 @@ void MCP_SCC::Timestep(double simdt)
 	}
 
 	bool FPLPower = Sat->FlightPostLandingBus.Voltage() > SP_MIN_DCVOLTAGE;
-	bool ImpactFPL = FPLPower && R2K147ABC;
+	bool ImpactFPL = FPLPower && R2K147;
 
 	if (ImpactFPL && ads->GetAttitudeSwitch())
 	{
@@ -1026,47 +1071,47 @@ void MCP_SCC::Timestep(double simdt)
 
 	if (StableIIPlus1MinDiffSignal)
 	{
-		R2K63AB = true;
-		R2K66AB = true;
+		R2K63 = true;
+		R2K66 = true;
 	}
 	if (FPLPower && R2K196ABC)
 	{
-		R2K66AB = false;
+		R2K66 = false;
 	}
 
 	//ECS
 	if (LETJettisonSignal)
 	{
-		R2K6ABCD = true;
+		R2K6 = true;
 	}
 	if (CSMSepSignal || LESAbortSignal || GSEECSStart)
 	{
-		R2K8AB = true;
-		R2K7AB = true;
+		R2K8 = true;
+		R2K7 = true;
 	}
 	else if (CountdownResetSignal)
 	{
-		R2K8AB = false;
-		R2K7AB = false;
+		R2K8 = false;
+		R2K7 = false;
 	}
 	if (GSEECSStart)
 	{
-		R2K56AB = true;
+		R2K56 = true;
 	}
 
 	//PROP
 	bool R2K154ABC = (NoAbort && Sat->dsky.GetCRelay(29)); //Gimbal Motors On
 	bool GimbalMotorsOn1 = (IsPowered() && R2K154ABC);
 	bool GimbalMotorsOn2 = gcc->GetDirectUllage() || gcc->GetDirectThrustOn();
-	bool GimbalMotorsOn3 = LiftoffSignal && !R2K153ABC;
+	bool GimbalMotorsOn3 = LiftoffSignal && !R2K153;
 	GimbalMotorsOn = GimbalMotorsOn1 || GimbalMotorsOn2 || GimbalMotorsOn3;
 	if (IsPowered() && !(GimbalMotorsOn1 || GimbalMotorsOn2))
 	{
 		GimbalMotors30sTimer.SetRunning(true);
 	}
-	R2K153ABC = GimbalMotors30sTimer.ContactClosed();
+	R2K153 = GimbalMotors30sTimer.ContactClosed();
 
-	if (LiftoffSignal && !R2K153ABC)
+	if (LiftoffSignal && !R2K153)
 	{
 		GimbalMotors80sTimer.SetRunning(true);
 	}
@@ -1087,54 +1132,54 @@ void MCP_SCC::Timestep(double simdt)
 	bool R2K167AB = GimbalMotorYaw1StartTimer.ContactClosed();
 	if (R2K167AB)
 	{
-		R2K21AB = true;
+		R2K21 = true;
 	}
 	bool R2K168AB = GimbalMotorYaw1OnTimer.ContactClosed();
 	if (R2K168AB)
 	{
-		R2K22AB = true;
-		R2K24AB = true;
+		R2K22 = true;
+		R2K24 = true;
 	}
 	bool R2K169AB = GimbalMotorYaw2StartTimer.ContactClosed();
 	if (R2K169AB)
 	{
-		R2K23AB = true;
-		R2K25AB = true;
+		R2K23 = true;
+		R2K25 = true;
 	}
 	bool R2K170AB = GimbalMotorYaw2OnPitch2StartTimer.ContactClosed();
 	if (R2K170AB)
 	{
-		R2K26AB = true;
-		R2K27AB = true;
+		R2K26 = true;
+		R2K27 = true;
 	}
 	bool R2K171AB = GimbalMotorPitch2OnTimer.ContactClosed();
 	if (R2K171AB)
 	{
-		R2K28AB = true;
+		R2K28 = true;
 	}
 	if (GimbalMotorsStopSignal)
 	{
-		R2K21AB = false;
-		R2K22AB = false;
-		R2K23AB = false;
-		R2K24AB = false;
-		R2K25AB = false;
-		R2K26AB = false;
-		R2K27AB = false;
-		R2K28AB = false;
+		R2K21 = false;
+		R2K22 = false;
+		R2K23 = false;
+		R2K24 = false;
+		R2K25 = false;
+		R2K26 = false;
+		R2K27 = false;
+		R2K28 = false;
 	}
 
 	R2K119 = gcc->GetDirectThrustOff(); //TBD: Programer Reset?
 	SPSArmSignal = LVSCSep25sSignal && !R2K119;
 	if (SPSArmSignal && GimbalMotorsOn)
 	{
-		R2K58AB = true;
-		R2K59AB = true;
+		R2K58 = true;
+		R2K59 = true;
 	}
 	else
 	{
-		R2K58AB = false;
-		R2K59AB = false;
+		R2K58 = false;
+		R2K59 = false;
 	}
 
 	//EPS
@@ -1148,55 +1193,54 @@ void MCP_SCC::Timestep(double simdt)
 
 void MCP_SCC::ProgramerReset()
 {
-	R2K6ABCD = false;
-	R2K7AB = false;
-	R2K8AB = false;
-	R2K9AB = false;
-	R2K10AB = false;
-	R2K11AB = false;
-	R2K15AB = false;
-	R2K16AB = false;
-	R2K17AB = false;
-	R2K21AB = false;
-	R2K22AB = false;
-	R2K23AB = false;
-	R2K24AB = false;
-	R2K25AB = false;
-	R2K26AB = false;
-	R2K27AB = false;
-	R2K28AB = false;
-
-	R2K63AB = false;
-	R2K66AB = false;
-	R2K68AB = false;
-	R2K69AB = false;
+	R2K6 = false;
+	R2K7 = false;
+	R2K8 = false;
+	R2K9 = false;
+	R2K10 = false;
+	R2K11 = false;
+	R2K15 = false;
+	R2K16 = false;
+	R2K17 = false;
+	R2K21 = false;
+	R2K22 = false;
+	R2K23 = false;
+	R2K24 = false;
+	R2K25 = false;
+	R2K26 = false;
+	R2K27 = false;
+	R2K28 = false;
+	R2K43 = false;
+	R2K44 = false;
+	R2K55 = false;
+	R2K56 = false;
+	R2K63 = false;
+	R2K66 = false;
+	R2K67 = false;
+	R2K68 = false;
+	R2K69 = false;
+	R2K70 = false;
+	R2K71 = false;
+	R2K72 = false;
 
 	R2K135 = false;
 	R2K222 = false;
 	R2K137 = false;
-	R2K132 = false;
+	R2K134 = false;
 	R2K142 = false;
 	R2K131 = false;
-	R2K43AB = false;
-	R2K44AB = false;
+
 	R2K173 = false;
-	R2K147ABC = false;
-	R2K147DEF = false;
-	R2K55ABC = false;
-	R2K67ABC = false;
+	R2K147 = false;
 	R2K110 = true; //Is this right?
 	R2K111 = true;
 	R2K130 = false;
-	R2K56AB = false;
 	R2K100 = false;
-	R2K70AB = false;
-	R2K71AB = false;
-	R2K72AB = false;
 }
 
 bool MCP_SCC::GetFireSafeA()
 {
-	if (!R2K15AB)
+	if (!R2K15)
 	{
 		return true;
 	}
@@ -1205,7 +1249,7 @@ bool MCP_SCC::GetFireSafeA()
 
 bool MCP_SCC::GetFireSafeB()
 {
-	if (!R2K9AB)
+	if (!R2K9)
 	{
 		return true;
 	}
@@ -1214,7 +1258,7 @@ bool MCP_SCC::GetFireSafeB()
 
 bool MCP_SCC::GetFireArmA()
 {
-	if (R2K15AB)
+	if (R2K15)
 	{
 		return true;
 	}
@@ -1223,7 +1267,7 @@ bool MCP_SCC::GetFireArmA()
 
 bool MCP_SCC::GetFireArmB()
 {
-	if (R2K9AB)
+	if (R2K9)
 	{
 		return true;
 	}
@@ -1256,12 +1300,12 @@ bool MCP_SCC::GetFireSafe(bool IsSysA)
 
 bool MCP_SCC::GetLESMotorFireA()
 {
-	return R2K16AB;
+	return R2K16;
 }
 
 bool MCP_SCC::GetLESMotorFireB()
 {
-	return R2K10AB;
+	return R2K10;
 }
 
 bool MCP_SCC::GetLESMotorFire(bool IsSysA)
@@ -1288,13 +1332,13 @@ void MCP_SCC::DeterminePowerState()
 
 bool MCP_SCC::GetCMSMSepA()
 {
-	if (R2K11AB) return true;
+	if (R2K11) return true;
 	return false;
 }
 
 bool MCP_SCC::GetCMSMSepB()
 {
-	if (R2K17AB) return true;
+	if (R2K17) return true;
 	return false;
 }
 
@@ -1306,13 +1350,13 @@ bool MCP_SCC::GetCMSMSep(bool IsSysA)
 
 bool MCP_SCC::GetELSActiveA()
 {
-	if (R2K20AB) return true;
+	if (R2K20) return true;
 	return false;
 }
 
 bool MCP_SCC::GetELSActiveB()
 {
-	if (R2K14AB) return true;
+	if (R2K14) return true;
 	return false;
 }
 
@@ -1350,12 +1394,12 @@ bool MCP_SCC::GetMESCLogicBusArm(bool IsSysA)
 
 bool MCP_SCC::GetMESCLogicBusArmA()
 {
-	return R2K18AB;
+	return R2K18;
 }
 
 bool MCP_SCC::GetMESCLogicBusArmB()
 {
-	return R2K12AB;
+	return R2K12;
 }
 
 void MCP_SCC::MESCPyroBusesArm(bool set)
@@ -1397,12 +1441,12 @@ bool MCP_SCC::GetMESCPyroBusArm(bool IsSysA)
 
 bool MCP_SCC::GetMESCPyroBusArmA()
 {
-	return R2K19AB;
+	return R2K19;
 }
 
 bool MCP_SCC::GetMESCPyroBusArmB()
 {
-	return R2K13AB;
+	return R2K13;
 }
 
 bool MCP_SCC::GetSeparateAbortSignal(bool IsSysA)
@@ -1413,12 +1457,12 @@ bool MCP_SCC::GetSeparateAbortSignal(bool IsSysA)
 
 bool MCP_SCC::GetSeparateAbortSignalA()
 {
-	return R2K43AB;
+	return R2K43;
 }
 
 bool MCP_SCC::GetSeparateAbortSignalB()
 {
-	return R2K44AB;
+	return R2K44;
 }
 
 bool MCP_SCC::GetRCSDump(bool IsSysA)
@@ -1429,12 +1473,12 @@ bool MCP_SCC::GetRCSDump(bool IsSysA)
 
 bool MCP_SCC::GetRCSDumpA()
 {
-	return R2K1AB;
+	return R2K1;
 }
 
 bool MCP_SCC::GetRCSDumpB()
 {
-	return R2K70AB;
+	return R2K70;
 }
 
 bool MCP_SCC::GetOxidDump(bool IsSysA)
@@ -1445,12 +1489,12 @@ bool MCP_SCC::GetOxidDump(bool IsSysA)
 
 bool MCP_SCC::GetOxidDumpA()
 {
-	return R2K3AB;
+	return R2K3;
 }
 
 bool MCP_SCC::GetOxidDumpB()
 {
-	return R2K72AB;
+	return R2K72;
 }
 
 bool MCP_SCC::GetRCSPurge(bool IsSysA)
@@ -1461,12 +1505,12 @@ bool MCP_SCC::GetRCSPurge(bool IsSysA)
 
 bool MCP_SCC::GetRCSPurgeA()
 {
-	return R2K2AB;
+	return R2K2;
 }
 
 bool MCP_SCC::GetRCSPurgeB()
 {
-	return R2K71AB;
+	return R2K71;
 }
 
 bool MCP_SCC::GetGimbalStart(bool yaw, int num)
@@ -1475,22 +1519,22 @@ bool MCP_SCC::GetGimbalStart(bool yaw, int num)
 	{
 		if (num == 1)
 		{
-			return R2K21AB && !R2K22AB;
+			return R2K21 && !R2K22;
 		}
 		else
 		{
-			return R2K25AB && !R2K26AB;
+			return R2K25 && !R2K26;
 		}
 	}
 	else
 	{
 		if (num == 1)
 		{
-			return R2K24AB && !R2K23AB;
+			return R2K24 && !R2K23;
 		}
 		else
 		{
-			return R2K27AB && !R2K28AB;
+			return R2K27 && !R2K28;
 		}
 	}
 }
@@ -1501,22 +1545,22 @@ bool MCP_SCC::GetGimbalOn(bool yaw, int num)
 	{
 		if (num == 1)
 		{
-			return R2K21AB && R2K22AB;
+			return R2K21 && R2K22;
 		}
 		else
 		{
-			return R2K25AB && R2K26AB;
+			return R2K25 && R2K26;
 		}
 	}
 	else
 	{
 		if (num == 1)
 		{
-			return R2K24AB && R2K23AB;
+			return R2K24 && R2K23;
 		}
 		else
 		{
-			return R2K27AB && R2K28AB;
+			return R2K27 && R2K28;
 		}
 	}
 }
@@ -1527,22 +1571,22 @@ bool MCP_SCC::GetGimbalOff(bool yaw, int num)
 	{
 		if (num == 1)
 		{
-			return !R2K21AB;
+			return !R2K21;
 		}
 		else
 		{
-			return !R2K25AB;
+			return !R2K25;
 		}
 	}
 	else
 	{
 		if (num == 1)
 		{
-			return !R2K24AB;
+			return !R2K24;
 		}
 		else
 		{
-			return !R2K27AB;
+			return !R2K27;
 		}
 	}
 }
@@ -1561,21 +1605,61 @@ void MCP_SCC::SaveState(FILEHANDLE scn)
 	arr[6] = GSEMESCPyroBusABArm; arr[7] = GSEMESCPyroBusASafe; arr[8] = GSEMESCPyroBusBSafe;
 	papiWriteScenario_boolarr(scn, "SIGNALS2", arr, 9);
 
-	arr[0] = R2K1AB; arr[1] = R2K2AB; arr[2] = R2K3AB; arr[3] = R2K6ABCD; arr[4] = R2K7AB; arr[5] = R2K8AB; arr[6] = R2K9AB; arr[7] = R2K10AB;
-	arr[8] = R2K11AB; arr[9] = R2K12AB; arr[10] = R2K13AB; arr[11] = R2K14AB; arr[12] = R2K15AB; arr[13] = R2K16AB; arr[14] = R2K17AB;
+	arr[0] = R2K1; arr[1] = R2K2; arr[2] = R2K3; arr[3] = false; arr[4] = false; arr[5] = R2K6; arr[6] = R2K7; arr[7] = R2K8;
+	arr[8] = R2K9; arr[9] = R2K10; arr[10] = R2K11; arr[11] = R2K12; arr[12] = R2K13; arr[13] = R2K14; arr[14] = R2K15;
 	papiWriteScenario_boolarr(scn, "RELAYS1", arr, 15);
 
-	arr[0] = R2K18AB; arr[1] = R2K19AB; arr[2] = R2K20AB; arr[3] = R2K21AB; arr[4] = R2K22AB; arr[5] = R2K23AB; arr[6] = R2K24AB; arr[7] = R2K25AB;
-	arr[8] = R2K26AB; arr[9] = R2K27AB; arr[10] = R2K28AB; arr[11] = R2K39AB; arr[12] = R2K40AB; arr[13] = R2K43AB; arr[14] = R2K44AB;
+	arr[0] = R2K16; arr[1] = R2K17; arr[2] = R2K18; arr[3] = R2K19; arr[4] = R2K20; arr[5] = R2K21; arr[6] = R2K22; arr[7] = R2K23;
+	arr[8] = R2K24; arr[9] = R2K25; arr[10] = R2K26; arr[11] = R2K27; arr[12] = R2K28; arr[13] = R2K29; arr[14] = R2K30;
 	papiWriteScenario_boolarr(scn, "RELAYS2", arr, 15);
 
-	arr[0] = R2K53AB; arr[1] = R2K55ABC; arr[2] = R2K56AB; arr[3] = R2K63AB; arr[4] = R2K66AB; arr[5] = R2K67ABC; arr[6] = R2K68AB; arr[7] = R2K69AB;
-	arr[8] = R2K70AB; arr[9] = R2K71AB; arr[10] = R2K72AB; arr[11] = R2K100; arr[12] = R2K110; arr[13] = R2K111; arr[14] = R2K116;
+	arr[0] = R2K31; arr[1] = R2K32; arr[2] = false; arr[3] = R2K34; arr[4] = R2K35; arr[5] = R2K36; arr[6] = false; arr[7] = false;
+	arr[8] = R2K39; arr[9] = R2K40; arr[10] = false; arr[11] = R2K42; arr[12] = R2K43; arr[13] = R2K44; arr[14] = false;
 	papiWriteScenario_boolarr(scn, "RELAYS3", arr, 15);
 
-	arr[0] = R2K130; arr[1] = R2K132; arr[2] = R2K135; arr[3] = R2K137; arr[4] = R2K142; arr[5] = R2K147ABC; arr[6] = R2K147DEF; arr[7] = R2K147DEF;
-	arr[8] = R2K173; arr[9] = R2K222;
-	papiWriteScenario_boolarr(scn, "RELAYS4", arr, 10);
+	arr[0] = false; arr[1] = false; arr[2] = false; arr[3] = false; arr[4] = false; arr[5] = false; arr[6] = false; arr[7] = R2K53;
+	arr[8] = false; arr[9] = R2K55; arr[10] = R2K56; arr[11] = R2K57; arr[12] = R2K58; arr[13] = R2K59; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "RELAYS4", arr, 15);
+
+	arr[0] = false; arr[1] = false; arr[2] = R2K63; arr[3] = false; arr[4] = false; arr[5] = R2K66; arr[6] = R2K67; arr[7] = R2K68;
+	arr[8] = R2K69; arr[9] = R2K70; arr[10] = R2K71; arr[11] = R2K72; arr[12] = false; arr[13] = false; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "RELAYS5", arr, 15);
+
+	arr[0] = false; arr[1] = false; arr[2] = false; arr[3] = false; arr[4] = false; arr[5] = false; arr[6] = false; arr[7] = false;
+	arr[8] = false; arr[9] = R2K100; arr[10] = false; arr[11] = false; arr[12] = false; arr[13] = false; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "RELAYS7", arr, 15);
+
+	arr[0] = false; arr[1] = false; arr[2] = false; arr[3] = false; arr[4] = R2K110; arr[5] = R2K111; arr[6] = false; arr[7] = false;
+	arr[8] = false; arr[9] = false; arr[10] = R2K116; arr[11] = false; arr[12] = false; arr[13] = R2K119; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "RELAYS8", arr, 15);
+
+	arr[0] = false; arr[1] = false; arr[2] = false; arr[3] = false; arr[4] = R2K125; arr[5] = R2K126; arr[6] = false; arr[7] = false;
+	arr[8] = R2K129; arr[9] = R2K130; arr[10] = R2K131; arr[11] = R2K132; arr[12] = R2K133; arr[13] = R2K134; arr[14] = R2K135;
+	papiWriteScenario_boolarr(scn, "RELAYS9", arr, 15);
+
+	arr[0] = R2K136; arr[1] = R2K137; arr[2] = R2K138; arr[3] = R2K139; arr[4] = R2K140; arr[5] = R2K141; arr[6] = R2K142; arr[7] = false;
+	arr[8] = false; arr[9] = R2K145; arr[10] = R2K146; arr[11] = R2K147; arr[12] = false; arr[13] = R2K149; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "RELAYS10", arr, 15);
+
+	arr[0] = false; arr[1] = false; arr[2] = R2K153; arr[3] = false; arr[4] = false; arr[5] = R2K156; arr[6] = false; arr[7] = false;
+	arr[8] = false; arr[9] = false; arr[10] = false; arr[11] = false; arr[12] = false; arr[13] = false; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "RELAYS11", arr, 15);
+
+	arr[0] = false; arr[1] = false; arr[2] = false; arr[3] = false; arr[4] = false; arr[5] = false; arr[6] = false; arr[7] = R2K173;
+	arr[8] = R2K174; arr[9] = false; arr[10] = false; arr[11] = R2K177; arr[12] = false; arr[13] = false; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "RELAYS12", arr, 15);
+
+	arr[0] = R2K181; arr[1] = false; arr[2] = false; arr[3] = false; arr[4] = false; arr[5] = R2K186; arr[6] = R2K187; arr[7] = R2K188;
+	arr[8] = false; arr[9] = false; arr[10] = false; arr[11] = R2K192; arr[12] = R2K193; arr[13] = false; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "RELAYS13", arr, 15);
+
+	arr[0] = false; arr[1] = false; arr[2] = false; arr[3] = false; arr[4] = false; arr[5] = false; arr[6] = R2K202; arr[7] = false;
+	arr[8] = false; arr[9] = false; arr[10] = false; arr[11] = false; arr[12] = false; arr[13] = false; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "RELAYS14", arr, 15);
+
+	arr[0] = false; arr[1] = false; arr[2] = false; arr[3] = false; arr[4] = false; arr[5] = false; arr[6] = false; arr[7] = false;
+	arr[8] = false; arr[9] = false; arr[10] = false; arr[11] = R2K222; arr[12] = false; arr[13] = false; arr[14] = false;
+	papiWriteScenario_boolarr(scn, "RELAYS15", arr, 15);
 
 	arr[0] = CSMSepDiff.GetState(); arr[1] = LVSCSep60sDiff.GetState(); arr[2] = HFOnPlus10sDiff.GetState(); arr[3] = SepAbortDiff.GetState(); arr[4] = ImpactDiff.GetState();
 	arr[5] = ImpactPlus11Diff.GetState(); arr[6] = GimbalMotorsDiff.GetState(); arr[7] = CountdownResetDiff.GetState(); arr[8] = StableIIPlus1MinDiff.GetState();
@@ -1637,23 +1721,63 @@ void MCP_SCC::LoadState(FILEHANDLE scn)
 		}
 		else if (papiReadScenario_boolarr(line, "RELAYS1", arr, 15))
 		{
-			R2K1AB = arr[0]; R2K2AB = arr[1]; R2K3AB = arr[2]; R2K6ABCD = arr[3]; R2K7AB = arr[4]; R2K8AB = arr[5]; R2K9AB = arr[6]; R2K10AB = arr[7];
-			R2K11AB = arr[8]; R2K12AB = arr[9]; R2K13AB = arr[10]; R2K14AB = arr[11]; R2K15AB = arr[12]; R2K16AB = arr[13]; R2K17AB = arr[14];
+			R2K1 = arr[0]; R2K2 = arr[1]; R2K3 = arr[2]; R2K6 = arr[5]; R2K7 = arr[6]; R2K8 = arr[7]; R2K9 = arr[8]; R2K10 = arr[9];
+			R2K11 = arr[10]; R2K12 = arr[11]; R2K13 = arr[12]; R2K14 = arr[13]; R2K15 = arr[14];
 		}
 		else if (papiReadScenario_boolarr(line, "RELAYS2", arr, 15))
 		{
-			R2K18AB = arr[0]; R2K19AB = arr[1]; R2K20AB = arr[2]; R2K21AB = arr[3]; R2K22AB = arr[4]; R2K23AB = arr[5]; R2K24AB = arr[6]; R2K25AB = arr[7];
-			R2K26AB = arr[8]; R2K27AB = arr[9]; R2K28AB = arr[10]; R2K39AB = arr[11]; R2K40AB = arr[12]; R2K43AB = arr[13]; R2K44AB = arr[14];
+			R2K16 = arr[0]; R2K17 = arr[1]; R2K18 = arr[2]; R2K19 = arr[3]; R2K20 = arr[4]; R2K21 = arr[5]; R2K22 = arr[6]; R2K23 = arr[7];
+			R2K24 = arr[8]; R2K25 = arr[9]; R2K26 = arr[10]; R2K27 = arr[11]; R2K28 = arr[12]; R2K29 = arr[13]; R2K30 = arr[14];
 		}
 		else if (papiReadScenario_boolarr(line, "RELAYS3", arr, 15))
 		{
-			R2K53AB = arr[0]; R2K55ABC = arr[1]; R2K56AB = arr[2]; R2K63AB = arr[3]; R2K66AB = arr[4]; R2K67ABC = arr[5]; R2K68AB = arr[6]; R2K69AB = arr[7];
-			R2K70AB = arr[8]; R2K71AB = arr[9]; R2K72AB = arr[10]; R2K100 = arr[11]; R2K110 = arr[12]; R2K111 = arr[13]; R2K116 = arr[14];
+			R2K31 = arr[0]; R2K32 = arr[1]; R2K34 = arr[3]; R2K35 = arr[4]; R2K36 = arr[5];
+			R2K39 = arr[8]; R2K40 = arr[9]; R2K42 = arr[11]; R2K43 = arr[12]; R2K44 = arr[13];
 		}
-		else if (papiReadScenario_boolarr(line, "RELAYS4", arr, 10))
+		else if (papiReadScenario_boolarr(line, "RELAYS4", arr, 15))
 		{
-			R2K130 = arr[0]; R2K131 = arr[1]; R2K132 = arr[2]; R2K135 = arr[3]; R2K137 = arr[4]; R2K142 = arr[5]; R2K147ABC = arr[6]; R2K147DEF = arr[7];
-			R2K173 = arr[8]; R2K222 = arr[9];
+			R2K53 = arr[7]; R2K55 = arr[9]; R2K56 = arr[10]; R2K57 = arr[11]; R2K58 = arr[12]; R2K59 = arr[13];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS5", arr, 15))
+		{
+			R2K63 = arr[2]; R2K66 = arr[5]; R2K67 = arr[6]; R2K68 = arr[7]; R2K69 = arr[8]; R2K70 = arr[9]; R2K71 = arr[10]; R2K72 = arr[11];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS7", arr, 15))
+		{
+			R2K100 = arr[9];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS8", arr, 15))
+		{
+			R2K110 = arr[4]; R2K111 = arr[5]; R2K116 = arr[10]; R2K119 = arr[13];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS9", arr, 15))
+		{
+			R2K125 = arr[4]; R2K126 = arr[5]; R2K129 = arr[8]; R2K130 = arr[9]; R2K131 = arr[10]; R2K132 = arr[11]; R2K133 = arr[12]; R2K134 = arr[13]; R2K135 = arr[14];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS10", arr, 15))
+		{
+			R2K136 = arr[0]; R2K137 = arr[1]; R2K138 = arr[2]; R2K139 = arr[3]; R2K140 = arr[4]; R2K141 = arr[5]; R2K142 = arr[6]; R2K145 = arr[9]; R2K146 = arr[10];
+			R2K147 = arr[11]; R2K149 = arr[13];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS11", arr, 15))
+		{
+			R2K153 = arr[2]; R2K156 = arr[5];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS12", arr, 15))
+		{
+			R2K173 = arr[7]; R2K173 = arr[8]; R2K177 = arr[11];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS13", arr, 15))
+		{
+			R2K181 = arr[0]; R2K186 = arr[5];  R2K187 = arr[6]; R2K188 = arr[7]; R2K192 = arr[11]; R2K193 = arr[12];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS14", arr, 15))
+		{
+			R2K202 = arr[6];
+		}
+		else if (papiReadScenario_boolarr(line, "RELAYS15", arr, 15))
+		{
+			R2K222 = arr[11];
 		}
 		else if (papiReadScenario_boolarr(line, "DIFFERENTIATORS", arr, 11))
 		{
@@ -1662,7 +1786,7 @@ void MCP_SCC::LoadState(FILEHANDLE scn)
 			EntryBattsOnMainDiff.SetState(arr[9]); EntryBattsOffMainDiff.SetState(arr[10]);
 		}
 		else if (!strnicmp(line, "LESMotorFireTimer_BEGIN", sizeof("LESMotorFireTimer_BEGIN"))) {
-			LESMotorFireTimer.LoadState(scn, "LESMotorFireTimer_END");
+			LESMotorFireTimer.LoadState(scn, "TD_END");
 		}
 		else if (!strnicmp(line, "CMSMSepTimer_BEGIN", sizeof("CMSMSepTimer_BEGIN"))) {
 			CMSMSepTimer.LoadState(scn, "TD_END");

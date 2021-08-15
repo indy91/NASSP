@@ -647,7 +647,7 @@ bool ApolloRTCCMFD::Update(oapi::Sketchpad *skp)
 			{
 				skp->Text((int)(0.5 * W / 8), 2 * H / 14, "Manual", 6);
 			}
-			else if (GC->mission >= 7)
+			else if (GC->mission >= 4)
 			{
 				sprintf(Buffer, "Apollo %i", GC->mission);
 				skp->Text((int)(0.5 * W / 8), 2 * H / 14, Buffer, strlen(Buffer));
@@ -832,7 +832,7 @@ bool ApolloRTCCMFD::Update(oapi::Sketchpad *skp)
 		{
 			skp->Text(1 * W / 8, 2 * H / 14, "Manual", 8);
 		}
-		else if (GC->mission >= 7)
+		else if (GC->mission >= 4)
 		{
 			sprintf(Buffer, "Apollo %i", GC->mission);
 			skp->Text(1 * W / 8, 2 * H / 14, Buffer, strlen(Buffer));
@@ -4202,18 +4202,15 @@ bool ApolloRTCCMFD::Update(oapi::Sketchpad *skp)
 
 		skp->Text(5 * W / 32, 9 * H / 28, "OID", 3);
 		skp->Text(10 * W / 32, 9 * H / 28, "FCT", 3);
-		skp->Text(15 * W / 32, 9 * H / 28, "DSKY V71", 8);
+		skp->Text(15 * W / 32, 9 * H / 28, "DSKY V76", 8);
 		skp->Text(22 * W / 32, 9 * H / 28, "VECTOR", 6);
 
-		for (int i = 1;i <= 021;i++)
+		for (int i = 1;i <= 14;i++)
 		{
 			sprintf(Buffer, "%o", i);
-			skp->Text(5 * W / 32, (i + 9) * H / 28, Buffer, strlen(Buffer));
+			skp->Text(5 * W / 32, (i + 12) * H / 28, Buffer, strlen(Buffer));
 		}
 
-		skp->Text(10 * W / 32, 10 * H / 28, "INDEX", 5);
-		skp->Text(10 * W / 32, 11 * H / 28, "ADD", 3);
-		skp->Text(10 * W / 32, 12 * H / 28, "VID", 3);
 		skp->Text(10 * W / 32, 13 * H / 28, "X", 1);
 		skp->Text(10 * W / 32, 14 * H / 28, "X", 1);
 		skp->Text(10 * W / 32, 15 * H / 28, "Y", 1);
@@ -4229,10 +4226,10 @@ bool ApolloRTCCMFD::Update(oapi::Sketchpad *skp)
 		skp->Text(10 * W / 32, 25 * H / 28, "T", 1);
 		skp->Text(10 * W / 32, 26 * H / 28, "T", 1);
 
-		for (int i = 0;i < 021;i++)
+		for (int i = 0;i < 14;i++)
 		{
 			sprintf(Buffer, "%05d", tab->Octals[i]);
-			skp->Text(15 * W / 32, (i + 10) * H / 28, Buffer, strlen(Buffer));
+			skp->Text(15 * W / 32, (i + 13) * H / 28, Buffer, strlen(Buffer));
 		}
 
 		sprintf(Buffer, "%.1f", tab->sv.R.x);

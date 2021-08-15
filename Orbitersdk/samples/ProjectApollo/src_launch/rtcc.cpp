@@ -6297,8 +6297,9 @@ void RTCC::CMMCMNAV(int veh, int mpt, EphemerisData sv)
 		mptab = &PZMPTLEM;
 		buf->VehicleID = "LEM";
 	}
-	
+
 	Rot = OrbMech::J2000EclToBRCS(SystemParameters.AGCEpoch);
+	//Rot = EZJGMTX1.data[0].REFSMMAT;
 	if (veh == 1)
 	{
 		tclockzero = SystemParameters.MCGZSA*3600.0;
@@ -6319,64 +6320,20 @@ void RTCC::CMMCMNAV(int veh, int mpt, EphemerisData sv)
 	buf->AnchorVectorTime = mptab->GMTAV;
 	buf->DCCode = mptab->StationID;
 
-	if (sv.RBI == BODY_MOON) {
-
-		buf->Octals[0] = 21;
-		buf->Octals[1] = 1501;
-
-		if (mpt == RTCC_MPT_CSM)
-		{
-			buf->Octals[2] = 2;
-		}
-		else
-		{
-			buf->Octals[2] = 77775;
-		}
-
-		buf->Octals[3] = OrbMech::DoubleToBuffer(pos.x, 27, 1);
-		buf->Octals[4] = OrbMech::DoubleToBuffer(pos.x, 27, 0);
-		buf->Octals[5] = OrbMech::DoubleToBuffer(pos.y, 27, 1);
-		buf->Octals[6] = OrbMech::DoubleToBuffer(pos.y, 27, 0);
-		buf->Octals[7] = OrbMech::DoubleToBuffer(pos.z, 27, 1);
-		buf->Octals[8] = OrbMech::DoubleToBuffer(pos.z, 27, 0);
-		buf->Octals[9] = OrbMech::DoubleToBuffer(vel.x, 5, 1);
-		buf->Octals[10] = OrbMech::DoubleToBuffer(vel.x, 5, 0);
-		buf->Octals[11] = OrbMech::DoubleToBuffer(vel.y, 5, 1);
-		buf->Octals[12] = OrbMech::DoubleToBuffer(vel.y, 5, 0);
-		buf->Octals[13] = OrbMech::DoubleToBuffer(vel.z, 5, 1);
-		buf->Octals[14] = OrbMech::DoubleToBuffer(vel.z, 5, 0);
-		buf->Octals[15] = OrbMech::DoubleToBuffer(get*100.0, 28, 1);
-		buf->Octals[16] = OrbMech::DoubleToBuffer(get*100.0, 28, 0);
-	}
-	else
-	{
-		buf->Octals[0] = 21;
-		buf->Octals[1] = 1501;
-
-		if (mpt == RTCC_MPT_CSM)
-		{
-			buf->Octals[2] = 1;
-		}
-		else
-		{
-			buf->Octals[2] = 77776;
-		}
-
-		buf->Octals[3] = OrbMech::DoubleToBuffer(pos.x, 29, 1);
-		buf->Octals[4] = OrbMech::DoubleToBuffer(pos.x, 29, 0);
-		buf->Octals[5] = OrbMech::DoubleToBuffer(pos.y, 29, 1);
-		buf->Octals[6] = OrbMech::DoubleToBuffer(pos.y, 29, 0);
-		buf->Octals[7] = OrbMech::DoubleToBuffer(pos.z, 29, 1);
-		buf->Octals[8] = OrbMech::DoubleToBuffer(pos.z, 29, 0);
-		buf->Octals[9] = OrbMech::DoubleToBuffer(vel.x, 7, 1);
-		buf->Octals[10] = OrbMech::DoubleToBuffer(vel.x, 7, 0);
-		buf->Octals[11] = OrbMech::DoubleToBuffer(vel.y, 7, 1);
-		buf->Octals[12] = OrbMech::DoubleToBuffer(vel.y, 7, 0);
-		buf->Octals[13] = OrbMech::DoubleToBuffer(vel.z, 7, 1);
-		buf->Octals[14] = OrbMech::DoubleToBuffer(vel.z, 7, 0);
-		buf->Octals[15] = OrbMech::DoubleToBuffer(get*100.0, 28, 1);
-		buf->Octals[16] = OrbMech::DoubleToBuffer(get*100.0, 28, 0);
-	}
+	buf->Octals[0] = OrbMech::DoubleToBuffer(pos.x, 26, 1);
+	buf->Octals[1] = OrbMech::DoubleToBuffer(pos.x, 26, 0);
+	buf->Octals[2] = OrbMech::DoubleToBuffer(pos.y, 26, 1);
+	buf->Octals[3] = OrbMech::DoubleToBuffer(pos.y, 26, 0);
+	buf->Octals[4] = OrbMech::DoubleToBuffer(pos.z, 26, 1);
+	buf->Octals[5] = OrbMech::DoubleToBuffer(pos.z, 26, 0);
+	buf->Octals[6] = OrbMech::DoubleToBuffer(vel.x, 7, 1);
+	buf->Octals[7] = OrbMech::DoubleToBuffer(vel.x, 7, 0);
+	buf->Octals[8] = OrbMech::DoubleToBuffer(vel.y, 7, 1);
+	buf->Octals[9] = OrbMech::DoubleToBuffer(vel.y, 7, 0);
+	buf->Octals[10] = OrbMech::DoubleToBuffer(vel.z, 7, 1);
+	buf->Octals[11] = OrbMech::DoubleToBuffer(vel.z, 7, 0);
+	buf->Octals[12] = OrbMech::DoubleToBuffer(get*100.0, 28, 1);
+	buf->Octals[13] = OrbMech::DoubleToBuffer(get*100.0, 28, 0);
 
 	if (buf->SequenceNumber == 0)
 	{

@@ -162,7 +162,7 @@ protected:
 	bool R1K77AB;	// Direct Thrust Off
 	bool R1K78ABCD;	// Direct Thrust On
 
-	bool R1K100;
+	bool R1K100;	// Master Control Transfer
 
 	//Differentiators
 	Differentiator SIVBRestartDiff;	
@@ -208,18 +208,18 @@ public:
 	bool GetGimbalStart(bool yaw, int num);
 	bool GetGimbalOn(bool yaw, int num);
 	bool GetGimbalOff(bool yaw, int num);
-	bool GetGNAttitudeControl() { return R2K32ABC; }
-	bool GetGNEntryMode() { return R2K34ABC; }
-	bool GetGNDVMode() { return R2K36ABC; }
-	bool GetMonitorMode() { return R2K31AB; }
-	bool GetSCSDVMode() { return R2K57AB; }
+	bool GetGNAttitudeControl() { return R2K32; }
+	bool GetGNEntryMode() { return R2K34; }
+	bool GetGNDVMode() { return R2K36; }
+	bool GetMonitorMode() { return R2K31; }
+	bool GetSCSDVMode() { return R2K57; }
 	bool GetSCSEntryMode() { return false; }
-	bool GetSPSPrePilotValveAOpen() { return R2K58AB; }
-	bool GetSPSPrePilotValveBOpen() { return R2K59AB; }
+	bool GetSPSPrePilotValveAOpen() { return R2K58; }
+	bool GetSPSPrePilotValveBOpen() { return R2K59; }
 	bool GetSPSArmSignal() { return SPSArmSignal; }
 	bool Get005gSignal() { return R2K29; }
-	bool GetXTranslation() { return R2K42AB; }
-	bool GetDeadbandSelect() { return IsPowered() && R2K100 && !R2K69AB; }
+	bool GetXTranslation() { return R2K42; }
+	bool GetDeadbandSelect() { return IsPowered() && R2K100 && !R2K69; }
 	bool GetEntryBattsOnMainSignal() { return EntryBattsOnMainSignal; }
 	bool GetEntryBattsOffMainSignal() { return EntryBattsOffMainSignal; }
 	bool GetImpactPlus11SecondsSignal() { return ImpactPlus11Signal; }
@@ -297,114 +297,96 @@ protected:
 
 	//Relays
 
-	bool R2K1AB;	// RCS Dump A
-	bool R2K2AB;	// RCS Purge Activate
-	bool R2K3AB;	// Oxid Dump A
-	bool R2K6ABCD;	// Glycol Wetness Control
-	bool R2K7AB;	// O2 Isolation Valve Open
-	bool R2K8AB;	// Glycol Shutoff Valve Open
-	bool R2K9AB;	// Escape Tower Jettison Fire Arm A
-	bool R2K10AB;	// LES Motor Fire B
-	bool R2K11AB;	// CSM Sep B
-	bool R2K12AB;	// MESC Logic Bus B Arm
-	bool R2K13AB;	// MESC Pyro Bus B Arm
-	bool R2K14AB;	// ELS Activate B 
-	bool R2K15AB;	// Escape Tower Jettison Fire Arm B
-	bool R2K16AB;	// LES Motor Fire A
-	bool R2K17AB;	// CSM Sep A
-	bool R2K18AB;	// MESC Logic Bus A Arm
-	bool R2K19AB;	// MESC Pyro Bus A Arm
-	bool R2K20AB;	// ELS Activate A
-	bool R2K21AB;	// Yaw 1 Start
-	bool R2K22AB;	// Yaw 1 On
-	bool R2K23AB;	// Pitch 1 ON
-	bool R2K24AB;	// Pitch 1 Start
-	bool R2K25AB;	// Yaw 2 Start On
-	bool R2K26AB;	// Yaw 2 On
-	bool R2K27AB;	// Pitch 2 Start
-	bool R2K28AB;	// Pitch 2 On
+	bool R2K1;		// RCS Dump A
+	bool R2K2;		// RCS Purge Activate
+	bool R2K3;		// Oxid Dump A
+	bool R2K6;		// Glycol Wetness Control
+	bool R2K7;		// O2 Isolation Valve Open
+	bool R2K8;		// Glycol Shutoff Valve Open
+	bool R2K9;		// Escape Tower Jettison Fire Arm A
+	bool R2K10;		// LES Motor Fire B
+	bool R2K11;		// CSM Sep B
+	bool R2K12;		// MESC Logic Bus B Arm
+	bool R2K13;		// MESC Pyro Bus B Arm
+	bool R2K14;		// ELS Activate B 
+	bool R2K15;		// Escape Tower Jettison Fire Arm B
+	bool R2K16;		// LES Motor Fire A
+	bool R2K17;		// CSM Sep A
+	bool R2K18;		// MESC Logic Bus A Arm
+	bool R2K19;		// MESC Pyro Bus A Arm
+	bool R2K20;		// ELS Activate A
+	bool R2K21;		// Yaw 1 Start
+	bool R2K22;		// Yaw 1 On
+	bool R2K23;		// Pitch 1 ON
+	bool R2K24;		// Pitch 1 Start
+	bool R2K25;		// Yaw 2 Start On
+	bool R2K26;		// Yaw 2 On
+	bool R2K27;		// Pitch 2 Start
+	bool R2K28;		// Pitch 2 On
 	bool R2K29;		// 0.05g
 	bool R2K30;		// Lift Entry?
-	bool R2K31AB;	// Monitor Mode
-	bool R2K32ABC;	// G&N Attitude Control
-	bool R2K34ABC;	// G&N Entry Mode
-	bool R2K35AB;	// SCS Entry Mode
-	bool R2K39AB;	// Gimbal Position Set
-	bool R2K40AB;	// Gimbal Position Set
-	bool R2K42AB;	// X-Translation
-	bool R2K43AB;	// Sep/Abort A Off
-	bool R2K44AB;	// Sep/Abort B Off
-	bool R2K53AB;	// Gimbal Position Set
-	bool R2K55ABC;	// Main Chute Disconnect A
-	bool R2K56AB;	// Backpressure Control
-	bool R2K63AB;	// Vent Bags On, Uprighting Control
-	bool R2K66AB;	// Pumps Off, Uprighting Control
-	bool R2K67ABC;	// Main Chute Disconnect B
-	bool R2K68AB;	// Pseudo Rate Out
-	bool R2K69AB;	// Deadband Select
-	bool R2K70AB;	// RCS Dump B
-	bool R2K71AB;	// RCS Purge Activate
-	bool R2K72AB;	// Oxid Dump B
+	bool R2K31;		// Monitor Mode
+	bool R2K32;		// G&N Attitude Control
+	bool R2K34;		// G&N Entry Mode
+	bool R2K35;		// SCS Entry Mode
+	bool R2K36;		// G&N DV Mode
+	bool R2K39;		// Gimbal Position Set
+	bool R2K40;		// Gimbal Position Set
+	bool R2K42;		// X-Translation
+	bool R2K43;		// Sep/Abort A Off
+	bool R2K44;		// Sep/Abort B Off
+	bool R2K53;		// Gimbal Position Set
+	bool R2K55;		// Main Chute Disconnect A
+	bool R2K56;		// Backpressure Control
+	bool R2K57;		// SCS DV Mode
+	bool R2K58;		// SPS Pre-Pilot Valve A
+	bool R2K59;		// SPS Pre-Pilot Valve B
+	bool R2K63;		// Vent Bags On, Uprighting Control
+	bool R2K66;		// Pumps Off, Uprighting Control
+	bool R2K67;		// Main Chute Disconnect B
+	bool R2K68;		// Pseudo Rate Out
+	bool R2K69;		// Deadband Select
+	bool R2K70;		// RCS Dump B
+	bool R2K71;		// RCS Purge Activate
+	bool R2K72;		// Oxid Dump B
 	bool R2K100;	// Master Control
 	bool R2K110;	// Stable II
 	bool R2K111;	// Stable II plus 11 seconds?
 	bool R2K116;	// VHF Antenna
+	bool R2K119;	// Direct Thrust Off
+	bool R2K125;	// LES Abort
+	bool R2K126;	// G&N Fail
+	bool R2K129;	// LV/SC Sep without abort?
 	bool R2K130;	// Impact + 11s
 	bool R2K131;	// CSM Sep
-	bool R2K132;	// Liftoff TBD: Check number
+	bool R2K132;	// Bar switch plus 20 seconds
+	bool R2K133;	// Low LES Abort, pretty sure it's R2K133AB
+	bool R2K134;	// Liftoff
 	bool R2K135;	// LET Jettison
+	bool R2K136;	// CSM Sep
 	bool R2K137;	// LV/SC Sep
+	bool R2K138;	// CSM Sep
+	bool R2K139;	// CSM Sep
+	bool R2K140;	// Abort Inhibit?
+	bool R2K141;	// Liftoff +42 seconds
 	bool R2K142;	// Low LES Abort
-	bool R2K147ABC; //Main impact
-	bool R2K147DEF; //Backup impact
+	bool R2K145;	// Baro switch
+	bool R2K146;	// Baro switch
+	bool R2K147;	// Impact
+	bool R2K149;	// Stable II
+	bool R2K153;	// Gimbal Motors Off
+	bool R2K156;	// LET Jet
 	bool R2K173;	// G&N Fail
-	bool R2K222;	// S-IVB Restart
-
-	//Relays
-	
-	bool R2K36ABC;	// G&N DV Mode
-	bool R2K57AB;	// SCS DV Mode
-	bool R2K58AB;	// SPS Pre-Pilot Valve A
-	bool R2K59AB;	// SPS Pre-Pilot Valve B
-	bool R2K119;	// Direct Thrust Off
-	bool R2K133AB;	// CSM Sep
-	bool R2K138AB;	// CSM Sep
-	bool R2K139AB;	// CSM Sep
+	bool R2K174;	// G&N Fail Inhibit
+	bool R2K177;	// Liftoff plus 42 seconds
+	bool R2K181;	// LV/SC + 6.0 seconds
+	bool R2K186;	// Stable II
 	bool R2K187;	// LET Jettison
 	bool R2K188;	// CM/SM Sep
-	//Abort Inhibit?
-	bool R2K140;
-	//LET Jet
-	bool R2K136;
-	//Liftoff +42 seconds
-	bool R2K177;
-	bool R2K141;
-	//LV/SC + 6.0 seconds
-	bool R2K181;
-	//LV/SC + 2.5 seconds
-	bool R2K202; //Check
-	//Low LES Abort
-	bool R2K133;
-	//G&N Fail Inhibit
-	bool R2K174;
-	//LES Abort
-	bool R2K125;
-	//G&N Fail
-	bool R2K126;
-	//LV/SC Sep without abort?
-	bool R2K129;
-	//Baro switch
-	bool R2K145;
-	bool R2K146;
-	//Backup impact
-	bool R2K192;
-	//Main impact
-	bool R2K193;
-	//Stable II
-	bool R2K149;
-	bool R2K186;
-	bool R2K132A_B;
-	bool R2K153ABC;
+	bool R2K192;	// Backup impact
+	bool R2K193;	// Main impact
+	bool R2K202;	// LV/SC + 2.5 seconds, Check
+	bool R2K222;	// S-IVB Restart	
 
 	//Differentiators
 	Differentiator CSMSepDiff;

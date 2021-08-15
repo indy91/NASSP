@@ -7268,7 +7268,7 @@ void LVDCSV::IterativeGuidanceMode()
 		//sprintf(oapiDebugString(),"IGM: K_1 %f K_2 %f K_3 %f K_4 %f",K_1,K_2,K_3,K_4);
 		Xtt_y = ((tchi_y)-K_3 + (K_4 * DT_N));
 		Xtt_p = ((tchi_p)-K_1 + (K_2 * DT_N)) - phi_T - PI05;
-		fprintf(lvlog, "Xtt_y = %f, Xtt_p = %f\r\n", Xtt_y, Xtt_p);
+		fprintf(lvlog, "Xtt_y = %f, Xtt_p = %f\r\n", Xtt_y*DEG, Xtt_p*DEG);
 		sin_chi_Yit = sin(Xtt_p);
 		cos_chi_Yit = cos(Xtt_p);
 		sin_chi_Zit = sin(Xtt_y);
@@ -8792,12 +8792,12 @@ void LVDCSV::ChiComputations(int entry)
 	//2 = from boost major loop
 	VECTOR3 VT;
 	VT = tmul(MX_G, _V(cos_chi_Yit*cos_chi_Zit, sin_chi_Zit, -sin_chi_Yit * cos_chi_Zit));
-	//fprintf(lvlog, "VT (mul) = %f %f %f\r\n", VT.x, VT.y, VT.z);
+	fprintf(lvlog, "VT (mul) = %f %f %f\r\n", VT.x, VT.y, VT.z);
 
 	X_S1 = VT.x;
 	X_S2 = VT.y;
 	X_S3 = VT.z;
-	//fprintf(lvlog, "X_S1-3 = %f %f %f\r\n", X_S1, X_S2, X_S3);
+	fprintf(lvlog, "X_S1-3 = %f %f %f\r\n", X_S1, X_S2, X_S3);
 
 	// FINALLY - COMMANDS!
 	X_Zi = asin(X_S2);			// Yaw
@@ -9242,6 +9242,8 @@ O3GMatrix:
 	eps_3 = eps_3R;
 	eps_4 = eps_4R;
 	tau3 = tau3R - dTt_4;
+	alpha_1 = 0.0;
+	alpha_2 = 0.0;
 
 	fprintf(lvlog, "Tt_3 = %f, dTt_4 = %f\r\n", Tt_3, dTt_4);
 

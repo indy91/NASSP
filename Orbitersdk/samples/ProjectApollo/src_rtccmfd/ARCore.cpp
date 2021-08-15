@@ -36,7 +36,11 @@ AR_GCore::AR_GCore(VESSEL* v)
 
 	mission = 0;
 
-	if (strcmp(v->GetName(), "AS-205") == 0)
+	if (strcmp(v->GetName(), "AS-501") == 0)
+	{
+		mission = 4;
+	}
+	else if (strcmp(v->GetName(), "AS-205") == 0)
 	{
 		mission = 7;
 	}
@@ -117,7 +121,19 @@ AR_GCore::~AR_GCore()
 
 void AR_GCore::SetMissionSpecificParameters()
 {
-	if (mission == 7)
+	if (mission == 4)
+	{
+		sprintf(rtcc->MissionFileName, "Apollo 4 Constants");
+		rtcc->LoadMissionConstantsFile(rtcc->MissionFileName);
+		rtcc->LoadLaunchDaySpecificParameters(1967, 11, 9);
+		rtcc->GMGMED("P80,1,CSM,11,9,1967;");
+		rtcc->GMGMED("P10,CSM,12:00:00;");
+		rtcc->GMGMED("P12,CSM,12:00:00,72.0;");
+		rtcc->GMGMED("P12,IU1,11:59:43,72.0;");
+		rtcc->GMGMED("P15,AGC,12:00:00;");
+		rtcc->GMGMED("P15,LGC,12:00:00;");
+	}
+	else if (mission == 7)
 	{
 		sprintf(rtcc->MissionFileName, "Apollo 7 Constants");
 		rtcc->LoadMissionConstantsFile(rtcc->MissionFileName);
@@ -1460,23 +1476,25 @@ void ARCore::GetStateVectorFromAGC(bool csm)
 	}
 
 	unsigned short SVoct[16];
-	int SVadd;
+	int SVadd, timeadd;
 	
 	if (csm)
 	{
-		SVadd = 0765;
+		SVadd = 01100;
+		timeadd = 01114;
 	}
 	else
 	{
 		SVadd = 01626;
+		timeadd = 0;
 	}
 	
-	for (int i = 0;i < 14;i++)
+	for (int i = 0;i < 12;i++)
 	{
 		SVoct[i] = vagc->memory[SVadd + i];
 	}
-	SVoct[14] = vagc->memory[SVadd + 38];
-	SVoct[15] = vagc->memory[SVadd + 39];
+	SVoct[12] = vagc->memory[timeadd];
+	SVoct[13] = vagc->memory[timeadd + 1];
 
 	MATRIX3 Rot;
 	VECTOR3 R, V;
@@ -1488,16 +1506,16 @@ void ARCore::GetStateVectorFromAGC(bool csm)
 	V.x = OrbMech::DecToDouble(SVoct[6], SVoct[7])*100.0;
 	V.y = OrbMech::DecToDouble(SVoct[8], SVoct[9])*100.0;
 	V.z = OrbMech::DecToDouble(SVoct[10], SVoct[11])*100.0;
-	GET = (OrbMech::DecToDouble(SVoct[12], SVoct[13]) - OrbMech::DecToDouble(SVoct[14], SVoct[15])) / 100.0*pow(2, 28);
+	GET = (OrbMech::DecToDouble(SVoct[12], SVoct[13])) / 100.0*pow(2, 28);// - OrbMech::DecToDouble(SVoct[14], SVoct[15])) / 100.0*pow(2, 28);
 
-	R.x *= pow(2, 29);
-	R.y *= pow(2, 29);
-	R.z *= pow(2, 29);
+	R.x *= pow(2, 26);
+	R.y *= pow(2, 26);
+	R.z *= pow(2, 26);
 	V.x *= pow(2, 7);
 	V.y *= pow(2, 7);
 	V.z *= pow(2, 7);
 
-	Rot = OrbMech::J2000EclToBRCS(GC->rtcc->SystemParameters.AGCEpoch);
+	Rot = GC->rtcc->EZJGMTX1.data[0].REFSMMAT;// OrbMech::J2000EclToBRCS(GC->rtcc->SystemParameters.AGCEpoch);
 
 	EphemerisData sv;
 	sv.R = tmul(Rot, R);
@@ -1752,7 +1770,7 @@ void ARCore::StateVectorUplink(int type)
 		isCSM = false;
 	}
 
-	for (int i = 0;i < 021;i++)
+	for (int i = 0;i < 14;i++)
 	{
 		g_Data.emem[i] = SVOctals[i];
 	}
@@ -2144,13 +2162,10 @@ void ARCore::UplinkData(bool isCSM)
 		g_Data.uplinkState = 0;
 		send_agc_key('V', isCSM);
 		send_agc_key('7', isCSM);
-		send_agc_key('1', isCSM);
+		send_agc_key('6', isCSM);
 		send_agc_key('E', isCSM);
 
-		int cnt2 = (g_Data.emem[0] / 10);
-		int cnt = (g_Data.emem[0] - (cnt2 * 10)) + cnt2 * 8;
-
-		while (g_Data.uplinkState < cnt && cnt <= 20 && cnt >= 3)
+		while (g_Data.uplinkState < 14)
 			{
 				sprintf(buffer, "%ld", g_Data.emem[g_Data.uplinkState]);
 				uplink_word(buffer, isCSM);

@@ -217,6 +217,7 @@ static inline bool papiReadScenario_boolarr(char *line, char *item, bool *v, int
 				v[i] = (in != 0);
 				pos += cur;
 			}
+			return true;
 		}
 	}
 	return false;

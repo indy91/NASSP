@@ -9295,7 +9295,6 @@ void ApolloRTCCMFD::menuSLVNavigationUpdateUplink()
 void ApolloRTCCMFD::menuGetOnboardStateVectors()
 {
 	G->GetStateVectorFromAGC(true);
-	G->GetStateVectorFromAGC(false);
 	G->GetStateVectorFromIU();
 	G->GetStateVectorsFromAGS();
 }
