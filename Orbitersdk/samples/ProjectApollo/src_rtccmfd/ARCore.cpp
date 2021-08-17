@@ -860,7 +860,7 @@ ARCore::~ARCore()
 void ARCore::MinorCycle(double SimT, double SimDT, double mjd)
 {
 	if (g_Data.connStatus > 0 && g_Data.uplinkBuffer.size() > 0) {
-		if (SimT > g_Data.uplinkBufferSimt + 0.1) {
+		if (SimT > g_Data.uplinkBufferSimt + 0.2) {
 			unsigned char data = g_Data.uplinkBuffer.front();
 			send(m_socket, (char *)&data, 1, 0);
 			g_Data.uplinkBuffer.pop();
@@ -1480,8 +1480,8 @@ void ARCore::GetStateVectorFromAGC(bool csm)
 	
 	if (csm)
 	{
-		SVadd = 01100;
-		timeadd = 01114;
+		SVadd = 0765;
+		timeadd = 01464;
 	}
 	else
 	{
@@ -1507,10 +1507,11 @@ void ARCore::GetStateVectorFromAGC(bool csm)
 	V.y = OrbMech::DecToDouble(SVoct[8], SVoct[9])*100.0;
 	V.z = OrbMech::DecToDouble(SVoct[10], SVoct[11])*100.0;
 	GET = (OrbMech::DecToDouble(SVoct[12], SVoct[13])) / 100.0*pow(2, 28);// - OrbMech::DecToDouble(SVoct[14], SVoct[15])) / 100.0*pow(2, 28);
+	GET -= 2.0; //2 second bias because of time being updated during Average G
 
-	R.x *= pow(2, 26);
-	R.y *= pow(2, 26);
-	R.z *= pow(2, 26);
+	R.x *= pow(2, 25);
+	R.y *= pow(2, 25);
+	R.z *= pow(2, 25);
 	V.x *= pow(2, 7);
 	V.y *= pow(2, 7);
 	V.z *= pow(2, 7);

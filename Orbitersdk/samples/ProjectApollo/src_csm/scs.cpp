@@ -3222,7 +3222,7 @@ void RJEC::TimeStep(double simdt){
 			td[16] = true;
 			td[13] = true;
 		}
-		if (sat->eca.thc_y > 49152) { // MINUS Y (FORWARD)
+		if (sat->eca.thc_y > 49152 || sat->mcp_scc.GetXTranslation()) { // MINUS Y (FORWARD)
 			td[1] = true;
 			td[2] = true;
 			td[5] = true;
@@ -3254,11 +3254,11 @@ void RJEC::TimeStep(double simdt){
 			thruster_lockout = 1; 
 		} 
 		// Lockout on direct axes.
-		if (thruster < 5 && DirectPitchActive) {
+		if (thruster < 5 && (DirectPitchActive || sat->mcp_gcc.GetRCSPitchChannelDisable())) {
 			thruster++; 
 			continue; // Skip entirely
 		} 
-		if (thruster > 4 && thruster < 9 && DirectYawActive) {
+		if (thruster > 4 && thruster < 9 && (DirectYawActive || sat->mcp_gcc.GetRCSYawChannelDisable())) {
 			thruster++; 
 			continue; // Skip entirely
 		} 
@@ -3289,50 +3289,6 @@ void RJEC::TimeStep(double simdt){
 	}
 
 	//SPS ENGINE ON/OFF LOGIC
-
-	/*bool X07, X28, UllageInput, TranslationControlInput, UllageLogic1, UllageLogic2, UllageLogic3, DVMode, S25, ThrustOnLogic1, ThrustOnLogic2, ThrustOnLogic3, cmclogic;
-	bool FinalThrustOnLogic2, FinalThrustOnLogic3, DV_EMS_Set, FinalFinalThrustOnLogic, SCSLatchUpLogic;
-	ChannelValue val11;
-
-	X07 = scslogic1 || scslogic2;
-	X28 = X07 && sat->mcp_gcc.GetSCSDirectUllage();
-	UllageInput = X28 || sat->secs.MESCA.FireUllage() || sat->secs.MESCB.FireUllage();
-	TranslationControlInput = td[1] && td[2] && td[5] && td[6];
-	UllageLogic1 = SCSLatchUpA || UllageInput || TranslationControlInput;
-	DVMode = sat->eca.GetGNDVMode() || sat->eca.GetSCSDVMode();
-	S25 = sat->ThrustOnButton.GetState() == 1 && scslogic1;
-	ThrustOnLogic1 = S25 || SCSLatchUpB;
-	UllageLogic2 = DVMode && UllageLogic1;
-	UllageLogic3 = !UllageLogic2 && DVMode;
-	ThrustOnLogic2 = ThrustOnLogic1 && DVMode;
-	ThrustOnLogic3 = !ThrustOnLogic2 && DVMode;
-	val11 = sat->agc.GetOutputChannel(011);
-	cmclogic = val11[12] && ThrustOnLogic3;
-	SCSLatchUpA = UllageLogic3 && sat->eca.GetGNDVMode() && cmclogic;
-	FinalThrustOnLogic2 = sat->eca.GetGNDVMode() && cmclogic;
-	DV_EMS_Set = sat->ems.IsdVMode() && sat->ems.GetdVRangeCounter() >= 0;
-	FinalThrustOnLogic3 = !ThrustOnLogic3 && DV_EMS_Set;
-	SCSLatchUpB = DV_EMS_Set && !ThrustOnLogic3 && DVMode;
-	FinalFinalThrustOnLogic = !SCSLatchUpA && !SCSLatchUpB;
-	SPSEnableA = (!FinalFinalThrustOnLogic || sat->mcp_gcc.GetSCSDirectThrustOn()) && sat->SIGCondDriverBiasPower1Switch.IsPowered();
-	SPSEnableB = (!FinalFinalThrustOnLogic || sat->mcp_gcc.GetSCSDirectThrustOn()) && sat->SIGCondDriverBiasPower2Switch.IsPowered();
-
-	bool SPSEnableLogic, SPSValvesLogic;
-	SPSEnableLogic = SPSEnableA && SPSEnableB;
-	SPSValvesLogic = sat->SPSEngine.GetInjectorValves12Open() || sat->SPSEngine.GetInjectorValves34Open();
-	SCSLatchUpLogic = !SPSEnableLogic && SPSValvesLogic;
-
-	engineOnDelayA.SetRunning(SCSLatchUpLogic);
-	//engineOnDelayB.SetRunning(SCSLatchUpLogic);
-	engineofflogic1 = engineOnDelayA.ContactClosed() && scsmode;
-	engineOffDelay.SetRunning(engineofflogic1);
-	engineofflogic2 = (engineOnDelayB.ContactClosed() || engineOffDelay.ContactClosed()) && scsmode;
-	IGN1 = engineofflogic1 || engineofflogic2;
-	IGN2 = SCSLatchUpLogic || IGN1;
-
-	sprintf(oapiDebugString(), "X07 %d X28 %d Ull %d Trans %d Ull1 %d DV %d TO1 %d Ull2 %d Ull3 %d TO2 %d TO3 %d cmc %d LatA %d Fin2 %d EMS %d Fin3 %d LatB %d FinFin %d EnaA %d EnaB %d",
-		X07, X28, UllageInput, TranslationControlInput, UllageLogic1, DVMode, ThrustOnLogic1, UllageLogic2, UllageLogic3, ThrustOnLogic2, ThrustOnLogic3, cmclogic, SCSLatchUpA, FinalThrustOnLogic2,
-		DV_EMS_Set, FinalThrustOnLogic3, SCSLatchUpB, FinalFinalThrustOnLogic, SPSEnableA, SPSEnableB);*/
 
 	bool S24, S25, S26, S59, AB_X16, AB_X70, AB_X71, scsmode, scsengineon;
 	bool scsengineonA1, scsengineonB1, scsengineonA2, scsengineonB2, DV_EMS_Set, cmcsignal, cmcengineon, logicA, logicB;

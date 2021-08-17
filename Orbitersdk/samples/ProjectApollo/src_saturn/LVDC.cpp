@@ -8055,10 +8055,12 @@ EP00:
 		DPM[DIN4_SpacecraftSeparation] = false;
 		break;
 	case 88: //Time in Timebase 7 to begin maneuver to local horizontal attitude (TB7+20)
-		AttitudeManeuverState = -1;
-		alpha_1 = 0.0;
-		alpha_2 = 0.0;
-		CommandedAttitude.x = 0.0;
+		AttitudeManeuverState = 1;
+		CommandedAttitude.x = 210.0*RAD;
+		CommandedAttitude.y = 251.0*RAD;
+		CommandedAttitude.z = 337.2*RAD;
+		MSLIM1 = 0.1*RAD;
+		MSLIM2 = 0.1*RAD;
 		break;
 	case 89: //Time in Timebase 7 to enter orbit initialize and resume orbit navigation (TB7+20)
 		fprintf(lvlog, "Orbit Initialization\r\n");
@@ -8078,12 +8080,10 @@ EP00:
 		fprintf(lvlog, "EarthRel Acceleration: %f %f %f \r\n", ddotS.x, ddotS.y, ddotS.z);
 		break;
 	case 90: //Maneuver to separation attitude, set attitude rate limits (TB7+900.0)
-		AttitudeManeuverState = -2;
-		alpha_1 = XLunarAttitude.y;
-		alpha_2 = XLunarAttitude.z;
-		CommandedAttitude.x = XLunarAttitude.x;
-		MSLIM1 = 0.1*RAD;
-		MSLIM2 = 0.1*RAD;
+		AttitudeManeuverState = -1;
+		alpha_1 = 0.0;
+		alpha_2 = 0.0;
+		CommandedAttitude.x = 0.0;
 		//Set up next task, reset of attitude rates, in 300 seconds. Might be useful for updated sep maneuver time
 		EPTTIM[EPTINDX + 1] = DVTRR + 300.0;
 		fprintf(lvlog, "T&D attitude\r\n");

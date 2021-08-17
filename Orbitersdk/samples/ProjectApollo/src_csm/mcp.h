@@ -97,6 +97,8 @@ public:
 	bool GetSPSInjectorValves12Open() { return R1K47AB; }
 	bool GetSPSInjectorValves34Open() { return R1K56AB; }
 	bool GetSCSDirectUllage() { return R1K31; }
+	bool GetRCSPitchChannelDisable() { return R1K9AB; }
+	bool GetRCSYawChannelDisable() { return R1K10AB; }
 protected:
 
 	void InputReset();

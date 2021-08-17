@@ -1100,7 +1100,7 @@ void Saturn::SetReentryStage ()
 		}
 		else
 		{
-			CreateAirfoil(LIFT_VERTICAL, _V(0.0, 0.2, 1.12), CMCoeffFunc, 3.5, 11.95, 1.0);
+			CreateAirfoil(LIFT_VERTICAL, _V(0.0, 0.21844, 1.12), CMCoeffFunc, 3.5, 11.95, 1.0);
 		}
     }
 

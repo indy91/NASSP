@@ -341,13 +341,10 @@ void MESC::Timestep(double simdt)
 	bool switchOn = (Sat->SECSLogic1Switch.IsUp() || Sat->SECSLogic2Switch.IsUp());
 	if (switchOn && Sat->mcp_scc.GetMESCLogicBusArm(IsSystemA) && SECSArmBreaker->IsPowered())
 	{
-		if (!MESCLogicArm)
-		{
-			MESCLogicArm = true;
-			SECSLogicBus->WireTo(SECSLogicBreaker);
-		}
+		MESCLogicArm = true;
+		SECSLogicBus->WireTo(SECSLogicBreaker);
 	}
-	else if (MESCLogicArm)
+	else
 	{
 		MESCLogicArm = false;
 		SECSLogicBus->Disconnect();

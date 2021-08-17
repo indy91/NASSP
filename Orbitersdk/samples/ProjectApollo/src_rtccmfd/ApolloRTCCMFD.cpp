@@ -5642,45 +5642,14 @@ void ApolloRTCCMFD::menuUpdateLiftoffTime()
 {
 	if (G->vesseltype == 4) return;
 
-	double TEPHEM0, LaunchMJD;
+	saturn = (Saturn *)G->vessel;
 
-	if (GC->mission < 11)		//NBY 1968/1969
-	{
-		TEPHEM0 = 40038.;
-	}
-	else if (GC->mission < 14)	//NBY 1969/1970
-	{
-		TEPHEM0 = 40403.;
-	}
-	else if (GC->mission < 15)	//NBY 1970/1971
-	{
-		TEPHEM0 = 40768.;
-	}
-	else						//NBY 1971/1972
-	{
-		TEPHEM0 = 41133.;
-	}
-
-	if (G->vesseltype < 2)
-	{
-		saturn = (Saturn *)G->vessel;
-
-		double tephem = saturn->agc.vagc->memory[01710] +
-			saturn->agc.vagc->memory[01707] * pow((double) 2., (double) 14.) +
-			saturn->agc.vagc->memory[01706] * pow((double) 2., (double) 28.);
-		LaunchMJD = (tephem / 8640000.) + TEPHEM0;
-	}
-	else
-	{
-
-	}
-
-	double GMTBase = floor(LaunchMJD);
-	LaunchMJD = (LaunchMJD - GMTBase)*24.0;
+	double gmtcs = (double)(saturn->agc.vagc->memory[01467]) + pow(2, 14)*(double)saturn->agc.vagc->memory[01466];
+	double gmts = gmtcs / 100.0;
 
 	int hh, mm;
 	double ss;
-	OrbMech::SStoHHMMSS(LaunchMJD*3600.0, hh, mm, ss);
+	OrbMech::SStoHHMMSS(gmts, hh, mm, ss);
 	char Buff[128];
 	//Update actual liftoff time
 	sprintf_s(Buff, "P10,CSM,%d:%d:%.2lf;", hh, mm, ss);
