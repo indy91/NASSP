@@ -1574,6 +1574,15 @@ void IU1B::SwitchSelector(int item)
 	case 111: //SLA Panel Deployment (Apollo 5, not a real switch selector event!)
 		lvCommandConnector.DeploySLAPanel();
 		break;
+	case 112: //LET Jettison "A" (TBD: Find out real channel!)
+		eds.SetTowerJettisonA();
+		break;
+	case 113: //LET Jettison "B" (TBD: Find out real channel!)
+		eds.SetTowerJettisonB();
+		break;
+	case 114: // LV/SC Separation Sequence Start (Apollo 4/6 only!)
+		ControlDistributor.SetLVSCSeparationSequenceStart();
+		break;
 	default:
 		break;
 	}

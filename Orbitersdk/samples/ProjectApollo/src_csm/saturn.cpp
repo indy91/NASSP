@@ -1861,6 +1861,12 @@ bool Saturn::ProcessConfigFileLine(FILEHANDLE scn, char *line)
 		//
 		secs.Realize();
 	}
+	else if (!strnicmp(line, "ENGINEFAIL", 10))
+	{
+		int stag, eng, tim;
+		sscanf(line + 10, "%d %d %d", &stag, &eng, &tim);
+		SetEngineFailure(stag, eng, tim, true);
+	}
 	else if (!strnicmp (line, "SATTYPE", 7)) {
 		sscanf (line+7, "%d", &SaturnType);
 	}

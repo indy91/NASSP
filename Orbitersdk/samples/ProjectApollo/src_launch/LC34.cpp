@@ -282,6 +282,15 @@ void LC34::clbkPreStep(double simt, double simdt, double mjd)
 
 		if (sat) sat->ActivatePrelaunchVenting();
 
+		if (sat->GetMissionTime() > -60)
+		{
+			sat->MLMESCLogicBusesArm();
+		}
+		if (sat->GetMissionTime() > -55)
+		{
+			sat->MLMESCPyroBusesArm();
+		}
+
 		///GRR should happen at a fairly precise time and usually happens on the next timestep, so adding oapiGetSimStep is a decent solution
 		if (MissionTime >= -(17.0 + oapiGetSimStep()))
 		{
@@ -430,6 +439,7 @@ void LC34::clbkPreStep(double simt, double simdt, double mjd)
 				if (bCommit)
 				{
 					// Disconnect Umbilicals
+					sat->MLResetGSESignals();
 					IuUmb->Disconnect();
 					SCMUmb->Disconnect();
 
