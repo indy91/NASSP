@@ -184,9 +184,9 @@ void SIISystems::Timestep(double simdt)
 
 	for (int i = 0;i < 5;i++)
 	{
-		if (EarlySIICutoff[i] && (FailureTimer > SecondStageFailureTime[i]) && !j2engines[i]->GetFailed())
+		if (EarlySIICutoff[i] && (FailureTimer > SecondStageFailureTime[i]) && !j2engines[SIIEngInd[i]]->GetFailed())
 		{
-			j2engines[i]->SetFailed();
+			j2engines[SIIEngInd[i]]->SetFailed();
 		}
 	}
 }

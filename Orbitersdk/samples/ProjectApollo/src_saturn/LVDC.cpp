@@ -8056,9 +8056,9 @@ EP00:
 		break;
 	case 88: //Time in Timebase 7 to begin maneuver to local horizontal attitude (TB7+20)
 		AttitudeManeuverState = 1;
-		CommandedAttitude.x = 210.0*RAD;
-		CommandedAttitude.y = 251.0*RAD;
-		CommandedAttitude.z = 337.2*RAD;
+		CommandedAttitude.x = XLunarAttitude.x;
+		CommandedAttitude.y = XLunarAttitude.y;
+		CommandedAttitude.z = XLunarAttitude.z;
 		MSLIM1 = 0.1*RAD;
 		MSLIM2 = 0.1*RAD;
 		break;
@@ -8324,6 +8324,8 @@ void LVDCSV::MinorLoop(int entry)
 
 		AttitudeErrorOld = AttitudeError;
 	}
+
+	//sprintf(oapiDebugString(), "%lf %lf %lf %lf %lf %lf", AttitudeError.x*DEG, AttitudeError.y*DEG, AttitudeError.z*DEG, AttitudeErrorOld.x*DEG, AttitudeErrorOld.y*DEG, AttitudeErrorOld.z*DEG);
 
 	if (LVDC_Timebase > 0)
 	{

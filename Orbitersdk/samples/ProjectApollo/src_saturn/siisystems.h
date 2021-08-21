@@ -118,6 +118,9 @@ protected:
 
 	Sound &puShiftSound;
 	Sound &sepSound;
+
+	const int SIIEngInd[5] = { 1,3,0,2,4 };
+	//const int SIIEngInd[5] = { 2, 0, 3, 1, 4};
 };
 
 #define SIISYSTEMS_START_STRING		"SIISYSTEMS_BEGIN"

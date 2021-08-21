@@ -1863,8 +1863,9 @@ bool Saturn::ProcessConfigFileLine(FILEHANDLE scn, char *line)
 	}
 	else if (!strnicmp(line, "ENGINEFAIL", 10))
 	{
-		int stag, eng, tim;
-		sscanf(line + 10, "%d %d %d", &stag, &eng, &tim);
+		int stag, eng;
+		double tim;
+		sscanf(line + 10, "%d %d %lf", &stag, &eng, &tim);
 		SetEngineFailure(stag, eng, tim, true);
 	}
 	else if (!strnicmp (line, "SATTYPE", 7)) {
