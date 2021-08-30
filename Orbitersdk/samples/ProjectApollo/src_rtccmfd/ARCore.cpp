@@ -40,6 +40,10 @@ AR_GCore::AR_GCore(VESSEL* v)
 	{
 		mission = 4;
 	}
+	else if (strcmp(v->GetName(), "AS-502") == 0)
+	{
+		mission = 6;
+	}
 	else if (strcmp(v->GetName(), "AS-205") == 0)
 	{
 		mission = 7;
@@ -127,6 +131,18 @@ void AR_GCore::SetMissionSpecificParameters()
 		rtcc->LoadMissionConstantsFile(rtcc->MissionFileName);
 		rtcc->LoadLaunchDaySpecificParameters(1967, 11, 9);
 		rtcc->GMGMED("P80,1,CSM,11,9,1967;");
+		rtcc->GMGMED("P10,CSM,12:00:00;");
+		rtcc->GMGMED("P12,CSM,12:00:00,72.0;");
+		rtcc->GMGMED("P12,IU1,11:59:43,72.0;");
+		rtcc->GMGMED("P15,AGC,12:00:00;");
+		rtcc->GMGMED("P15,LGC,12:00:00;");
+	}
+	else if (mission == 6)
+	{
+		sprintf(rtcc->MissionFileName, "Apollo 6 Constants");
+		rtcc->LoadMissionConstantsFile(rtcc->MissionFileName);
+		rtcc->LoadLaunchDaySpecificParameters(1968, 4, 4);
+		rtcc->GMGMED("P80,1,CSM,4,4,1968;");
 		rtcc->GMGMED("P10,CSM,12:00:00;");
 		rtcc->GMGMED("P12,CSM,12:00:00,72.0;");
 		rtcc->GMGMED("P12,IU1,11:59:43,72.0;");

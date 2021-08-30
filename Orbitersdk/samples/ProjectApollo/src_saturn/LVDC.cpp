@@ -8059,15 +8059,13 @@ EP00:
 		CommandedAttitude.x = XLunarAttitude.x;
 		CommandedAttitude.y = XLunarAttitude.y;
 		CommandedAttitude.z = XLunarAttitude.z;
-		MSLIM1 = 0.1*RAD;
-		MSLIM2 = 0.1*RAD;
+		MSLIM1 = 0.144*RAD;
+		MSLIM2 = 0.144*RAD;
 		break;
 	case 89: //Time in Timebase 7 to enter orbit initialize and resume orbit navigation (TB7+20)
 		fprintf(lvlog, "Orbit Initialization\r\n");
 		PhaseActivator(false);
 		DT_N = DT_N6;
-		MSLIM1 = 0.06*RAD;
-		MSLIM2 = 0.04*RAD;
 		MS25DT = 10.0*DT_N;
 		MS04DT = 0.1 / DT_N;
 		if (ModeCode26[MC26_Guidance_Reference_Failure] == false)

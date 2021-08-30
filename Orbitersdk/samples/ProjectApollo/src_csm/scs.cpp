@@ -3998,7 +3998,7 @@ void ECA::TimeStep(double simdt) {
 		{
 			if (K9)
 			{
-				cmd_rate.x *= 1.5; //Roll rate during entry
+				cmd_rate.x *= 1.0; //Roll rate during entry
 			}
 			else
 			{
