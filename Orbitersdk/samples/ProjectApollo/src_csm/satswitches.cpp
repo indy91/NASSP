@@ -2750,3 +2750,306 @@ void SaturnAltimeter::DefineVCAnimations(UINT vc_idx)
 	ach_needleAnim = Sat->AddAnimationComponent(animNeedle, 0.0f, 1.0f, &mgt_needleAnim);
 	Sat->SetAnimation(animNeedle, 0.0);
 }
+
+CSMPanel::CSMPanel()
+{
+
+}
+
+void CSMPanel::Init(Saturn *v, PanelSwitches &panel, e_object *p)
+{
+	SwitchRow::Init(-1, panel, p);
+	sat = v;
+}
+
+void CSMPanel1::RegisterPanelAreas()
+{
+	//TBD: Master Alarm (S1)
+	RegisterPanelArea(&sat->CMCAttSwitch, _R(343, 635, 377, 664), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S2
+	RegisterPanelArea(&sat->FDAIScaleSwitch, _R(265, 742, 299, 771), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S3
+	RegisterPanelArea(&sat->FDAISelectSwitch, _R(308, 742, 342, 771), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S4
+	RegisterPanelArea(&sat->FDAISourceSwitch, _R(407, 742, 441, 771), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S5
+	RegisterPanelArea(&sat->FDAIAttSetSwitch, _R(450, 742, 484, 771), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S6
+
+	RegisterPanelArea(&sat->ManualAttRollSwitch, _R(190, 838, 224, 867), PANEL_MOUSE_DOWN); //S7
+	RegisterPanelArea(&sat->ManualAttPitchSwitch, _R(233, 838, 267, 867), PANEL_MOUSE_DOWN); //S8
+	RegisterPanelArea(&sat->ManualAttYawSwitch, _R(276, 838, 310, 867), PANEL_MOUSE_DOWN); //S9
+	RegisterPanelArea(&sat->LimitCycleSwitch, _R(319, 838, 353, 867), PANEL_MOUSE_DOWN); //S10
+	RegisterPanelArea(&sat->AttDeadbandSwitch, _R(362, 838, 396, 867), PANEL_MOUSE_DOWN); //S11
+	RegisterPanelArea(&sat->AttRateSwitch, _R(405, 838, 439, 867), PANEL_MOUSE_DOWN); //S12
+	RegisterPanelArea(&sat->TransContrSwitch, _R(448, 838, 482, 867), PANEL_MOUSE_DOWN); //S66
+
+	RegisterPanelArea(&sat->RotPowerNormal1Switch, _R(104, 948, 138, 977), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S64
+	RegisterPanelArea(&sat->RotPowerNormal2Switch, _R(163, 948, 197, 977), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S65
+	RegisterPanelArea(&sat->RotPowerDirect1Switch, _R(222, 948, 256, 977), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S13
+	RegisterPanelArea(&sat->RotPowerDirect2Switch, _R(290, 948, 324, 977), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S67
+
+	RegisterPanelArea(&sat->BMAGRollSwitch, _R(125, 1036, 159, 1065), PANEL_MOUSE_DOWN); //S20
+	RegisterPanelArea(&sat->BMAGPitchSwitch, _R(174, 1036, 208, 1065), PANEL_MOUSE_DOWN); //S21
+	RegisterPanelArea(&sat->BMAGYawSwitch, _R(224, 1036, 258, 1065), PANEL_MOUSE_DOWN); //S22
+
+	RegisterPanelArea(&sat->SCContSwitch, _R(383, 948, 417, 977), PANEL_MOUSE_DOWN); //S18
+	RegisterPanelArea(&sat->CMCModeSwitch, _R(426, 948, 460, 977), PANEL_MOUSE_DOWN); //S19
+
+	RegisterPanelArea(&sat->EventTimerUpDownSwitch, _R(787, 1260, 821, 1289), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S55
+	RegisterPanelArea(&sat->EventTimerContSwitch, _R(830, 1260, 864, 1289), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S56
+	RegisterPanelArea(&sat->EventTimerMinutesSwitch, _R(873, 1260, 907, 1289), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S57
+	RegisterPanelArea(&sat->EventTimerSecondsSwitch, _R(916, 1260, 950, 1289), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S58
+
+	RegisterPanelArea(&sat->SCSTvcPitchSwitch, _R(380, 1173, 414, 1202), PANEL_MOUSE_DOWN); //S38
+	RegisterPanelArea(&sat->SCSTvcYawSwitch, _R(423, 1173, 457, 1202), PANEL_MOUSE_DOWN); //S39
+
+	RegisterPanelArea(&sat->Pitch1Switch, _R(472, 1173, 506, 1202), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S40
+	RegisterPanelArea(&sat->Pitch2Switch, _R(521, 1173, 555, 1202), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S41
+	RegisterPanelArea(&sat->Yaw1Switch, _R(570, 1173, 604, 1202), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S42
+	RegisterPanelArea(&sat->Yaw2Switch, _R(620, 1173, 654, 1202), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S43
+
+	RegisterPanelArea(&sat->IMUGuardedCageSwitch, _R(289, 1237, 325, 1306), PANEL_MOUSE_DOWN); //S49
+
+	RegisterPanelArea(&sat->EMSRollSwitch, _R(336, 1260, 370, 1289), PANEL_MOUSE_DOWN); //S50
+	RegisterPanelArea(&sat->GSwitch, _R(379, 1260, 413, 1289), PANEL_MOUSE_DOWN); //S51
+
+	RegisterPanelArea(&sat->LVSPSPcIndicatorSwitch, _R(422, 1260, 456, 1289), PANEL_MOUSE_DOWN); //S51
+	RegisterPanelArea(&sat->LVFuelTankPressIndicatorSwitch, _R(465, 1260, 499, 1289), PANEL_MOUSE_DOWN); //S52
+
+	RegisterPanelArea(&sat->TVCGimbalDrivePitchSwitch, _R(508, 1260, 542, 1289), PANEL_MOUSE_DOWN); //S27
+	RegisterPanelArea(&sat->TVCGimbalDriveYawSwitch, _R(551, 1260, 585, 1289), PANEL_MOUSE_DOWN); //S28
+
+	RegisterPanelArea(&sat->dVThrust1Switch, _R(442, 1046, 478, 1115), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S26
+	RegisterPanelArea(&sat->dVThrust2Switch, _R(536, 1046, 572, 1115), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S59
+
+	RegisterPanelArea(&sat->GDCAlignButton, _R(290, 1169, 329, 1207), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S37
+
+	RegisterPanelArea(&sat->DirectUllageButton, _R(370, 1037, 409, 1075), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S24
+	RegisterPanelArea(&sat->ThrustOnButton, _R(370, 1090, 409, 1128), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S25
+
+	RegisterPanelArea(&sat->THCRotary, _R(0, 1251, 72, 1360), PANEL_MOUSE_DOWN);
+
+	RegisterPanelArea(&sat->CGSwitch, _R(702, 1173, 736, 1202), PANEL_MOUSE_DOWN); //S54
+	RegisterPanelArea(&sat->ELSLogicSwitch, _R(745, 1150, 781, 1219), PANEL_MOUSE_DOWN); //S44
+	RegisterPanelArea(&sat->ELSAutoSwitch, _R(790, 1173, 824, 1202), PANEL_MOUSE_DOWN); //S63
+	RegisterPanelArea(&sat->CMRCSLogicSwitch, _R(833, 1173, 867, 1202), PANEL_MOUSE_DOWN); //S46
+	RegisterPanelArea(&sat->CMPropDumpSwitch, _R(876, 1150, 912, 1219), PANEL_MOUSE_DOWN); //S47
+	RegisterPanelArea(&sat->CMPropPurgeSwitch, _R(921, 1150, 957, 1219), PANEL_MOUSE_DOWN); //S48
+
+	RegisterPanelArea(&sat->EMSFunctionSwitch, _R(595, 280, 685, 370), PANEL_MOUSE_DOWN);
+	RegisterPanelArea(&sat->EMSModeSwitch, _R(593, 402, 628, 432), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP);
+	RegisterPanelArea(&sat->GTASwitch, _R(904, 291, 959, 402), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP);
+
+	RegisterPanelArea(&sat->SPSswitch, _R(299, 1051, 337, 1103), PANEL_MOUSE_DOWN); //S23
+}
+
+void CSMPanel2::RegisterPanelAreasLeft(int offset)
+{
+	RegisterPanelArea(&sat->EDSSwitch,				_R(1087 + offset, 958, 1121 + offset, 987),		PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S67
+	RegisterPanelArea(&sat->CsmLmFinalSep1Switch,	_R(1129 + offset, 935, 1165 + offset, 1004),	PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S109
+	RegisterPanelArea(&sat->CsmLmFinalSep2Switch,	_R(1173 + offset, 935, 1209 + offset, 1004),	PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S112
+	RegisterPanelArea(&sat->CmSmSep1Switch,			_R(1217 + offset, 935, 1253 + offset, 1004),	PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S110
+	RegisterPanelArea(&sat->CmSmSep2Switch,			_R(1261 + offset, 935, 1297 + offset, 1004),	PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S111
+	if (!sat->SkylabCM)
+	{
+		RegisterPanelArea(&sat->SIVBPayloadSepSwitch, _R(1305 + offset, 935, 1341 + offset, 1004), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S108
+	}
+
+	RegisterPanelArea(&sat->SMRCSHelium1ASwitch, _R(1585 + offset, 430, 1619 + offset, 459), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S24
+	RegisterPanelArea(&sat->SMRCSHelium1BSwitch, _R(1628 + offset, 430, 1662 + offset, 459), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S25
+	RegisterPanelArea(&sat->SMRCSHelium1CSwitch, _R(1671 + offset, 430, 1705 + offset, 459), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S26
+	RegisterPanelArea(&sat->SMRCSHelium1DSwitch, _R(1714 + offset, 430, 1748 + offset, 459), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S27
+
+	RegisterPanelArea(&sat->CMUplinkSwitch, _R(1411 + offset, 587, 1445 + offset, 616), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S21
+	if (!sat->SkylabCM)
+	{
+		RegisterPanelArea(&sat->IUUplinkSwitch, _R(1454 + offset, 587, 1488 + offset, 616), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S115
+	}
+	RegisterPanelArea(&sat->CMRCSPressSwitch, _R(1497 + offset, 564, 1533 + offset, 633), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S31
+	RegisterPanelArea(&sat->SMRCSIndSwitch, _R(1542 + offset, 587, 1576 + offset, 616), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S98
+	RegisterPanelArea(&sat->SMRCSHelium2ASwitch, _R(1585 + offset, 587, 1619 + offset, 616), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S34
+	RegisterPanelArea(&sat->SMRCSHelium2BSwitch, _R(1628 + offset, 587, 1662 + offset, 616), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S35
+	RegisterPanelArea(&sat->SMRCSHelium2CSwitch, _R(1671 + offset, 587, 1705 + offset, 616), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S36
+	RegisterPanelArea(&sat->SMRCSHelium2DSwitch, _R(1714 + offset, 587, 1748 + offset, 616), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S37
+
+	RegisterPanelArea(&sat->LVGuidanceSwitch, _R(1043 + offset, 1138, 1079 + offset, 1207), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S69
+
+	if (!sat->SkylabCM)
+	{
+		RegisterPanelArea(&sat->SIISIVBSepSwitch, _R(1090 + offset, 1138, 1126 + offset, 1207), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S68
+		RegisterPanelArea(&sat->TLIEnableSwitch, _R(1139 + offset, 1161, 1173 + offset, 1190), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S70
+	}
+
+	RegisterPanelArea(&sat->MainReleaseSwitch, _R(1042 + offset, 1228, 1078 + offset, 1297), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S71
+
+	RegisterPanelArea(&sat->SMRCSHeaterASwitch, _R(1413 + offset, 718, 1447 + offset, 747), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S92
+	RegisterPanelArea(&sat->SMRCSHeaterBSwitch, _R(1456 + offset, 718, 1490 + offset, 747), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S94
+	RegisterPanelArea(&sat->SMRCSHeaterCSwitch, _R(1499 + offset, 718, 1533 + offset, 747), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S93
+	RegisterPanelArea(&sat->SMRCSHeaterDSwitch, _R(1542 + offset, 718, 1576 + offset, 747), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S95
+	RegisterPanelArea(&sat->SMRCSProp1ASwitch, _R(1585 + offset, 718, 1619 + offset, 747), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S47
+	RegisterPanelArea(&sat->SMRCSProp1BSwitch, _R(1628 + offset, 718, 1662 + offset, 747), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S48
+	RegisterPanelArea(&sat->SMRCSProp1CSwitch, _R(1671 + offset, 718, 1705 + offset, 747), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S49
+	RegisterPanelArea(&sat->SMRCSProp1DSwitch, _R(1714 + offset, 718, 1748 + offset, 747), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S50
+
+	RegisterPanelArea(&sat->RCSCMDSwitch, _R(1413 + offset, 848, 1447 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S43
+	RegisterPanelArea(&sat->RCSTrnfrSwitch, _R(1456 + offset, 848, 1490 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S44
+	RegisterPanelArea(&sat->CMRCSProp1Switch, _R(1499 + offset, 848, 1533 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S45
+	RegisterPanelArea(&sat->CMRCSProp2Switch, _R(1542 + offset, 848, 1576 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S46
+	RegisterPanelArea(&sat->SMRCSProp2ASwitch, _R(1585 + offset, 848, 1619 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S116
+	RegisterPanelArea(&sat->SMRCSProp2BSwitch, _R(1628 + offset, 848, 1662 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S117
+	RegisterPanelArea(&sat->SMRCSProp2CSwitch, _R(1671 + offset, 848, 1705 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S118
+	RegisterPanelArea(&sat->SMRCSProp2DSwitch, _R(1714 + offset, 848, 1748 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S119
+
+	RegisterPanelArea(&sat->PropDumpAutoSwitch, _R(1042 + offset, 1050, 1076 + offset, 1079), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S63
+	RegisterPanelArea(&sat->TwoEngineOutAutoSwitch, _R(1091 + offset, 1050, 1125 + offset, 1079), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S64
+	RegisterPanelArea(&sat->LVRateAutoSwitch, _R(1152 + offset, 1050, 1186 + offset, 1079), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S65
+	RegisterPanelArea(&sat->TowerJett1Switch, _R(1210 + offset, 1027, 1246 + offset, 1096), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S66
+	RegisterPanelArea(&sat->TowerJett2Switch, _R(1258 + offset, 1027, 1294 + offset, 1096), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S96
+
+	RegisterPanelArea(&sat->DockingProbeExtdRelSwitch, _R(1388 + offset, 256, 1424 + offset, 325), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S1
+	RegisterPanelArea(&sat->DockingProbeRetractPrimSwitch, _R(1432 + offset, 279, 1466 + offset, 308), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S2
+	RegisterPanelArea(&sat->DockingProbeRetractSecSwitch, _R(1475 + offset, 279, 1509 + offset, 308), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S3
+
+	RegisterPanelArea(&sat->RunEVALightSwitch, _R(1518 + offset, 279, 1552 + offset, 308), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S5
+	RegisterPanelArea(&sat->RndzLightSwitch, _R(1575 + offset, 279, 1609 + offset, 308), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S114
+	RegisterPanelArea(&sat->TunnelLightSwitch, _R(1629 + offset, 279, 1663 + offset, 308), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S6
+	RegisterPanelArea(&sat->LMPowerSwitch, _R(1692 + offset, 279, 1726 + offset, 308), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S82
+}
+
+void CSMPanel2::RegisterPanelAreasRight(int offset)
+{
+	RegisterPanelArea(&sat->CautionWarningModeSwitch, _R(1915 + offset, 400, 1949 + offset, 434), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S7
+	RegisterPanelArea(&sat->CautionWarningCMCSMSwitch, _R(1963 + offset, 400, 1997 + offset, 434), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S8
+	RegisterPanelArea(&sat->CautionWarningPowerSwitch, _R(2012 + offset, 400, 2046 + offset, 434), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S9
+	RegisterPanelArea(&sat->CautionWarningLightTestSwitch, _R(2055 + offset, 400, 2089 + offset, 434), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S79
+	RegisterPanelArea(&sat->MissionTimerSwitch, _R(2098 + offset, 400, 2132 + offset, 434), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S100
+
+	RegisterPanelArea(&sat->MissionTimerHoursSwitch, _R(2019 + offset, 299, 2053 + offset, 328), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S101
+	RegisterPanelArea(&sat->MissionTimerMinutesSwitch, _R(2062 + offset, 299, 2096 + offset, 328), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S102
+	RegisterPanelArea(&sat->MissionTimerSecondsSwitch, _R(2105 + offset, 299, 2139 + offset, 328), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S103
+
+	RegisterPanelArea(&sat->ECSIndicatorsSwitch, _R(1785 + offset, 582, 1875 + offset, 672), PANEL_MOUSE_DOWN); //S89
+
+	RegisterPanelArea(&sat->EcsRadiatorsFlowContAutoSwitch, _R(1796 + offset, 743, 1830 + offset, 772), PANEL_MOUSE_DOWN); //S84
+	RegisterPanelArea(&sat->EcsRadiatorsFlowContPwrSwitch,	_R(1846 + offset, 743, 1880 + offset, 772), PANEL_MOUSE_DOWN); //S85
+	RegisterPanelArea(&sat->EcsRadiatorsManSelSwitch,		_R(1896 + offset, 743, 1930 + offset, 772), PANEL_MOUSE_DOWN); //S86
+	RegisterPanelArea(&sat->EcsRadiatorsHeaterPrimSwitch,	_R(1946 + offset, 743, 1980 + offset, 772), PANEL_MOUSE_DOWN); //S87
+	RegisterPanelArea(&sat->EcsRadiatorsHeaterSecSwitch,	_R(1989 + offset, 743, 2023 + offset, 772), PANEL_MOUSE_DOWN); //S88
+
+	RegisterPanelArea(&sat->PotH2oHtrSwitch,					_R(1787 + offset, 848, 1821 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S42
+	RegisterPanelArea(&sat->SuitCircuitH2oAccumAutoSwitch,		_R(1830 + offset, 848, 1864 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S51
+	RegisterPanelArea(&sat->SuitCircuitH2oAccumOnSwitch,		_R(1873 + offset, 848, 1907 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S52
+	RegisterPanelArea(&sat->SuitCircuitHeatExchSwitch,			_R(1916 + offset, 848, 1950 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S57
+	RegisterPanelArea(&sat->SecCoolantLoopEvapSwitch,			_R(1959 + offset, 848, 1993 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S53
+	RegisterPanelArea(&sat->SecCoolantLoopPumpSwitch,			_R(2008 + offset, 848, 2042 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S54
+	RegisterPanelArea(&sat->H2oQtyIndSwitch,					_R(2057 + offset, 848, 2091 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S56
+	RegisterPanelArea(&sat->GlycolEvapTempInSwitch,				_R(2100 + offset, 848, 2134 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S61
+	RegisterPanelArea(&sat->GlycolEvapSteamPressAutoManSwitch,	_R(2151 + offset, 848, 2185 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S59
+	RegisterPanelArea(&sat->GlycolEvapSteamPressIncrDecrSwitch, _R(2198 + offset, 848, 2232 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S60
+	RegisterPanelArea(&sat->GlycolEvapH2oFlowSwitch,			_R(2243 + offset, 848, 2277 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S58
+	RegisterPanelArea(&sat->CabinTempAutoManSwitch,				_R(2293 + offset, 848, 2327 + offset, 877), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S62
+
+	RegisterPanelArea(&sat->HighGainAntennaPitchPositionSwitch, _R(2268 + offset, 1016, 2358 + offset, 1116), PANEL_MOUSE_DOWN);
+	RegisterPanelArea(&sat->HighGainAntennaYawPositionSwitch, _R(2398 + offset, 1016, 2488 + offset, 1116), PANEL_MOUSE_DOWN);
+
+	RegisterPanelArea(&sat->CabinTempAutoControlSwitch, _R(2441 + offset, 843, 2458 + offset, 879), PANEL_MOUSE_DOWN); //R1
+
+	RegisterPanelArea(&sat->PostLDGVentValveLever, _R(2062 + offset, 76, 2112 + offset, 234), PANEL_MOUSE_DOWN);
+
+	RegisterPanelArea(&sat->GHATrackSwitch, _R(2185 + offset, 943, 2219 + offset, 972), PANEL_MOUSE_DOWN); //S77
+	RegisterPanelArea(&sat->GHABeamSwitch, _R(2228 + offset, 943, 2262 + offset, 972), PANEL_MOUSE_DOWN); //S90
+
+	RegisterPanelArea(&sat->GHAPowerSwitch, _R(2381 + offset, 1157, 2415 + offset, 1186), PANEL_MOUSE_DOWN); //S76
+	RegisterPanelArea(&sat->GHAServoElecSwitch, _R(2424 + offset, 1157, 2458 + offset, 1186), PANEL_MOUSE_DOWN); //S83
+}
+
+void CSMPanel3::RegisterPanelAreas(int offset)
+{
+	RegisterPanelArea(&sat->FuelCellRadiators1Switch, _R(2816 + offset, 607, 2850 + offset, 637), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S2
+	RegisterPanelArea(&sat->FuelCellRadiators2Switch, _R(2859 + offset, 607, 2893 + offset, 637), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S3
+	RegisterPanelArea(&sat->FuelCellRadiators3Switch, _R(2902 + offset, 607, 2936 + offset, 637), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S4
+
+	RegisterPanelArea(&sat->FuelCellIndicatorsSwitch, _R(3027 + offset, 627, 3117 + offset, 717), PANEL_MOUSE_DOWN); //S10
+
+	RegisterPanelArea(&sat->FuelCellHeater1Switch, _R(2817 + offset, 695, 2851 + offset, 725), PANEL_MOUSE_DOWN); //S6
+	RegisterPanelArea(&sat->FuelCellHeater2Switch, _R(2860 + offset, 695, 2894 + offset, 725), PANEL_MOUSE_DOWN); //S7
+	RegisterPanelArea(&sat->FuelCellHeater3Switch, _R(2903 + offset, 695, 2937 + offset, 725), PANEL_MOUSE_DOWN); //S8
+
+	RegisterPanelArea(&sat->FuelCellPurge1Switch, _R(2815 + offset, 817, 2849 + offset, 846), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S11
+	RegisterPanelArea(&sat->FuelCellPurge2Switch, _R(2858 + offset, 817, 2892 + offset, 846), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S12
+	RegisterPanelArea(&sat->FuelCellPurge3Switch, _R(2901 + offset, 817, 2935 + offset, 846), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S13
+
+	RegisterPanelArea(&sat->MainBusASwitch1, _R(2944 + offset, 817, 2978 + offset, 846), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S14
+	RegisterPanelArea(&sat->MainBusASwitch2, _R(2994 + offset, 817, 3028 + offset, 846), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S15
+	RegisterPanelArea(&sat->MainBusASwitch3, _R(3045 + offset, 817, 3079 + offset, 846), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S16
+	RegisterPanelArea(&sat->MainBusAResetSwitch, _R(3088 + offset, 817, 3122 + offset, 846), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S17
+
+	RegisterPanelArea(&sat->FuelCellReactants1Switch, _R(2800 + offset, 955, 2834 + offset, 984), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S20
+	RegisterPanelArea(&sat->FuelCellReactants2Switch, _R(2843 + offset, 955, 2877 + offset, 984), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S21
+	RegisterPanelArea(&sat->FuelCellReactants3Switch, _R(2886 + offset, 955, 2920 + offset, 984), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S22
+
+	RegisterPanelArea(&sat->MainBusBSwitch1, _R(2929 + offset, 955, 2963 + offset, 984), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S23
+	RegisterPanelArea(&sat->MainBusBSwitch2, _R(2985 + offset, 955, 3019 + offset, 984), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S23
+	RegisterPanelArea(&sat->MainBusBSwitch3, _R(3041 + offset, 955, 3075 + offset, 984), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S25
+	RegisterPanelArea(&sat->MainBusBResetSwitch, _R(3097 + offset, 955, 3131 + offset, 984), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S26
+
+	RegisterPanelArea(&sat->FCReacsValvesSwitch, _R(2593 + offset, 1251, 2627 + offset, 1280), PANEL_MOUSE_DOWN); //S76
+	RegisterPanelArea(&sat->H2PurgeLineSwitch, _R(2636 + offset, 1251, 2670 + offset, 1280), PANEL_MOUSE_DOWN); //S77
+
+	RegisterPanelArea(&sat->SBandNormalXPDRSwitch, _R(2593 + offset, 1050, 2627 + offset, 1079), PANEL_MOUSE_DOWN); //S29
+	RegisterPanelArea(&sat->SBandNormalPwrAmpl1Switch, _R(2636 + offset, 1050, 2670 + offset, 1079), PANEL_MOUSE_DOWN); //S31
+	RegisterPanelArea(&sat->SBandNormalPwrAmpl2Switch, _R(2679 + offset, 1050, 2713 + offset, 1079), PANEL_MOUSE_DOWN); //S32
+	RegisterPanelArea(&sat->SBandNormalMode1Switch, _R(2738 + offset, 1050, 2772 + offset, 1079), PANEL_MOUSE_DOWN); //S33
+	RegisterPanelArea(&sat->SBandNormalMode2Switch, _R(2781 + offset, 1050, 2815 + offset, 1079), PANEL_MOUSE_DOWN); //S34
+	RegisterPanelArea(&sat->SBandNormalMode3Switch, _R(2824 + offset, 1050, 2858 + offset, 1079), PANEL_MOUSE_DOWN); //S35
+
+	RegisterPanelArea(&sat->VHFAntennaRotarySwitch, _R(2593 + offset, 184, 2683 + offset, 274), PANEL_MOUSE_DOWN); //S1
+
+	RegisterPanelArea(&sat->SPSTestSwitch, _R(2714 + offset, 711, 2748 + offset, 740), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP);
+	RegisterPanelArea(&sat->SPSOxidFlowValveSwitch, _R(2640 + offset, 798, 2674 + offset, 827), PANEL_MOUSE_DOWN);
+	RegisterPanelArea(&sat->SPSOxidFlowValveSelectorSwitch, _R(2683 + offset, 798, 2717 + offset, 827), PANEL_MOUSE_DOWN);
+	RegisterPanelArea(&sat->SPSPugModeSwitch, _R(2726 + offset, 798, 2760 + offset, 827), PANEL_MOUSE_DOWN);
+
+	RegisterPanelArea(&sat->SPSHeliumValveASwitch, _R(2593 + offset, 955, 2627 + offset, 984), PANEL_MOUSE_DOWN); //S18
+	RegisterPanelArea(&sat->SPSHeliumValveBSwitch, _R(2636 + offset, 955, 2670 + offset, 984), PANEL_MOUSE_DOWN); //S19
+	RegisterPanelArea(&sat->SPSLineHTRSSwitch, _R(2679 + offset, 955, 2713 + offset, 984), PANEL_MOUSE_DOWN); //S75
+	RegisterPanelArea(&sat->SPSPressIndSwitch, _R(2757 + offset, 955, 2791 + offset, 984), PANEL_MOUSE_DOWN); //S69
+
+	RegisterPanelArea(&sat->DCIndicatorsRotary, _R(3180 + offset, 896, 3270 + offset, 986), PANEL_MOUSE_DOWN); //S27
+	RegisterPanelArea(&sat->BatteryChargeRotary, _R(3336 + offset, 896, 3426 + offset, 986), PANEL_MOUSE_DOWN); //S28
+	RegisterPanelArea(&sat->ACIndicatorRotary, _R(3386 + offset, 1205, 3476 + offset, 1295), PANEL_MOUSE_DOWN); //S68
+
+	RegisterPanelArea(&sat->SBandAuxSwitch1, _R(2877 + offset, 1050, 2911 + offset, 1079), PANEL_MOUSE_DOWN); //S36
+	RegisterPanelArea(&sat->SBandAuxSwitch2, _R(2930 + offset, 1050, 2964 + offset, 1079), PANEL_MOUSE_DOWN); //S37
+
+	RegisterPanelArea(&sat->UPTLMSwitch1, _R(2983 + offset, 1050, 3017 + offset, 1079), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S38
+	RegisterPanelArea(&sat->UPTLMSwitch2, _R(3036 + offset, 1050, 3070 + offset, 1079), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S39
+
+	RegisterPanelArea(&sat->SBandAntennaSwitch1, _R(2593 + offset, 1155, 2627 + offset, 1184), PANEL_MOUSE_DOWN); //S41
+	RegisterPanelArea(&sat->SBandAntennaSwitch2, _R(2636 + offset, 1155, 2670 + offset, 1184), PANEL_MOUSE_DOWN); //S40
+
+	RegisterPanelArea(&sat->SquelchAThumbwheel, _R(2745 + offset, 1149, 2762 + offset, 1185), PANEL_MOUSE_DOWN); //R1
+	RegisterPanelArea(&sat->SquelchBThumbwheel, _R(2745 + offset, 1247, 2762 + offset, 1283), PANEL_MOUSE_DOWN); //R2
+
+	RegisterPanelArea(&sat->VHFAMASwitch, _R(2838 + offset, 1152, 2872 + offset, 1181), PANEL_MOUSE_DOWN); //S43
+	RegisterPanelArea(&sat->VHFAMBSwitch, _R(2889 + offset, 1152, 2923 + offset, 1181), PANEL_MOUSE_DOWN); //S44
+	RegisterPanelArea(&sat->RCVOnlySwitch, _R(2940 + offset, 1152, 2974 + offset, 1181), PANEL_MOUSE_DOWN); //S71
+	RegisterPanelArea(&sat->VHFBeaconSwitch, _R(2983 + offset, 1152, 3017 + offset, 1181), PANEL_MOUSE_DOWN); //S45
+	RegisterPanelArea(&sat->VHFRangingSwitch, _R(3026 + offset, 1152, 3060 + offset, 1181), PANEL_MOUSE_DOWN); //S78
+
+	RegisterPanelArea(&sat->TapeRecorderPCMSwitch, _R(2838 + offset, 1250, 2872 + offset, 1279), PANEL_MOUSE_DOWN); //S49
+	RegisterPanelArea(&sat->TapeRecorderRecordSwitch, _R(2881 + offset, 1250, 2915 + offset, 1279), PANEL_MOUSE_DOWN); //S50
+	RegisterPanelArea(&sat->TapeRecorderForwardSwitch, _R(2924 + offset, 1250, 2958 + offset, 1279), PANEL_MOUSE_DOWN); //S51
+
+	RegisterPanelArea(&sat->SCESwitch, _R(2967 + offset, 1250, 3001 + offset, 1279), PANEL_MOUSE_DOWN); //S52
+	RegisterPanelArea(&sat->PMPSwitch, _R(3010 + offset, 1250, 3044 + offset, 1279), PANEL_MOUSE_DOWN); //S54
+	RegisterPanelArea(&sat->PCMBitRateSwitch, _R(3053 + offset, 1250, 3130 + offset, 1279), PANEL_MOUSE_DOWN); //S54
+
+	RegisterPanelArea(&sat->MnA1Switch, _R(3182 + offset, 1050, 3216 + offset, 1079), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S57
+	RegisterPanelArea(&sat->MnB2Switch, _R(3245 + offset, 1050, 3279 + offset, 1079), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S58
+	RegisterPanelArea(&sat->MnA3Switch, _R(3308 + offset, 1050, 3342 + offset, 1079), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S59
+	RegisterPanelArea(&sat->AcBus1Switch1, _R(3182 + offset, 1151, 3216 + offset, 1180), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S60
+	RegisterPanelArea(&sat->AcBus1Switch2, _R(3225 + offset, 1151, 3259 + offset, 1180), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S61
+	RegisterPanelArea(&sat->AcBus1Switch3, _R(3268 + offset, 1151, 3302 + offset, 1180), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S62
+	RegisterPanelArea(&sat->AcBus1ResetSwitch, _R(3311 + offset, 1151, 3345 + offset, 1180), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S63
+	RegisterPanelArea(&sat->AcBus2Switch1, _R(3182 + offset, 1250, 3216 + offset, 1279), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S64
+	RegisterPanelArea(&sat->AcBus2Switch2, _R(3225 + offset, 1250, 3259 + offset, 1279), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S65
+	RegisterPanelArea(&sat->AcBus2Switch3, _R(3268 + offset, 1250, 3302 + offset, 1279), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S66
+	RegisterPanelArea(&sat->AcBus2ResetSwitch, _R(3311 + offset, 1250, 3345 + offset, 1279), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP); //S67
+}

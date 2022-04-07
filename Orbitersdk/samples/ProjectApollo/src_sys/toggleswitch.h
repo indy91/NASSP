@@ -121,6 +121,7 @@ public:
 	/// \param DrawSurface Surface to draw the switch into.
 	///
 	virtual void DrawSwitch(SURFHANDLE DrawSurface) = 0;
+	virtual bool DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn) { return false; }
 
 	///
 	/// \brief Save the switch state.
@@ -217,6 +218,7 @@ public:
 	virtual const VECTOR3& GetDirection() const;
 	virtual const VECTOR3& GetReference() const;
 	virtual void OnPostStep(double SimT, double DeltaT, double MJD) {}
+	void Reset2D() { DisplayState = -1; }
 
 	virtual void SetReference(const VECTOR3& ref);
 	virtual void SetReference(const VECTOR3& ref, const VECTOR3& dir);
@@ -250,6 +252,9 @@ protected:
 	/// \brief State that the switch failed in.
 	///
 	int FailedState;
+
+	//
+	int DisplayState;
 
 	///
 	/// \brief Name of the switch.
@@ -330,6 +335,8 @@ public:
 
 	virtual bool SwitchTo(int newState, bool dontspring = false);
 	virtual void DrawSwitch(SURFHANDLE DrawSurface);
+	virtual bool DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn);
+	virtual bool HasDisplayStateChanged(int st, bool flashst);
 	virtual void DrawSwitchVC(int id, int event, SURFHANDLE surf);
 	virtual bool CheckMouseClick(int event, int mx, int my);
 	virtual bool CheckMouseClickVC(int event, VECTOR3 &p);
@@ -366,6 +373,8 @@ protected:
 
 	double delayTime;
 	double resetTime;
+
+	bool FlashDisplayState;
 
 	SURFHANDLE SwitchSurface;
 	SURFHANDLE BorderSurface;
@@ -461,6 +470,8 @@ class ThreePosSwitch: public ToggleSwitch {
 
 public:
 	void DrawSwitch(SURFHANDLE DrawSurface);
+	bool DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn);
+	bool HasDisplayStateChanged(bool flashst);
 	void DrawSwitchVC(int id, int event, SURFHANDLE drawSurface);
 	bool CheckMouseClick(int event, int mx, int my);
 	virtual bool SwitchTo(int newState, bool dontspring = false);
@@ -936,6 +947,8 @@ public:
 	void InitGuard(int xp, int yp, int w, int h, SURFHANDLE surf, SURFHANDLE bsurf,
 				   int xOffset = 0, int yOffset = 0);
 	void DrawSwitch(SURFHANDLE DrawSurface);
+	bool DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn);
+	bool HasDisplayStateChanged(bool flashst);
 	void DrawSwitchVC(int id, int event, SURFHANDLE surf);
 	void DrawFlash(SURFHANDLE DrawSurface);
 	bool CheckMouseClick(int event, int mx, int my);
@@ -960,6 +973,7 @@ protected:
 	int guardHeight;
 	int guardState;
 	bool guardResetsState;
+	int displayGuardState;
 
 	SURFHANDLE guardSurface;
 	SURFHANDLE guardBorder;
@@ -1122,6 +1136,8 @@ public:
 	void InitGuard(int xp, int yp, int w, int h, SURFHANDLE surf,
 				   int xOffset = 0, int yOffset = 0);
 	void DrawSwitch(SURFHANDLE DrawSurface);
+	bool DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn);
+	bool HasDisplayStateChanged(bool flashst);
 	void DrawSwitchVC(int id, int event, SURFHANDLE surf);
 	bool CheckMouseClick(int event, int mx, int my);
 	bool CheckMouseClickVC(int event, VECTOR3 &p);
@@ -1144,6 +1160,7 @@ protected:
 	int guardHeight;
 	int guardState;
 	bool guardResetsState;
+	int displayGuardState;
 	SURFHANDLE guardSurface;
 	int guardXOffset;
 	int guardYOffset;
@@ -1187,6 +1204,8 @@ public:
 	void Init(int xp, int yp, int w, int h, SURFHANDLE surf, SURFHANDLE bsurf, SwitchRow &row);
 	void AddPosition(int value, double angle);
 	void DrawSwitch(SURFHANDLE drawSurface);
+	bool DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn);
+	bool HasDisplayStateChanged(bool flashst);
 	void DrawFlash(SURFHANDLE drawSurface);
 	virtual bool CheckMouseClick(int event, int mx, int my);
 	virtual bool SwitchTo(int newValue);
@@ -1210,6 +1229,7 @@ protected:
 	int height;
 	int maxState;
 	bool Wraparound;
+	bool FlashDisplayState;
 	RotationalSwitchPosition *position;
 	RotationalSwitchPosition *positionList;
 
@@ -1379,6 +1399,8 @@ public:
 	void Register(PanelSwitchScenarioHandler &scnh, char *n, int defaultState, int maximumState, bool horizontal);
 	void Init(int xp, int yp, int w, int h, SURFHANDLE surf, SURFHANDLE bsurf, SwitchRow &row);
 	void DrawSwitch(SURFHANDLE drawSurface);
+	bool DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn);
+	bool HasDisplayStateChanged(bool flashst);
 	void DrawSwitchVC(int id, int event, SURFHANDLE drawSurface);
 	void DrawFlash(SURFHANDLE drawSurface);
 	bool CheckMouseClick(int event, int mx, int my);
@@ -1403,6 +1425,7 @@ protected:
 	int state;
 	int maxState;
 	bool isHorizontal;
+	bool FlashDisplayState;
 	SURFHANDLE switchSurface;
 	SURFHANDLE switchBorder;
 	Sound sclick;
@@ -1488,13 +1511,14 @@ public:
 	SwitchRow();
 	virtual ~SwitchRow();
 
-	bool CheckMouseClick(int id, int event, int mx, int my);
-	bool DrawRow(int id, SURFHANDLE DrawSurface, bool FlashOn);
+	virtual bool CheckMouseClick(int id, int event, int mx, int my);
+	virtual bool DrawRow(int id, SURFHANDLE DrawSurface, bool FlashOn);
 	void AddSwitch(PanelSwitchItem *s);
-	void Init(int area, PanelSwitches &panel, e_object *p = 0);
+	virtual void Init(int area, PanelSwitches &panel, e_object *p = 0);
 	SwitchRow *GetNext() { return RowList; };
 	void SetNext(SwitchRow *s) { RowList = s; };
 	void timestep(double missionTime);
+	void Reset2D();
 
 	///
 	/// Look up a panel switch item by its name.
@@ -1527,6 +1551,18 @@ protected:
 	friend class MeterSwitch;
 };
 
+class AdvancedSwitchRow : public SwitchRow
+{
+public:
+	AdvancedSwitchRow();
+	~AdvancedSwitchRow();
+
+	bool DrawRow(int id, SURFHANDLE DrawSurface, bool FlashOn) { return false; }
+	bool CheckMouseClick(int id, int event, int mx, int my) { return false; }
+protected:
+	void RegisterPanelArea(PanelSwitchItem *s, const RECT &pos, int mouse_event);
+};
+
 class PanelSwitchListener {
 
 public:
@@ -1557,8 +1593,12 @@ public:
 	bool CheckMouseClick(int id, int event, int mx, int my);
 	bool DrawRow(int id, SURFHANDLE DrawSurface, bool FlashOn);
 	void AddRow(SwitchRow *s) { s->SetNext(RowList); RowList = s; };
-	void Init(int id, VESSEL *v, SoundLib *s, PanelSwitchListener *l) { PanelID = id; RowList = 0; vessel = v; soundlib = s; listener = l; };
+	void Init(int id, VESSEL *v, SoundLib *s, PanelSwitchListener *l);
 	void timestep(double missionTime);
+	int AddElement(PanelSwitchItem *el);
+	PanelSwitchItem *GetPanelElement(int id);
+	bool DrawElement(int id, SURFHANDLE DrawSurface, bool FlashOn);
+	void Reset2D();
 
 	///
 	/// Set an item's flashing state.
@@ -1581,6 +1621,9 @@ protected:
 	int	PanelID;
 	SwitchRow *RowList;
 	double lastexecutedtime;
+
+	std::vector<PanelSwitchItem*> elements;
+
 
 	friend class TwoPositionSwitch;
 	friend class ThreePosSwitch;

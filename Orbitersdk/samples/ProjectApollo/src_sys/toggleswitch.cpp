@@ -59,6 +59,7 @@ PanelSwitchItem::PanelSwitchItem() : fInitialAnimState(0.0)
 	Failed = false;
 	FailedState = 0;
 	state = 0;
+	DisplayState = -1;
 
 	name = 0;
 	next = 0;
@@ -189,6 +190,7 @@ TwoPositionSwitch::TwoPositionSwitch() {
 	Sideways = 0;
 	delayTime = 0;
 	resetTime = 0;
+	FlashDisplayState = false;
 
 	anim_switch = NULL;
 	grpIndex = 0;
@@ -426,7 +428,6 @@ void TwoPositionSwitch::VesimSwitchTo(int newState)
 }
 
 void TwoPositionSwitch::DoDrawSwitch(SURFHANDLE DrawSurface)
-
 {
 	if (IsUp())
 	{
@@ -443,6 +444,34 @@ void TwoPositionSwitch::DrawSwitch(SURFHANDLE DrawSurface)
 {
 	if (visible) 
 		DoDrawSwitch(DrawSurface);
+}
+
+bool TwoPositionSwitch::DrawSwitch2(int ID,SURFHANDLE DrawSurface, bool FlashOn)
+{
+	if (!visible) return false;
+
+	int TempState = IsUp() ? TOGGLESWITCH_UP : TOGGLESWITCH_DOWN;
+	bool TempFlashState = FlashOn && flashing;
+
+	if (!HasDisplayStateChanged(TempState, TempFlashState)) return false;
+
+	//Draw the background
+	oapiBltPanelAreaBackground(ID, DrawSurface);
+
+	//Do the actual drawing
+	DoDrawSwitch(DrawSurface);
+	if (TempFlashState) DrawFlash(DrawSurface);
+
+	DisplayState = TempState;
+	FlashDisplayState = TempFlashState;
+	return true;
+}
+
+bool TwoPositionSwitch::HasDisplayStateChanged(int st, bool flashst)
+{
+	if (st != DisplayState) return true;
+	if (flashst != FlashDisplayState) return true;
+	return false;
 }
 
 void TwoPositionSwitch::DrawSwitchVC(int id, int event, SURFHANDLE surf)
@@ -680,9 +709,31 @@ bool ThreePosSwitch::CheckMouseClickVC(int event, VECTOR3 &p)
 }
 
 void ThreePosSwitch::DrawSwitch(SURFHANDLE DrawSurface)
-
 {
 	oapiBlt(DrawSurface, SwitchSurface, x, y, (state * width), 0, width, height, SURF_PREDEF_CK);
+}
+
+bool ThreePosSwitch::DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn)
+{
+	bool TempFlashState = FlashOn && flashing;
+
+	if (!HasDisplayStateChanged(TempFlashState)) return false;
+
+	oapiBltPanelAreaBackground(ID, DrawSurface);
+
+	DrawSwitch(DrawSurface);
+	if (TempFlashState) DrawFlash(DrawSurface);
+
+	DisplayState = state;
+	FlashDisplayState = TempFlashState;
+	return true;
+}
+
+bool ThreePosSwitch::HasDisplayStateChanged(bool flashst)
+{
+	if (state != DisplayState) return true;
+	if (flashst != FlashDisplayState) return true;
+	return false;
 }
 
 void ThreePosSwitch::DrawSwitchVC(int id, int event, SURFHANDLE surf)
@@ -1516,6 +1567,31 @@ bool SwitchRow::DrawRow(int id, SURFHANDLE DrawSurface, bool FlashOn) {
 	return true;
 }
 
+void SwitchRow::Reset2D()
+{
+	PanelSwitchItem *s = SwitchList;
+	while (s) {
+		s->Reset2D();
+		s = s->GetNext();
+	}
+}
+
+AdvancedSwitchRow::AdvancedSwitchRow()
+{
+
+}
+
+AdvancedSwitchRow::~AdvancedSwitchRow()
+{
+
+}
+
+void AdvancedSwitchRow::RegisterPanelArea(PanelSwitchItem *s, const RECT &pos, int mouse_event)
+{
+	int ID = panelSwitches->AddElement(s);
+	oapiRegisterPanelArea(ID, pos, PANEL_REDRAW_ALWAYS, mouse_event, PANEL_MAP_BACKGROUND);
+}
+
 void PanelSwitchesVC::DefineVCAnimations(UINT vcidx)
 {
 	for (unsigned int i = 0; i < SwitchList.size(); i++)
@@ -1603,8 +1679,8 @@ void PanelSwitches::timestep(double missionTime)
 	}
 }
 
-bool PanelSwitches::DrawRow(int id, SURFHANDLE DrawSurface, bool FlashOn) {
-
+bool PanelSwitches::DrawRow(int id, SURFHANDLE DrawSurface, bool FlashOn)
+{
 	SwitchRow *row = RowList;
 
 	while (row) {
@@ -1715,6 +1791,46 @@ bool PanelSwitches::SetState(const char *n, int value, bool guard, bool hold)
 
 }
 
+void PanelSwitches::Init(int id, VESSEL *v, SoundLib *s, PanelSwitchListener *l)
+{
+	Reset2D();
+	PanelID = id;
+	RowList = 0;
+	vessel = v;
+	soundlib = s;
+	listener = l;
+	elements.clear();
+};
+
+void PanelSwitches::Reset2D()
+{
+	SwitchRow *row = RowList;
+
+	while (row) {
+		row->Reset2D();
+		row = row->GetNext();
+	}
+}
+
+int PanelSwitches::AddElement(PanelSwitchItem *el)
+{
+	elements.push_back(el);
+	return elements.size() + 9999;
+}
+
+PanelSwitchItem* PanelSwitches::GetPanelElement(int id)
+{
+	return elements[id - 10000];
+}
+
+bool PanelSwitches::DrawElement(int id, SURFHANDLE DrawSurface, bool FlashOn)
+{
+	PanelSwitchItem *s = GetPanelElement(id);
+	if (!s) return false;
+
+	return s->DrawSwitch2(id, DrawSurface, FlashOn);
+}
+
 SwitchCover::SwitchCover()
 {
 	guardAnim = -1;
@@ -1764,6 +1880,7 @@ GuardedToggleSwitch::GuardedToggleSwitch() {
 	guardSurface = 0;
 	guardState = 0;
 	guardResetsState = true;
+	displayGuardState = 0;
 }
 
 GuardedToggleSwitch::~GuardedToggleSwitch() {
@@ -1817,6 +1934,31 @@ void GuardedToggleSwitch::DrawSwitch(SURFHANDLE DrawSurface) {
 			}
 		}
 	}
+}
+
+bool GuardedToggleSwitch::DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn)
+{
+	bool TempFlashState = FlashOn && flashing;
+
+	if (!HasDisplayStateChanged(TempFlashState)) return false;
+
+	oapiBltPanelAreaBackground(ID, DrawSurface);
+
+	DrawSwitch(DrawSurface);
+	if (TempFlashState) DrawFlash(DrawSurface);
+
+	DisplayState = state;
+	FlashDisplayState = TempFlashState;
+	displayGuardState = guardState;
+	return true;
+}
+
+bool GuardedToggleSwitch::HasDisplayStateChanged(bool flashst)
+{
+	if (state != DisplayState) return true;
+	if (flashst != FlashDisplayState) return true;
+	if (guardState != displayGuardState) return true;
+	return false;
 }
 
 void GuardedToggleSwitch::DrawSwitchVC(int id, int event, SURFHANDLE surf) {
@@ -2197,6 +2339,7 @@ GuardedThreePosSwitch::GuardedThreePosSwitch() {
 	guardHeight = 0;
 	guardSurface = 0;
 	guardState = 0;
+	displayGuardState = 0;
 }
 
 GuardedThreePosSwitch::~GuardedThreePosSwitch() {
@@ -2277,6 +2420,31 @@ void GuardedThreePosSwitch::DrawSwitch(SURFHANDLE DrawSurface) {
 			}
 		}
 	}
+}
+
+bool GuardedThreePosSwitch::DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn)
+{
+	bool TempFlashState = FlashOn && flashing;
+
+	if (!HasDisplayStateChanged(TempFlashState)) return false;
+
+	oapiBltPanelAreaBackground(ID, DrawSurface);
+
+	DrawSwitch(DrawSurface);
+	if (TempFlashState) DrawFlash(DrawSurface);
+
+	DisplayState = state;
+	FlashDisplayState = TempFlashState;
+	displayGuardState = guardState;
+	return true;
+}
+
+bool GuardedThreePosSwitch::HasDisplayStateChanged(bool flashst)
+{
+	if (state != DisplayState) return true;
+	if (flashst != FlashDisplayState) return true;
+	if (guardState != displayGuardState) return true;
+	return false;
 }
 
 void GuardedThreePosSwitch::DrawSwitchVC(int id, int event, SURFHANDLE surf) {
@@ -2400,6 +2568,7 @@ RotationalSwitch::RotationalSwitch() {
 	soundEnabled = true;
 	maxState = -1;
 	Wraparound = false;
+	FlashDisplayState = false;
 
 	anim_switch = NULL;
 	pswitchrot = NULL;
@@ -2590,6 +2759,28 @@ void RotationalSwitch::DrawFlash(SURFHANDLE DrawSurface)
 
 	if (switchBorder)
 		oapiBlt(DrawSurface, switchBorder, x, y, 0, 0, width, height, SURF_PREDEF_CK);
+}
+
+bool RotationalSwitch::DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn)
+{
+	bool TempFlashState = FlashOn && flashing;
+	if (!HasDisplayStateChanged(TempFlashState)) return false;
+
+	oapiBltPanelAreaBackground(ID, DrawSurface);
+	DrawSwitch(DrawSurface);
+
+	if (TempFlashState) DrawFlash(DrawSurface);
+
+	DisplayState = GetState();
+	FlashDisplayState = TempFlashState;
+	return true;
+}
+
+bool RotationalSwitch::HasDisplayStateChanged(bool flashst)
+{
+	if (GetState() != DisplayState) return true;
+	if (flashst != FlashDisplayState) return true;
+	return false;
 }
 
 bool RotationalSwitch::CheckMouseClick(int event, int mx, int my) {
@@ -3002,6 +3193,7 @@ ThumbwheelSwitch::ThumbwheelSwitch() {
 	pswitchrot = NULL;
 	grpIndex = 0;
 	anim_switch = 0;
+	FlashDisplayState = false;
 
 	RotationRange = RAD * 324;
 }
@@ -3163,6 +3355,29 @@ bool ThumbwheelSwitch::SwitchTo(int newState) {
 void ThumbwheelSwitch::DrawSwitch(SURFHANDLE DrawSurface) {
 
 	oapiBlt(DrawSurface, switchSurface, x, y, state * width, 0, width, height, SURF_PREDEF_CK);
+}
+
+bool ThumbwheelSwitch::DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn)
+{
+	bool TempFlashState = FlashOn && flashing;
+
+	if (!HasDisplayStateChanged(TempFlashState)) return false;
+
+	oapiBltPanelAreaBackground(ID, DrawSurface);
+
+	DrawSwitch(DrawSurface);
+	if (TempFlashState) DrawFlash(DrawSurface);
+
+	DisplayState = state;
+	FlashDisplayState = TempFlashState;
+	return true;
+}
+
+bool ThumbwheelSwitch::HasDisplayStateChanged(bool flashst)
+{
+	if (state != DisplayState) return true;
+	if (flashst != FlashDisplayState) return true;
+	return false;
 }
 
 void ThumbwheelSwitch::DrawSwitchVC(int id, int event, SURFHANDLE drawSurface) {

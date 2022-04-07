@@ -1507,37 +1507,17 @@ bool Saturn::clbkLoadPanel (int id) {
 
 void Saturn::AddLeftMainPanelAreas() {
 
-	oapiRegisterPanelArea (AID_THC,											_R(   0, 1251,   72, 1360), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);	
+	Panel1.RegisterPanelAreas();
+	
 	oapiRegisterPanelArea (AID_ABORT_LIGHT,									_R( 862,  600,  924,  631), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_SEQUENCERSWITCHES,							_R( 802,  918,  990, 1100), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,   PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_LV_ENGINE_LIGHTS,							_R( 843,  735,  944,  879), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_IMU_CAGE_SWITCH,								_R( 289, 1237,  325, 1306), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_MASTER_ALARM,								_R( 464,  497,  509,  533), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_ATTITUDE_CONTROL_SWITCHES,					_R( 190,  838,  482,  867), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_BMAG_SWITCHES,								_R( 125, 1036,  258, 1065), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_THRUSTMETER,									_R( 498,  920,  593, 1011), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_CMC_SWITCH,									_R( 343,  635,  377,  664), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_FDAI_SWITCHES,								_R( 265,  742,  484,  771), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_ALTIMETER,									_R( 835,   86,  972,  223), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_ELS_SWITCHES,								_R( 702, 1150,  957, 1219), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_EVENT_TIMER_SWITCHES,						_R( 701, 1260,  950, 1289), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_ROT_PWR,										_R( 104,  948,  324,  977), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_dVTHRUST_SWITCHES,							_R( 442, 1046,  572, 1115), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_EVENT_TIMER,									_R( 866,  670,  937,  688), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SPS,											_R( 299, 1051,  337, 1103), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_GMETER,										_R( 403,  605,  482,  684), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,                PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SCCONTCMCMODESWITCHES,      					_R( 383,  948,  460,  977), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SCSTVCSWITCHES,      						_R( 380, 1173,  457, 1202), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SPSGIMBALMOTORSSWITCHES,      				_R( 472, 1173,  654, 1202), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_ENTRYSWITCHES,      							_R( 336, 1260,  413, 1289), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_LVSPSINDICATORSWITCHES,      				_R( 422, 1260,  499, 1289), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_TVCGIMBALDRIVESWITCHES,      				_R( 508, 1260,  585, 1289), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_GDCALIGNBUTTON,								_R( 290, 1169,  329, 1207), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,   PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_DIRECT_ULLAGE_THRUST_ON,						_R( 370, 1037,  409, 1128), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,   PANEL_MAP_BACKGROUND);
-	// EMS
-	oapiRegisterPanelArea (AID_EMSFUNCTIONSWITCH,      						_R( 595,  280,  685,  370), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_GTASWITCH,		    						_R( 904,  291,  959,  402), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_ENTRY_MODE_SWITCH,							_R( 593,  402,  628,  432), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);	
+	//EMS
 	oapiRegisterPanelArea (AID_EMSDVSETSWITCH,								_R( 906,  428,  961,  519), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_PRESSED|PANEL_MOUSE_UP,PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_EMSDVDISPLAY,								_R( 743,  518,  900,  539), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_SPS_LIGHT,									_R( 815,  456,  856,  472), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
@@ -1564,25 +1544,16 @@ void Saturn::AddLeftMainPanelAreas() {
 
 void Saturn::AddLeftMiddleMainPanelAreas(int offset) {
 
-	oapiRegisterPanelArea (AID_SEPARATIONSWITCHES,		    				_R(1087 + offset,  935, 1341 + offset, 1004), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
+	Panel2.RegisterPanelAreasLeft(offset);
+
 	oapiRegisterPanelArea (AID_SUITCABINDELTAPMETER,	    				_R(1445 + offset,  106, 1491 + offset,  150), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SMRCS_HELIUM1_SWITCHES,						_R(1585 + offset,  430, 1748 + offset,  459), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SMRCS_HELIUM2_SWITCHES,						_R(1411 + offset,  564, 1748 + offset,  633), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_PRIM_PRPLNT_SWITCHES,						_R(1411 + offset,  718, 1748 + offset,  747), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SEC_PRPLT_SWITCHES,							_R(1411 + offset,  848, 1748 + offset,  877), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_RCS_GAUGES,									_R(1385 + offset,  385, 1548 + offset,  511), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_LV_SWITCHES,									_R(1043 + offset, 1138, 1173 + offset, 1207), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_MAIN_RELEASE_SWITCH,							_R(1042 + offset, 1228, 1078 + offset, 1297), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_ABORT_ROW,									_R(1042 + offset, 1027, 1294 + offset, 1096), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_CWS_LIGHTS_LEFT,								_R(1540 + offset,   97, 1752 + offset,  205), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_RCS_HELIUM1_TALKBACK,						_R(1591 + offset,  368, 1741 + offset,  391), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_RCS_HELIUM2_TALKBACK,						_R(1591 + offset,  526, 1741 + offset,  549), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_RCS_PROP1_TALKBACK,							_R(1591 + offset,  659, 1741 + offset,  682), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_RCS_PROP2_TALKBACK,							_R(1503 + offset,  792, 1739 + offset,  815), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_DOCKINGPROBESWITCHES,    					_R(1388 + offset,  256, 1509 + offset,  325), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_DOCKINGPROBEINDICATORS,      				_R(1396 + offset,  179, 1419 + offset,  229), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_CSMLIGHTSWITCHES,      						_R(1518 + offset,  279, 1663 + offset,  308), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_LMPOWERSWITCH,      							_R(1692 + offset,  279, 1726 + offset,  308), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
 
 	// Display & keyboard (DSKY), main panel uses the main DSKY.
 	oapiRegisterPanelArea (AID_DSKY_DISPLAY,								_R(1239 + offset,  589, 1344 + offset,  765), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
@@ -1601,29 +1572,20 @@ void Saturn::AddLeftMiddleMainPanelAreas(int offset) {
 
 void Saturn::AddRightMiddleMainPanelAreas(int offset) {
 
+	Panel2.RegisterPanelAreasRight(offset);
+
 	oapiRegisterPanelArea (AID_MISSION_CLOCK,								_R(1834 + offset,  303, 1977 + offset,  326), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_CYROTANKSWITCHES,        					_R(1902 + offset,  451, 2492 + offset,  537), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_CYROTANKINDICATORS,        					_R(2173 + offset,  295, 2495 + offset,  439), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_SUITCOMPRDELTAPMETER,       					_R(2069 + offset,  726, 2115 + offset,  770), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_CABININDICATORS,        						_R(2278 + offset,  593, 2504 + offset,  717), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_CAUTIONWARNING_SWITCHES,						_R(1908 + offset,  400, 2140 + offset,  434), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_MISSION_TIMER_SWITCHES,						_R(2019 + offset,  299, 2139 + offset,  328), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_RCS_INDICATORS,								_R(1785 + offset,  445, 1875 + offset,  535), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_ECS_INDICATOR_SWITCH,						_R(1785 + offset,  582, 1875 + offset,  672), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_CWS_LIGHTS_RIGHT,							_R(1795 + offset,   97, 2008 + offset,  205), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_ECSRADTEMPMETERS,							_R(1951 + offset,  604, 1997 + offset,  649), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_ECSEVAPTEMPMETERS,							_R(2069 + offset,  604, 2115 + offset,  649), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_ECSPRESSMETERS,								_R(2186 + offset,  604, 2232 + offset,  649), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_ECSQUANTITYMETERS,							_R(2186 + offset,  726, 2232 + offset,  770), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_ECSRADIATORINDICATOR,		 				_R(1799 + offset,  683, 1822 + offset,  706), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_ECSRADIATORSWITCHES,         				_R(1796 + offset,  743, 2023 + offset,  772), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_ECSSWITCHES,					 				_R(1787 + offset,  848, 2327 + offset,  877), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_HIGHGAINANTENNAPITCHPOSITIONSWITCH,			_R(2268 + offset, 1016, 2358 + offset, 1116), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_CABINTEMPAUTOCONTROLSWITCH,					_R(2441 + offset,  843, 2458 + offset,  879), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_POSTLANDINGVENTVALVELEVER,      				_R(2062 + offset,   76, 2112 + offset,  234), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_HIGHGAINANTENNAUPPERSWITCHES,      			_R(2185 + offset,  943, 2262 + offset,  972), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_HIGHGAINANTENNALOWERSWITCHES,      			_R(2381 + offset, 1157, 2458 + offset, 1186), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_HIGHGAINANTENNAYAWPOSITIONSWITCH,      		_R(2398 + offset, 1016, 2488 + offset, 1116), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_HIGHGAINANTENNAMETERS,						_R(2283 + offset,  933, 2496 + offset,  985), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 
 	// MFDs
@@ -1634,42 +1596,20 @@ void Saturn::AddRightMiddleMainPanelAreas(int offset) {
 
 void Saturn::AddRightMainPanelAreas(int offset) {
 
+	Panel3.RegisterPanelAreas(offset);
+
 	oapiRegisterPanelArea (AID_CSM_MNPNL_WDW_LES,							_R(3071 + offset,    0, 3430 + offset,  160), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 
 	oapiRegisterPanelArea (AID_FUELCELLINDICATORS,		    				_R(2763 + offset,  319, 2913 + offset,  443), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_FUELCELLPHRADTEMPINDICATORS,	  				_R(2822 + offset,  490, 3019 + offset,  513), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_FUELCELLRADIATORSINDICATORS,    				_R(2822 + offset,  539, 2931 + offset,  562), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_FUELCELLRADIATORSSWITCHES,    				_R(2816 + offset,  607, 2937 + offset,  637), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_FUELCELLINDICATORSSWITCH,    				_R(3027 + offset,  627, 3117 + offset,  717), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_FUELCELLHEATERSSWITCHES,	    				_R(2817 + offset,  695, 2938 + offset,  725), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_FUELCELLPURGESWITCHES,	    				_R(2815 + offset,  817, 3123 + offset,  846), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_FUELCELLREACTANTSINDICATORS,    				_R(2823 + offset,  893, 3061 + offset,  917), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_FUELCELLREACTANTSSWITCHES,    				_R(2800 + offset,  955, 3131 + offset,  984), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (ADI_MAINBUSAINDICATORS,		    				_R(2953 + offset,  758, 3062 + offset,  781), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_FUELCELLLATCHSWITCHES,	    				_R(2593 + offset, 1251, 2670 + offset, 1280), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_TELECOMTB,    								_R(3119 + offset, 1042, 3142 + offset, 1115), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SBAND_NORMAL_SWITCHES,						_R(2593 + offset, 1050, 2858 + offset, 1079), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_MASTER_ALARM2,								_R(2960 + offset,  652, 3005 + offset,  688), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_DCVOLTS,										_R(3154 + offset,  761, 3253 + offset,  860), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_DCAMPS,										_R(3135 + offset,  656, 3234 + offset,  755), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_ACVOLTS,										_R(3365 + offset, 1069, 3464 + offset, 1168), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_VHFANTENNAROTARY,      						_R(2593 + offset,  184, 2683 + offset,  274), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SPSTESTSWITCH,								_R(2714 + offset,  711, 2748 + offset,  740), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SPSOXIDFLOWVALVESWITCHES,      				_R(2640 + offset,  798, 2717 + offset,  827), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SPSPUGMODESWITCH,      						_R(2726 + offset,  798, 2760 + offset,  827), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SPSSWITCHES,      							_R(2593 + offset,  955, 2791 + offset,  984), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_DCINDICATORSROTARY,      					_R(3180 + offset,  896, 3270 + offset,  986), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_BATTERYCHARGEROTARY,      					_R(3336 + offset,  896, 3426 + offset,  986), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SBANDAUXSWITCHES,      						_R(2877 + offset, 1050, 2964 + offset, 1079), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_UPTLMSWITCHES,								_R(2983 + offset, 1050, 3070 + offset, 1079), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SBANDANTENNASWITCHES,      					_R(2593 + offset, 1155, 2670 + offset, 1184), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_VHFAMTHUMBWHEELS,      						_R(2745 + offset, 1149, 2762 + offset, 1283), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_VHFSWITCHES,      							_R(2838 + offset, 1152, 3060 + offset, 1181), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_TAPERECORDERSWITCHES,      					_R(2838 + offset, 1250, 2958 + offset, 1279), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_POWERSWITCHES,      							_R(2967 + offset, 1250, 3044 + offset, 1279), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_PCMBITRATESWITCH,							_R(3053 + offset, 1250, 3130 + offset, 1279), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_ACINVERTERSWITCHES,							_R(3182 + offset, 1050, 3345 + offset, 1279), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN|PANEL_MOUSE_UP,	PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_ACINDICATORROTARY,							_R(3386 + offset, 1205, 3476 + offset, 1295), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_SPSOXIDFLOWVALVEINDICATOR,					_R(2605 + offset,  792, 2627 + offset,  834), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_SPSOXIDUNBALMETER,       					_R(2619 + offset,  696, 2679 + offset,  757), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
 	oapiRegisterPanelArea (AID_SPSHELIUMVALVEINDICATORS,    				_R(2598 + offset,  896, 2664 + offset,  919), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_IGNORE,				PANEL_MAP_BACKGROUND);
@@ -1777,6 +1717,10 @@ void Saturn::SetSwitches(int panel) {
 	// SATPANEL_MAIN
 	//
 
+	Panel1.Init(this, MainPanel);
+	Panel2.Init(this, MainPanel);
+	Panel3.Init(this, MainPanel);
+
 	fdaiLeft.Init(this);
 	fdaiRight.Init(this);
 
@@ -1787,8 +1731,7 @@ void Saturn::SetSwitches(int panel) {
 	AccelGMeterRow.Init(AID_GMETER, MainPanel);
 	AccelGMeter.Init(g_Param.pen[4], g_Param.pen[4], AccelGMeterRow, this);
 
-	THCRotaryRow.Init(AID_THC, MainPanel);
-	THCRotary.Init(0, 0, 72, 109, srf[SRF_THC], srf[SRF_BORDER_72x109], THCRotaryRow, this);
+	THCRotary.Init(0, 0, 72, 109, srf[SRF_THC], srf[SRF_BORDER_72x109], Panel1, this);
 
 	SequencerSwitchesRow.Init(AID_SEQUENCERSWITCHES, MainPanel);
 	LiftoffNoAutoAbortSwitch.Init     ( 20,   3, 39, 38, srf[SRF_SEQUENCERSWITCHES], srf[SRF_BORDER_39x38], SequencerSwitchesRow, &secs, 0, 81);
@@ -1808,22 +1751,21 @@ void Saturn::SetSwitches(int panel) {
 	CmRcsHeDumpSwitch.Init			  (127, 141, 39, 38, srf[SRF_SEQUENCERSWITCHES], srf[SRF_BORDER_39x38], SequencerSwitchesRow, 0, 347, 195, 307);
 	CmRcsHeDumpSwitch.InitGuard		  ( 94, 139, 92, 40, srf[SRF_SEQUENCERSWITCHES], srf[SRF_BORDER_92x40], 0, 40);
 
-	SeparationSwitchesRow.Init(AID_SEPARATIONSWITCHES, MainPanel);
-	EDSSwitch.Init				  (  0,	23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SeparationSwitchesRow);
-	CsmLmFinalSep1Switch.Init	  ( 43, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SeparationSwitchesRow);
-	CsmLmFinalSep1Switch.InitGuard( 42,  0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
-	CsmLmFinalSep2Switch.Init	  ( 87, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SeparationSwitchesRow);
-	CsmLmFinalSep2Switch.InitGuard( 86,  0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
-	CmSmSep1Switch.Init			  (131, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SeparationSwitchesRow);
-	CmSmSep1Switch.InitGuard      (130,  0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69], 72);
+	EDSSwitch.Init				  (  0,	0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
+	CsmLmFinalSep1Switch.Init	  ( 1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
+	CsmLmFinalSep1Switch.InitGuard( 0,  0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
+	CsmLmFinalSep2Switch.Init	  ( 1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
+	CsmLmFinalSep2Switch.InitGuard( 0,  0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
+	CmSmSep1Switch.Init			  (1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
+	CmSmSep1Switch.InitGuard      (0,  0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69], 72);
 	CmSmSep1Switch.SetFailed(SwitchFail.SMJett1Fail != 0);
-	CmSmSep2Switch.Init			  (175, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SeparationSwitchesRow);
-	CmSmSep2Switch.InitGuard      (174,  0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69], 72);
+	CmSmSep2Switch.Init			  (1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
+	CmSmSep2Switch.InitGuard      (0,  0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69], 72);
 	CmSmSep2Switch.SetFailed(SwitchFail.SMJett2Fail != 0);
 
 	if (!SkylabCM) {
-		SIVBPayloadSepSwitch.Init		  (219, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SeparationSwitchesRow);
-		SIVBPayloadSepSwitch.InitGuard     (218,  0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
+		SIVBPayloadSepSwitch.Init		  (1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
+		SIVBPayloadSepSwitch.InitGuard     (0,  0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
 	}
 
 	CryoTankSwitchesRow.Init(AID_CYROTANKSWITCHES, MainPanel);
@@ -1839,64 +1781,50 @@ void Saturn::SetSwitches(int panel) {
 	O2Fan1Switch.Init    (488, 39, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], CryoTankSwitchesRow);
 	O2Fan2Switch.Init    (551, 39, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], CryoTankSwitchesRow);
 
-	SCContCMCModeSwitchesRow.Init(AID_SCCONTCMCMODESWITCHES, MainPanel);
-	SCContSwitch.Init(  0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SCContCMCModeSwitchesRow, this);
-	CMCModeSwitch.Init(43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SCContCMCModeSwitchesRow, &agc);
+	SCContSwitch.Init(  0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1, this);
+	CMCModeSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1, &agc);
 	
-	SCSTvcSwitchesRow.Init(AID_SCSTVCSWITCHES, MainPanel);
-	SCSTvcPitchSwitch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SCSTvcSwitchesRow);
-	SCSTvcYawSwitch.Init  (43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SCSTvcSwitchesRow);
+	SCSTvcPitchSwitch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	SCSTvcYawSwitch.Init  (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
 	
-	SPSGimbalMotorsRow.Init(AID_SPSGIMBALMOTORSSWITCHES, MainPanel);
-	Pitch1Switch.Init(  0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SPSGimbalMotorsRow);
-	Pitch2Switch.Init( 49, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SPSGimbalMotorsRow);
-	Yaw1Switch.Init  ( 98, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SPSGimbalMotorsRow);
-	Yaw2Switch.Init  (148, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SPSGimbalMotorsRow);
+	Pitch1Switch.Init(  0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	Pitch2Switch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	Yaw1Switch.Init  ( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	Yaw2Switch.Init  (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
 
-	EntrySwitchesRow.Init(AID_ENTRYSWITCHES, MainPanel);
-	EMSRollSwitch.Init( 0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], EntrySwitchesRow); 
-	GSwitch.Init(43, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], EntrySwitchesRow); 
+	EMSRollSwitch.Init( 0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
+	GSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
 	
-	LVSPSIndSwitchesRow.Init(AID_LVSPSINDICATORSWITCHES, MainPanel);
-	LVSPSPcIndicatorSwitch.Init        ( 0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], LVSPSIndSwitchesRow); 
-	LVFuelTankPressIndicatorSwitch.Init(43, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], LVSPSIndSwitchesRow);
+	LVSPSPcIndicatorSwitch.Init        (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
+	LVFuelTankPressIndicatorSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
 	
-	TVCGimbalDriveSwitchesRow.Init(AID_TVCGIMBALDRIVESWITCHES, MainPanel);
-	TVCGimbalDrivePitchSwitch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], TVCGimbalDriveSwitchesRow);
-	TVCGimbalDriveYawSwitch.Init  (43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], TVCGimbalDriveSwitchesRow);
+	TVCGimbalDrivePitchSwitch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	TVCGimbalDriveYawSwitch.Init  (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
 
-	CSMLightSwitchesRow.Init(AID_CSMLIGHTSWITCHES, MainPanel);
-	RunEVALightSwitch.Init(  0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], CSMLightSwitchesRow);
-	RndzLightSwitch.Init  ( 57, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], CSMLightSwitchesRow);
-	TunnelLightSwitch.Init(111, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], CSMLightSwitchesRow);
+	RunEVALightSwitch.Init( 0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
+	RndzLightSwitch.Init  (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	TunnelLightSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
 
-	LMPowerSwitchRow.Init(AID_LMPOWERSWITCH, MainPanel);
-	LMPowerSwitch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], LMPowerSwitchRow, this);
+	LMPowerSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2, this);
 	LMPowerSwitch.SetDelayTime(1);
 
-	PostLDGVentValveLeverRow.Init(AID_POSTLANDINGVENTVALVELEVER, MainPanel);
-	PostLDGVentValveLever.Init( 0, 0, 50, 158, srf[SRF_POSTLDGVENTVLVLEVER], srf[SRF_BORDER_50x158], PostLDGVentValveLeverRow);
+	PostLDGVentValveLever.Init( 0, 0, 50, 158, srf[SRF_POSTLDGVENTVLVLEVER], srf[SRF_BORDER_50x158], Panel2);
 
-	GDCAlignButtonRow.Init(AID_GDCALIGNBUTTON, MainPanel);
-	GDCAlignButton.Init( 0, 0, 39, 38, srf[SRF_SEQUENCERSWITCHES], srf[SRF_BORDER_39x38], GDCAlignButtonRow, 157, 119);
+	GDCAlignButton.Init( 0, 0, 39, 38, srf[SRF_SEQUENCERSWITCHES], srf[SRF_BORDER_39x38], Panel1, 157, 119);
 
-	HighGainAntennaUpperSwitchesRow.Init(AID_HIGHGAINANTENNAUPPERSWITCHES, MainPanel);
-	GHATrackSwitch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], HighGainAntennaUpperSwitchesRow); 
-	GHABeamSwitch.Init (43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], HighGainAntennaUpperSwitchesRow);
-	
-	HighGainAntennaLowerSwitchesRow.Init(AID_HIGHGAINANTENNALOWERSWITCHES, MainPanel);
-	GHAPowerSwitch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], HighGainAntennaLowerSwitchesRow); 
-	GHAServoElecSwitch.Init (43, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], HighGainAntennaLowerSwitchesRow);
+	GHATrackSwitch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	GHABeamSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	GHAPowerSwitch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	GHAServoElecSwitch.Init (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
 	
 	//
 	// SM RCS Helium 1
 	//
 
-	SMRCSHelium1Row.Init(AID_SMRCS_HELIUM1_SWITCHES, MainPanel);
-	SMRCSHelium1ASwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSHelium1Row); 
-	SMRCSHelium1BSwitch.Init (43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSHelium1Row);
-	SMRCSHelium1CSwitch.Init (86, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSHelium1Row);
-	SMRCSHelium1DSwitch.Init (129, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSHelium1Row);
+	SMRCSHelium1ASwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2); 
+	SMRCSHelium1BSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SMRCSHelium1CSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SMRCSHelium1DSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
 
 	SMRCSHelium1TalkbackRow.Init(AID_RCS_HELIUM1_TALKBACK, MainPanel);
 	SMRCSHelium1ATalkback.Init(0, 0, 23, 23, srf[SRF_INDICATOR], SMRCSHelium1TalkbackRow, SMQuadARCS.GetHeliumValve1(), true);
@@ -1908,21 +1836,18 @@ void Saturn::SetSwitches(int panel) {
 	// SM RCS Helium 2
 	//
 
-	SMRCSHelium2Row.Init(AID_SMRCS_HELIUM2_SWITCHES, MainPanel);
-	SMRCSHelium2ASwitch.Init (174, 23, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSHelium2Row);
-	SMRCSHelium2BSwitch.Init (217, 23, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSHelium2Row);
-	SMRCSHelium2CSwitch.Init (260, 23, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSHelium2Row);
-	SMRCSHelium2DSwitch.Init (303, 23, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSHelium2Row);
-
-	CMUplinkSwitch.Init(0, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SMRCSHelium2Row, &agc);
-	CMUplinkSwitch.SetChannelData(033, 10, false);	// Down is 'Block Uplink Input'
+	SMRCSHelium2ASwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SMRCSHelium2BSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SMRCSHelium2CSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SMRCSHelium2DSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	CMUplinkSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2, &agc);
 
 	if (!SkylabCM)
-		IUUplinkSwitch.Init(43, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SMRCSHelium2Row);
+		IUUplinkSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
 
-	CMRCSPressSwitch.Init(87, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SMRCSHelium2Row);
-	CMRCSPressSwitch.InitGuard(86, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
-	SMRCSIndSwitch.Init(131, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SMRCSHelium2Row);
+	CMRCSPressSwitch.Init(1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
+	CMRCSPressSwitch.InitGuard(0, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
+	SMRCSIndSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
 
 	SMRCSHelium2TalkbackRow.Init(AID_RCS_HELIUM2_TALKBACK, MainPanel);
 	SMRCSHelium2ATalkback.Init(0, 0, 23, 23, srf[SRF_INDICATOR], SMRCSHelium2TalkbackRow, SMQuadARCS.GetHeliumValve2(), true);
@@ -1944,24 +1869,23 @@ void Saturn::SetSwitches(int panel) {
 	// SM RCS Primary Propellant.
 	//
 
-	SMRCSProp1Row.Init(AID_PRIM_PRPLNT_SWITCHES, MainPanel);
-	SMRCSHeaterASwitch.Init (2, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp1Row, 
+	SMRCSHeaterASwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2, 
 							(Boiler *) Panelsdk.GetPointerByString("ELECTRIC:PRIMSMRCSQUADAHEATER"), NULL, 
 							(Boiler *) Panelsdk.GetPointerByString("ELECTRIC:SECSMRCSQUADAHEATER"));
-	SMRCSHeaterBSwitch.Init (45, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp1Row, 
+	SMRCSHeaterBSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2,
 							(Boiler *) Panelsdk.GetPointerByString("ELECTRIC:PRIMSMRCSQUADBHEATER"), NULL, 
 							(Boiler *) Panelsdk.GetPointerByString("ELECTRIC:SECSMRCSQUADBHEATER"));
-	SMRCSHeaterCSwitch.Init (88, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp1Row, 
+	SMRCSHeaterCSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2,
 							(Boiler *) Panelsdk.GetPointerByString("ELECTRIC:PRIMSMRCSQUADCHEATER"), NULL, 
 							(Boiler *) Panelsdk.GetPointerByString("ELECTRIC:SECSMRCSQUADCHEATER"));
-	SMRCSHeaterDSwitch.Init (131, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp1Row, 
+	SMRCSHeaterDSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2,
 							(Boiler *) Panelsdk.GetPointerByString("ELECTRIC:PRIMSMRCSQUADDHEATER"), NULL, 
 							(Boiler *) Panelsdk.GetPointerByString("ELECTRIC:SECSMRCSQUADDHEATER"));
 
-	SMRCSProp1ASwitch.Init (174, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp1Row);
-	SMRCSProp1BSwitch.Init (217, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp1Row);
-	SMRCSProp1CSwitch.Init (260, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp1Row);
-	SMRCSProp1DSwitch.Init (303, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp1Row);
+	SMRCSProp1ASwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SMRCSProp1BSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SMRCSProp1CSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SMRCSProp1DSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
 
 	SMRCSProp1TalkbackRow.Init(AID_RCS_PROP1_TALKBACK, MainPanel);
 	SMRCSProp1ATalkback.Init(0, 0, 23, 23, srf[SRF_INDICATOR], SMRCSProp1TalkbackRow, SMQuadARCS.GetPrimPropellantValve(), true);
@@ -1973,18 +1897,16 @@ void Saturn::SetSwitches(int panel) {
 	// SM RCS Secondary Propellant.
 	//
 
-	SMRCSProp2Row.Init(AID_SEC_PRPLT_SWITCHES, MainPanel);
+	RCSCMDSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	RCSTrnfrSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
 
-	RCSCMDSwitch.Init (2, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp2Row);
-	RCSTrnfrSwitch.Init (45, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp2Row); 
+	CMRCSProp1Switch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	CMRCSProp2Switch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
 
-	CMRCSProp1Switch.Init (88, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp2Row); 
-	CMRCSProp2Switch.Init (131, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp2Row); 
-
-	SMRCSProp2ASwitch.Init (174, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp2Row);
-	SMRCSProp2BSwitch.Init (217, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp2Row);
-	SMRCSProp2CSwitch.Init (260, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp2Row);
-	SMRCSProp2DSwitch.Init (303, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SMRCSProp2Row);
+	SMRCSProp2ASwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SMRCSProp2BSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SMRCSProp2CSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SMRCSProp2DSwitch.Init (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
 
 	SMRCSProp2TalkbackRow.Init(AID_RCS_PROP2_TALKBACK, MainPanel);
 	SMRCSProp2ATalkback.Init(85, 0, 23, 23, srf[SRF_INDICATOR], SMRCSProp2TalkbackRow, SMQuadARCS.GetSecPropellantValve(), false);
@@ -1999,30 +1921,27 @@ void Saturn::SetSwitches(int panel) {
 	// Attitude control, etc.
 	//
 
-	AttitudeControlRow.Init(AID_ATTITUDE_CONTROL_SWITCHES, MainPanel);
-	ManualAttRollSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], AttitudeControlRow);
-	ManualAttPitchSwitch.Init(43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], AttitudeControlRow);
-	ManualAttYawSwitch.Init(86, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], AttitudeControlRow);
-	LimitCycleSwitch.Init(129, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], AttitudeControlRow);
-	AttDeadbandSwitch.Init(172, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], AttitudeControlRow);
-	AttRateSwitch.Init(215, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], AttitudeControlRow);
-	TransContrSwitch.Init(258, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], AttitudeControlRow);
+	ManualAttRollSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	ManualAttPitchSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	ManualAttYawSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	LimitCycleSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
+	AttDeadbandSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
+	AttRateSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
+	TransContrSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
 
 	//
 	// BMAG
 	//
 
-	BMAGRow.Init(AID_BMAG_SWITCHES, MainPanel);
-	BMAGRollSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], BMAGRow);
-	BMAGPitchSwitch.Init(49, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], BMAGRow);
-	BMAGYawSwitch.Init(99, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], BMAGRow);
+	BMAGRollSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	BMAGPitchSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	BMAGYawSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
 
 	//
 	// CMC Att switch.
 	//
 
-	CMCAttRow.Init(AID_CMC_SWITCH, MainPanel);
-	CMCAttSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], CMCAttRow);
+	CMCAttSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
 
 	//
 	// FDAI switches.
@@ -2030,38 +1949,34 @@ void Saturn::SetSwitches(int panel) {
 
 	// *** DANGER WILL ROBINSON: FDAISourceSwitch and FDAISelectSwitch ARE REVERSED! ***
 
-	FDAISwitchesRow.Init(AID_FDAI_SWITCHES, MainPanel);
-	FDAIScaleSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FDAISwitchesRow);
-	FDAISelectSwitch.Init(43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FDAISwitchesRow);
-	FDAISourceSwitch.Init(142, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FDAISwitchesRow);
-	FDAIAttSetSwitch.Init(185, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], FDAISwitchesRow);
+	FDAIScaleSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	FDAISelectSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	FDAISourceSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	FDAIAttSetSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
 
 	//
 	// Caution and Warning switches.
 	//
 
-	CautionWarningRow.Init(AID_CAUTIONWARNING_SWITCHES, MainPanel);
-	MissionTimerSwitch.Init(190, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], CautionWarningRow, &MissionTimerDisplay);
-	CautionWarningModeSwitch.Init(7, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], CautionWarningRow, &cws);
-	CautionWarningCMCSMSwitch.Init(55, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], CautionWarningRow, &cws);
-	CautionWarningPowerSwitch.Init(104, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], CautionWarningRow, &cws);
-	CautionWarningLightTestSwitch.Init(147, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], CautionWarningRow, &cws);
+	MissionTimerSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2, &MissionTimerDisplay);
+	CautionWarningModeSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2, &cws);
+	CautionWarningCMCSMSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2, &cws);
+	CautionWarningPowerSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2, &cws);
+	CautionWarningLightTestSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2, &cws);
 
 	//
 	// Mission Timer switches.
 	//
 
-	MissionTimerSwitchesRow.Init(AID_MISSION_TIMER_SWITCHES, MainPanel);
-	MissionTimerHoursSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], MissionTimerSwitchesRow, TIME_UPDATE_HOURS, &MissionTimerDisplay);
-	MissionTimerMinutesSwitch.Init(43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], MissionTimerSwitchesRow, TIME_UPDATE_MINUTES, &MissionTimerDisplay);
-	MissionTimerSecondsSwitch.Init(86, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], MissionTimerSwitchesRow, TIME_UPDATE_SECONDS, &MissionTimerDisplay);
+	MissionTimerHoursSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2, TIME_UPDATE_HOURS, &MissionTimerDisplay);
+	MissionTimerMinutesSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2, TIME_UPDATE_MINUTES, &MissionTimerDisplay);
+	MissionTimerSecondsSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2, TIME_UPDATE_SECONDS, &MissionTimerDisplay);
 
 	//
 	// IMU Cage switch.
 	//
 
-	IMUCageSwitchRow.Init(AID_IMU_CAGE_SWITCH, MainPanel);
-	IMUGuardedCageSwitch.Init(1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], IMUCageSwitchRow, &imu);
+	IMUGuardedCageSwitch.Init(1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1, &imu);
 	IMUGuardedCageSwitch.InitGuard(0, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
 
 	//
@@ -2081,61 +1996,54 @@ void Saturn::SetSwitches(int panel) {
 	// ECS Indicators rotary switch.
 	//
 
-	ECSIndicatorsSwitchRow.Init(AID_ECS_INDICATOR_SWITCH, MainPanel);
-	ECSIndicatorsSwitch.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], ECSIndicatorsSwitchRow);
+	ECSIndicatorsSwitch.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], Panel2);
 
 	//
 	// LV switches.
 	//
 
-	LVRow.Init(AID_LV_SWITCHES, MainPanel);
-	LVGuidanceSwitch.Init	  ( 1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], LVRow, &agc);
+	LVGuidanceSwitch.Init	  ( 1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2, &agc);
 	LVGuidanceSwitch.InitGuard( 0,  0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69], 180);
-	LVGuidanceSwitch.SetChannelData(030, 9, false);
 
 	if (!SkylabCM) {
-		SIISIVBSepSwitch.Init     (48, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], LVRow);
-		SIISIVBSepSwitch.InitGuard(47,  0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
-		TLIEnableSwitch.Init      (96, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], LVRow, this);
+		SIISIVBSepSwitch.Init     (1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
+		SIISIVBSepSwitch.InitGuard(0, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
+		TLIEnableSwitch.Init      (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2, this);
 	}
 
 	//
 	// ELS Switches.
 	//
 
-	ELSRow.Init(AID_ELS_SWITCHES, MainPanel);
-	CGSwitch.Init(0, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ELSRow, &agc);
-	CGSwitch.SetChannelData(032, 11, true);	// LM Attached flag.
-	ELSLogicSwitch.Init(44, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ELSRow);
-	ELSLogicSwitch.InitGuard(43, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
-	ELSAutoSwitch.Init(88, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ELSRow);
-	CMRCSLogicSwitch.Init(131, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ELSRow);
-	CMPropDumpSwitch.Init(175, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ELSRow);
-	CMPropDumpSwitch.InitGuard(174, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
-	CMPropPurgeSwitch.Init(220, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ELSRow);
-	CMPropPurgeSwitch.InitGuard(219, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
+	CGSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1, &agc);
+	ELSLogicSwitch.Init(1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
+	ELSLogicSwitch.InitGuard(0, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
+	ELSAutoSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
+	CMRCSLogicSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
+	CMPropDumpSwitch.Init(1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
+	CMPropDumpSwitch.InitGuard(0, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
+	CMPropPurgeSwitch.Init(1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
+	CMPropPurgeSwitch.InitGuard(0, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
 
 	//
 	// Event Timer Switches
 	//
 
-	EventTimerRow.Init(AID_EVENT_TIMER_SWITCHES, MainPanel);
 	// FCSMSPSASwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], EventTimerRow);
 	// FCSMSPSBSwitch.Init(43, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], EventTimerRow);
-	EventTimerUpDownSwitch.Init(86, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EventTimerRow, &EventTimerDisplay);
+	EventTimerUpDownSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1, &EventTimerDisplay);
 	EventTimerUpDownSwitch.SetDelayTime(1);
-	EventTimerContSwitch.Init(129, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EventTimerRow, &EventTimerDisplay);
+	EventTimerContSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1, &EventTimerDisplay);
 	EventTimerContSwitch.SetDelayTime(1);
-	EventTimerMinutesSwitch.Init(172, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EventTimerRow, TIME_UPDATE_MINUTES, &EventTimerDisplay);
-	EventTimerSecondsSwitch.Init(215, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EventTimerRow, TIME_UPDATE_SECONDS, &EventTimerDisplay);
-	SaturnEventTimerDisplay.Init(EventTimerRow, this); 	// dummy switch/display for checklist controller
+	EventTimerMinutesSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1, TIME_UPDATE_MINUTES, &EventTimerDisplay);
+	EventTimerSecondsSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1, TIME_UPDATE_SECONDS, &EventTimerDisplay);
+	SaturnEventTimerDisplay.Init(Panel1, this); 	// dummy switch/display for checklist controller
 
 	//
 	// Main chute release.
 	//
 
-	MainReleaseRow.Init(AID_MAIN_RELEASE_SWITCH, MainPanel);
-	MainReleaseSwitch.Init(1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], MainReleaseRow);
+	MainReleaseSwitch.Init(1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
 	MainReleaseSwitch.InitGuard(0, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
 	MainReleaseSwitch.SetDelayTime(1);
 
@@ -2143,36 +2051,33 @@ void Saturn::SetSwitches(int panel) {
 	// Abort switches.
 	//
 
-	AbortRow.Init(AID_ABORT_ROW, MainPanel);
-	PropDumpAutoSwitch.Init(0, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], AbortRow);
-	TwoEngineOutAutoSwitch.Init(49, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], AbortRow);
-	LVRateAutoSwitch.Init(110, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], AbortRow);
-	TowerJett1Switch.Init(169, 23, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], AbortRow);
-	TowerJett1Switch.InitGuard(168, 0, 36, 69, srf[SRF_SWITCHGUARDS], 180);
+	PropDumpAutoSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
+	TwoEngineOutAutoSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
+	LVRateAutoSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
+	TowerJett1Switch.Init(1, 23, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	TowerJett1Switch.InitGuard(0, 0, 36, 69, srf[SRF_SWITCHGUARDS], 180);
 	TowerJett1Switch.SetFailed(SwitchFail.TowerJett1Fail != 0);
-	TowerJett2Switch.Init(217, 23, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], AbortRow);
-	TowerJett2Switch.InitGuard(216, 0, 36, 69, srf[SRF_SWITCHGUARDS], 180);
+	TowerJett2Switch.Init(1, 23, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	TowerJett2Switch.InitGuard(0, 0, 36, 69, srf[SRF_SWITCHGUARDS], 180);
 	TowerJett2Switch.SetFailed(SwitchFail.TowerJett2Fail != 0);
 
 	//
 	// Rotational controller power switches.
 	//
 
-	RotContrPowerRow.Init(AID_ROT_PWR, MainPanel);
-	RotPowerNormal1Switch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], RotContrPowerRow);
-	RotPowerNormal2Switch.Init(59, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], RotContrPowerRow);
-	RotPowerDirect1Switch.Init(118, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], RotContrPowerRow);
-	RotPowerDirect2Switch.Init(186, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], RotContrPowerRow);
+	RotPowerNormal1Switch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	RotPowerNormal2Switch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	RotPowerDirect1Switch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	RotPowerDirect2Switch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
 
 	//
 	// dV Thrust switches.
 	//
 
-	dvThrustRow.Init(AID_dVTHRUST_SWITCHES, MainPanel);
-	dVThrust1Switch.Init(1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], dvThrustRow, &PilotValveMnACircuitBraker, NULL);
+	dVThrust1Switch.Init(1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1, &PilotValveMnACircuitBraker, NULL);
 	dVThrust1Switch.InitGuard(0, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
-	dVThrust2Switch.Init(95, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], dvThrustRow, &PilotValveMnBCircuitBraker, NULL);
-	dVThrust2Switch.InitGuard(94, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
+	dVThrust2Switch.Init(1, 23, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1, &PilotValveMnBCircuitBraker, NULL);
+	dVThrust2Switch.InitGuard(0, 0, 36, 69, srf[SRF_SWITCHGUARDS], srf[SRF_BORDER_36x69]);
 
 	//
 	// Fuel Cell Switches.
@@ -2187,40 +2092,33 @@ void Saturn::SetSwitches(int panel) {
 	FuelCellRadiators2Indicator.Init(43, 0, 23, 23, srf[SRF_INDICATOR], FuelCellRadiatorsIndicatorsRow);
 	FuelCellRadiators3Indicator.Init(86, 0, 23, 23, srf[SRF_INDICATOR], FuelCellRadiatorsIndicatorsRow);
 
-	FuelCellRadiatorsSwitchesRow.Init(AID_FUELCELLRADIATORSSWITCHES, MainPanel);
-	FuelCellRadiators1Switch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellRadiatorsSwitchesRow);
-	FuelCellRadiators2Switch.Init(43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellRadiatorsSwitchesRow);
-	FuelCellRadiators3Switch.Init(86, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellRadiatorsSwitchesRow);
+	FuelCellRadiators1Switch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	FuelCellRadiators2Switch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	FuelCellRadiators3Switch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
 
-	FuelCellIndicatorsSwitchRow.Init(AID_FUELCELLINDICATORSSWITCH, MainPanel);
-	FuelCellIndicatorsSwitch.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], FuelCellIndicatorsSwitchRow);
+	FuelCellIndicatorsSwitch.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], Panel3);
 
-	FuelCellHeatersSwitchesRow.Init(AID_FUELCELLHEATERSSWITCHES, MainPanel);
-	FuelCellHeater1Switch.Init( 0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], FuelCellHeatersSwitchesRow);
-	FuelCellHeater2Switch.Init(43, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], FuelCellHeatersSwitchesRow);
-	FuelCellHeater3Switch.Init(86, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], FuelCellHeatersSwitchesRow);
+	FuelCellHeater1Switch.Init( 0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3);
+	FuelCellHeater2Switch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3);
+	FuelCellHeater3Switch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3);
 
-	FuelCellPurgeSwitchesRow.Init(AID_FUELCELLPURGESWITCHES, MainPanel);
-	FuelCellPurge1Switch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellPurgeSwitchesRow);
-	FuelCellPurge2Switch.Init(43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellPurgeSwitchesRow);
-	FuelCellPurge3Switch.Init(86, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellPurgeSwitchesRow);
+	FuelCellPurge1Switch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	FuelCellPurge2Switch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	FuelCellPurge3Switch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
 
 	FuelCellReactantsIndicatorsRow.Init(AID_FUELCELLREACTANTSINDICATORS, MainPanel);
 	FuelCellReactants1Indicator.Init( 0, 0, 23, 23, srf[SRF_INDICATOR], FuelCellReactantsIndicatorsRow);
 	FuelCellReactants2Indicator.Init(43, 0, 23, 23, srf[SRF_INDICATOR], FuelCellReactantsIndicatorsRow);
 	FuelCellReactants3Indicator.Init(86, 0, 23, 23, srf[SRF_INDICATOR], FuelCellReactantsIndicatorsRow);
 
-	FuelCellReactantsSwitchesRow.Init(AID_FUELCELLREACTANTSSWITCHES, MainPanel);
-	FuelCellReactants1Switch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellReactantsSwitchesRow);
-	FuelCellReactants2Switch.Init(43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellReactantsSwitchesRow);
-	FuelCellReactants3Switch.Init(86, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellReactantsSwitchesRow);
+	FuelCellReactants1Switch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	FuelCellReactants2Switch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	FuelCellReactants3Switch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
 
-	FuelCellLatchSwitchesRow.Init(AID_FUELCELLLATCHSWITCHES, MainPanel);
-	FCReacsValvesSwitch.Init( 0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], FuelCellLatchSwitchesRow);
-	H2PurgeLineSwitch.Init  (43, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], FuelCellLatchSwitchesRow);
+	FCReacsValvesSwitch.Init( 0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3);
+	H2PurgeLineSwitch.Init  (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3);
 
-	SPSRow.Init(AID_SPS, MainPanel);
-	SPSswitch.Init(0, 0, 38, 52, srf[SRF_SWITCHLEVER], srf[SRF_BORDER_38x52], SPSRow);
+	SPSswitch.Init(0, 0, 38, 52, srf[SRF_SWITCHLEVER], srf[SRF_BORDER_38x52], Panel1);
 
 	SPSGimbalPitchThumbwheelRow.Init(AID_SPSGIMBALPITCHTHUMBWHEEL, MainPanel);
 	SPSGimbalPitchThumbwheel.Init(0, 0, 17, 36, srf[SRF_THUMBWHEEL_GPI_PITCH], srf[SRF_BORDER_17x36], SPSGimbalPitchThumbwheelRow);
@@ -2236,79 +2134,70 @@ void Saturn::SetSwitches(int panel) {
 	PwrAmplTB.Init( 0, 0, 23, 23, srf[SRF_INDICATOR], TelecomTBRow);
 	DseTapeTB.Init( 0,50, 23, 23, srf[SRF_INDICATOR], TelecomTBRow, &dataRecorder);
 
-	SBandAuxSwitchesRow.Init(AID_SBANDAUXSWITCHES, MainPanel);
-	SBandAuxSwitch1.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SBandAuxSwitchesRow);
-	SBandAuxSwitch2.Init(53, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SBandAuxSwitchesRow);
+	SBandAuxSwitch1.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	SBandAuxSwitch2.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
 
-	UPTLMSwitchesRow.Init(AID_UPTLMSWITCHES, MainPanel);
-	UPTLMSwitch1.Init( 0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], UPTLMSwitchesRow);
-	UPTLMSwitch2.Init(53, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], UPTLMSwitchesRow);
+	UPTLMSwitch1.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3);
+	UPTLMSwitch2.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
 	UPTLMSwitch2.SetDelayTime(1);
 
-	SBandAntennaSwitchesRow.Init(AID_SBANDANTENNASWITCHES, MainPanel);
-	SBandAntennaSwitch1.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SBandAntennaSwitchesRow);
-	SBandAntennaSwitch2.Init(43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SBandAntennaSwitchesRow);
+	SBandAntennaSwitch1.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	SBandAntennaSwitch2.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
 
-	VHFAmThumbwheelsRow.Init(AID_VHFAMTHUMBWHEELS, MainPanel);
-	SquelchAThumbwheel.Init(0,  0, 17, 36, srf[SRF_THUMBWHEEL_SMALLFONTS], srf[SRF_BORDER_17x36], VHFAmThumbwheelsRow);
-	SquelchBThumbwheel.Init(0, 98, 17, 36, srf[SRF_THUMBWHEEL_SMALLFONTS], srf[SRF_BORDER_17x36], VHFAmThumbwheelsRow);
+	SquelchAThumbwheel.Init(0, 0, 17, 36, srf[SRF_THUMBWHEEL_SMALLFONTS], srf[SRF_BORDER_17x36], Panel3);
+	SquelchBThumbwheel.Init(0, 0, 17, 36, srf[SRF_THUMBWHEEL_SMALLFONTS], srf[SRF_BORDER_17x36], Panel3);
 
-	VHFSwitchesRow.Init(AID_VHFSWITCHES, MainPanel);
-	VHFAMASwitch.Init    (  0,  0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], VHFSwitchesRow);
-	VHFAMBSwitch.Init    ( 51,  0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], VHFSwitchesRow);
-	RCVOnlySwitch.Init   (102,  0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], VHFSwitchesRow);
-	VHFBeaconSwitch.Init (145,  0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], VHFSwitchesRow);
-	VHFRangingSwitch.Init(188,  0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], VHFSwitchesRow);
+	VHFAMASwitch.Init    (0,  0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	VHFAMBSwitch.Init    (0,  0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	RCVOnlySwitch.Init   (0,  0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	VHFBeaconSwitch.Init (0,  0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3);
+	VHFRangingSwitch.Init(0,  0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3);
 
-	TapeRecorderSwitchesRow.Init(AID_TAPERECORDERSWITCHES, MainPanel);
-	TapeRecorderPCMSwitch.Init( 0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], TapeRecorderSwitchesRow);
-	TapeRecorderRecordSwitch.Init(43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], TapeRecorderSwitchesRow);
-	TapeRecorderForwardSwitch.Init(86, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], TapeRecorderSwitchesRow);
+	TapeRecorderPCMSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3);
+	TapeRecorderRecordSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	TapeRecorderForwardSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
 
-	PowerSwitchesRow.Init(AID_POWERSWITCHES, MainPanel);
-	SCESwitch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], PowerSwitchesRow);
-	PMPSwitch.Init(43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], PowerSwitchesRow);
+	SCESwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	PMPSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	PCMBitRateSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3);
 
-	PCMBitRateSwitchRow.Init(AID_PCMBITRATESWITCH, MainPanel);
-	PCMBitRateSwitch.Init( 0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], PCMBitRateSwitchRow);
-
-	ACInverterSwitchesRow.Init(AID_ACINVERTERSWITCHES, MainPanel);
-	MnA1Switch.Init       (  0,   0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ACInverterSwitchesRow, &InverterPower1MainACircuitBraker, 0);
-	MnB2Switch.Init       ( 63,   0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ACInverterSwitchesRow, &InverterPower2MainBCircuitBraker, 0);
-	MnA3Switch.Init       (126,   0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], ACInverterSwitchesRow, &InverterPower3MainACircuitBraker, 0, &InverterPower3MainBCircuitBraker);
-	AcBus1Switch1.Init    (  0, 101, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ACInverterSwitchesRow, 1,1, this);
-	AcBus1Switch2.Init    ( 43, 101, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ACInverterSwitchesRow, 1,2, this);
-	AcBus1Switch3.Init    ( 86, 101, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ACInverterSwitchesRow, 1,3, this);
-	AcBus1ResetSwitch.Init(129, 101, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], ACInverterSwitchesRow, &EPSSensorUnitAcBus1CircuitBraker, &EPSSensorUnitAcBus1CircuitBraker, 0);
-	AcBus2Switch1.Init    (  0, 200, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ACInverterSwitchesRow, 2,1, this);
-	AcBus2Switch2.Init    ( 43, 200, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ACInverterSwitchesRow, 2,2, this);
-	AcBus2Switch3.Init    ( 86, 200, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], ACInverterSwitchesRow, 2,3, this);
-	AcBus2ResetSwitch.Init(129, 200, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], ACInverterSwitchesRow, &EPSSensorUnitAcBus2CircuitBraker, &EPSSensorUnitAcBus2CircuitBraker, 0);
+	MnA1Switch.Init       (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3, &InverterPower1MainACircuitBraker, 0);
+	MnB2Switch.Init       (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3, &InverterPower2MainBCircuitBraker, 0);
+	MnA3Switch.Init       (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3, &InverterPower3MainACircuitBraker, 0, &InverterPower3MainBCircuitBraker);
+	AcBus1Switch1.Init    (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3, 1,1, this);
+	AcBus1Switch2.Init    (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3, 1,2, this);
+	AcBus1Switch3.Init    (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3, 1,3, this);
+	AcBus1ResetSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3, &EPSSensorUnitAcBus1CircuitBraker, &EPSSensorUnitAcBus1CircuitBraker, 0);
+	AcBus2Switch1.Init    (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3, 2,1, this);
+	AcBus2Switch2.Init    (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3, 2,2, this);
+	AcBus2Switch3.Init    (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3, 2,3, this);
+	AcBus2ResetSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3, &EPSSensorUnitAcBus2CircuitBraker, &EPSSensorUnitAcBus2CircuitBraker, 0);
 	
-	MainBusASwitch1.Init(129, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellPurgeSwitchesRow); 
-	MainBusASwitch2.Init(179, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellPurgeSwitchesRow);
-	MainBusASwitch3.Init(230, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellPurgeSwitchesRow);
-	MainBusAResetSwitch.Init(273, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellPurgeSwitchesRow, &EPSSensorUnitDcBusACircuitBraker, &EPSSensorUnitDcBusACircuitBraker, 0);
+	MainBusASwitch1.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	MainBusASwitch2.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	MainBusASwitch3.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	MainBusAResetSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3, &EPSSensorUnitDcBusACircuitBraker, &EPSSensorUnitDcBusACircuitBraker, 0);
+
 	MainBusAIndicatorsRow.Init(ADI_MAINBUSAINDICATORS, MainPanel);
 	MainBusAIndicator1.Init(0, 0, 23, 23, srf[SRF_INDICATOR], MainBusAIndicatorsRow, &MainBusAController, 1);
 	MainBusAIndicator2.Init(43, 0, 23, 23, srf[SRF_INDICATOR], MainBusAIndicatorsRow, &MainBusAController, 2);
 	MainBusAIndicator3.Init(86, 0, 23, 23, srf[SRF_INDICATOR], MainBusAIndicatorsRow, &MainBusAController, 3);
 
-	MainBusBSwitch1.Init(129, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellReactantsSwitchesRow); 
-	MainBusBSwitch2.Init(185, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellReactantsSwitchesRow);
-	MainBusBSwitch3.Init(241, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellReactantsSwitchesRow);
-	MainBusBResetSwitch.Init(297, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], FuelCellReactantsSwitchesRow, &EPSSensorUnitDcBusBCircuitBraker, &EPSSensorUnitDcBusBCircuitBraker, 0);
+	MainBusBSwitch1.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	MainBusBSwitch2.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	MainBusBSwitch3.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	MainBusBResetSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3, &EPSSensorUnitDcBusBCircuitBraker, &EPSSensorUnitDcBusBCircuitBraker, 0);
+	
 	MainBusBIndicator1.Init(129, 0, 23, 23, srf[SRF_INDICATOR], FuelCellReactantsIndicatorsRow, &MainBusBController, 1);
 	MainBusBIndicator2.Init(172, 0, 23, 23, srf[SRF_INDICATOR], FuelCellReactantsIndicatorsRow, &MainBusBController, 2);
 	MainBusBIndicator3.Init(215, 0, 23, 23, srf[SRF_INDICATOR], FuelCellReactantsIndicatorsRow, &MainBusBController, 3);
 
-	SBandNormalSwitchesRow.Init(AID_SBAND_NORMAL_SWITCHES, MainPanel);
-	SBandNormalXPDRSwitch.Init    (	  0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SBandNormalSwitchesRow);
-	SBandNormalPwrAmpl1Switch.Init(  43, 0, 34, 29, srf[SRF_SWITCHUP],		 srf[SRF_BORDER_34x29], SBandNormalSwitchesRow);
-	SBandNormalPwrAmpl2Switch.Init(  86, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SBandNormalSwitchesRow);
-	SBandNormalMode1Switch.Init   (	145, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SBandNormalSwitchesRow);
-	SBandNormalMode2Switch.Init   (	188, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SBandNormalSwitchesRow);
-	SBandNormalMode3Switch.Init   (	231, 0, 34, 29, srf[SRF_SWITCHUP],		 srf[SRF_BORDER_34x29],	SBandNormalSwitchesRow);
+	SBandNormalXPDRSwitch.Init    (	0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	SBandNormalPwrAmpl1Switch.Init( 0, 0, 34, 29, srf[SRF_SWITCHUP],		 srf[SRF_BORDER_34x29], Panel3);
+	SBandNormalPwrAmpl2Switch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	SBandNormalMode1Switch.Init   (	0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	SBandNormalMode2Switch.Init   (	0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	SBandNormalMode3Switch.Init   (	0, 0, 34, 29, srf[SRF_SWITCHUP],		 srf[SRF_BORDER_34x29], Panel3);
 
 	ACVoltMeterRow.Init(AID_ACVOLTS, MainPanel);
 	CSMACVoltMeter.Init(g_Param.pen[4], g_Param.pen[4], ACVoltMeterRow, &ACIndicatorRotary);
@@ -2385,29 +2274,26 @@ void Saturn::SetSwitches(int panel) {
 	EcsRadiatorIndicatorRow.Init(AID_ECSRADIATORINDICATOR, MainPanel, &GaugePower);
 	EcsRadiatorIndicator.Init( 0, 0, 23, 23, srf[SRF_ECSINDICATOR], EcsRadiatorIndicatorRow);
 
-	EcsRadiatorSwitchesRow.Init(AID_ECSRADIATORSWITCHES, MainPanel);
-	EcsRadiatorsFlowContAutoSwitch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EcsRadiatorSwitchesRow);
-	EcsRadiatorsFlowContPwrSwitch.Init( 50, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EcsRadiatorSwitchesRow);
-	EcsRadiatorsManSelSwitch.Init(     100, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EcsRadiatorSwitchesRow);
-	EcsRadiatorsHeaterPrimSwitch.Init( 150, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EcsRadiatorSwitchesRow);
-	EcsRadiatorsHeaterSecSwitch.Init(  193, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29],       EcsRadiatorSwitchesRow);
+	EcsRadiatorsFlowContAutoSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	EcsRadiatorsFlowContPwrSwitch.Init( 0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	EcsRadiatorsManSelSwitch.Init(      0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	EcsRadiatorsHeaterPrimSwitch.Init(  0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	EcsRadiatorsHeaterSecSwitch.Init(   0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel2);
 
-	EcsSwitchesRow.Init(AID_ECSSWITCHES, MainPanel);
-	PotH2oHtrSwitch.Init                   (  0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EcsSwitchesRow);
-	SuitCircuitH2oAccumAutoSwitch.Init     ( 43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EcsSwitchesRow);
-	SuitCircuitH2oAccumOnSwitch.Init       ( 86, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EcsSwitchesRow);
-	SuitCircuitHeatExchSwitch.Init         (129, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EcsSwitchesRow);
-	SecCoolantLoopEvapSwitch.Init          (172, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EcsSwitchesRow);
-	SecCoolantLoopPumpSwitch.Init          (221, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EcsSwitchesRow, &ECSSecCoolLoopAc1CircuitBraker, NULL, &ECSSecCoolLoopAc2CircuitBraker);
-	H2oQtyIndSwitch.Init                   (270, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29],       EcsSwitchesRow);
-	GlycolEvapTempInSwitch.Init            (313, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29],       EcsSwitchesRow);
-	GlycolEvapSteamPressAutoManSwitch.Init (364, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29],       EcsSwitchesRow);
-	GlycolEvapSteamPressIncrDecrSwitch.Init(411, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EcsSwitchesRow);
-	GlycolEvapH2oFlowSwitch.Init           (456, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EcsSwitchesRow);
-	CabinTempAutoManSwitch.Init            (506, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29],       EcsSwitchesRow);
+	PotH2oHtrSwitch.Init                   (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SuitCircuitH2oAccumAutoSwitch.Init     (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SuitCircuitH2oAccumOnSwitch.Init       (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SuitCircuitHeatExchSwitch.Init         (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SecCoolantLoopEvapSwitch.Init          (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	SecCoolantLoopPumpSwitch.Init          (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2, &ECSSecCoolLoopAc1CircuitBraker, NULL, &ECSSecCoolLoopAc2CircuitBraker);
+	H2oQtyIndSwitch.Init                   (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29],		  Panel2);
+	GlycolEvapTempInSwitch.Init            (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29],		  Panel2);
+	GlycolEvapSteamPressAutoManSwitch.Init (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29],		  Panel2);
+	GlycolEvapSteamPressIncrDecrSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	GlycolEvapH2oFlowSwitch.Init           (0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	CabinTempAutoManSwitch.Init            (0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29],		  Panel2);
 
-	CabinTempAutoControlSwitchRow.Init(AID_CABINTEMPAUTOCONTROLSWITCH, MainPanel);
-	CabinTempAutoControlSwitch.Init(0, 0, 17, 36, srf[SRF_THUMBWHEEL_SMALLFONTS], srf[SRF_BORDER_17x36], CabinTempAutoControlSwitchRow);
+	CabinTempAutoControlSwitch.Init(0, 0, 17, 36, srf[SRF_THUMBWHEEL_SMALLFONTS], srf[SRF_BORDER_17x36], Panel2);
 
 	EcsGlycolPumpsSwitchRow.Init(AID_ECSGLYCOLPUMPSSWITCH, MainPanel);
 	EcsGlycolPumpsSwitch.Init(0, 0, 90, 90, srf[SRF_ECSGLYCOLPUMPROTARY], srf[SRF_BORDER_90x90], EcsGlycolPumpsSwitchRow,
@@ -2415,19 +2301,15 @@ void Saturn::SetSwitches(int panel) {
 							  &ECSGlycolPumpsAc1ACircuitBraker, &ECSGlycolPumpsAc1BCircuitBraker, &ECSGlycolPumpsAc1CCircuitBraker,
 							  &ECSGlycolPumpsAc2ACircuitBraker, &ECSGlycolPumpsAc2BCircuitBraker, &ECSGlycolPumpsAc2CCircuitBraker);
 
-	HighGainAntennaPitchPositionSwitchRow.Init(AID_HIGHGAINANTENNAPITCHPOSITIONSWITCH, MainPanel);
-	HighGainAntennaPitchPositionSwitch.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], HighGainAntennaPitchPositionSwitchRow);
-
-	HighGainAntennaYawPositionSwitchRow.Init(AID_HIGHGAINANTENNAYAWPOSITIONSWITCH, MainPanel);
-	HighGainAntennaYawPositionSwitch.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], HighGainAntennaYawPositionSwitchRow);
+	HighGainAntennaPitchPositionSwitch.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], Panel2);
+	HighGainAntennaYawPositionSwitch.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], Panel2);
 	
 	HighGainAntennaMetersRow.Init(AID_HIGHGAINANTENNAMETERS, MainPanel, &GaugePower);
 	HighGainAntennaPitchMeter.Init(g_Param.pen[4], g_Param.pen[4], HighGainAntennaMetersRow, this);
 	HighGainAntennaStrengthMeter.Init(g_Param.pen[4], g_Param.pen[4], HighGainAntennaMetersRow, this);
 	HighGainAntennaYawMeter.Init(g_Param.pen[4], g_Param.pen[4], HighGainAntennaMetersRow, this);
 
-	VHFAntennaRotaryRow.Init(AID_VHFANTENNAROTARY, MainPanel);
-	VHFAntennaRotarySwitch.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], VHFAntennaRotaryRow);
+	VHFAntennaRotarySwitch.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], Panel3);
 	
 	//
 	// SPS switches (panel 3)
@@ -2439,29 +2321,24 @@ void Saturn::SetSwitches(int panel) {
 	SPSInjectorValve3Indicator.Init( 96, 0, 34, 34, srf[SRF_SPS_INJ_VLV], SPSInjectorValveIndicatorsRow);
 	SPSInjectorValve4Indicator.Init(144, 0, 34, 34, srf[SRF_SPS_INJ_VLV], SPSInjectorValveIndicatorsRow);
 
-	SPSTestSwitchRow.Init(AID_SPSTESTSWITCH, MainPanel);
-	SPSTestSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SPSTestSwitchRow);
+	SPSTestSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
 
 	SPSOxidFlowValveIndicatorsRow.Init(AID_SPSOXIDFLOWVALVEINDICATOR, MainPanel);
 	SPSOxidFlowValveMaxIndicator.Init(0,  0, 22, 12, srf[SRF_SPSMAXINDICATOR], SPSOxidFlowValveIndicatorsRow);
 	SPSOxidFlowValveMinIndicator.Init(0, 30, 22, 12, srf[SRF_SPSMININDICATOR], SPSOxidFlowValveIndicatorsRow);
 
-	SPSOxidFlowValveSwitchesRow.Init(AID_SPSOXIDFLOWVALVESWITCHES, MainPanel);
-	SPSOxidFlowValveSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SPSOxidFlowValveSwitchesRow);
-	SPSOxidFlowValveSelectorSwitch.Init(43, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], SPSOxidFlowValveSwitchesRow);
-
-	SPSPugModeSwitchRow.Init(AID_SPSPUGMODESWITCH, MainPanel);
-	SPSPugModeSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SPSPugModeSwitchRow);
+	SPSOxidFlowValveSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	SPSOxidFlowValveSelectorSwitch.Init(0, 0, 34, 29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel3);
+	SPSPugModeSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
 	
 	SPSHeliumValveIndicatorsRow.Init(AID_SPSHELIUMVALVEINDICATORS, MainPanel);
 	SPSHeliumValveAIndicator.Init( 0, 0, 23, 23, srf[SRF_INDICATOR], SPSHeliumValveIndicatorsRow);
 	SPSHeliumValveBIndicator.Init(43, 0, 23, 23, srf[SRF_INDICATOR], SPSHeliumValveIndicatorsRow);
 
-	SPSSwitchesRow.Init(AID_SPSSWITCHES, MainPanel);
-	SPSHeliumValveASwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SPSSwitchesRow);
-	SPSHeliumValveBSwitch.Init(43, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SPSSwitchesRow);
-	SPSLineHTRSSwitch.Init(86, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SPSSwitchesRow);
-	SPSPressIndSwitch.Init(164, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], SPSSwitchesRow);
+	SPSHeliumValveASwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	SPSHeliumValveBSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	SPSLineHTRSSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
+	SPSPressIndSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel3);
 
 	SPSOxidPercentRow.Init(AID_SPS_OXID_PERCENT_DISPLAY, MainPanel);
 	SPSOxidPercentMeter.Init(srf[SRF_SPS_FONT_BLACK], srf[SRF_SPS_FONT_WHITE], SPSOxidPercentRow, this);
@@ -2487,31 +2364,24 @@ void Saturn::SetSwitches(int panel) {
 	GPFPIYaw1Meter.Init(srf[SRF_NEEDLE], GPFPIMeterRow, this, 1, 91);
 	GPFPIYaw2Meter.Init(srf[SRF_NEEDLE], GPFPIMeterRow, this, 2, 129);
 
-	DirectUllageThrustOnRow.Init(AID_DIRECT_ULLAGE_THRUST_ON, MainPanel);
-	DirectUllageButton.Init( 0, 0, 39, 38, srf[SRF_SEQUENCERSWITCHES], srf[SRF_BORDER_39x38], DirectUllageThrustOnRow, 79, 119);
-	ThrustOnButton.Init( 0, 53, 39, 38, srf[SRF_SEQUENCERSWITCHES], srf[SRF_BORDER_39x38], DirectUllageThrustOnRow, 79, 157);
+	DirectUllageButton.Init( 0, 0, 39, 38, srf[SRF_SEQUENCERSWITCHES], srf[SRF_BORDER_39x38], Panel1, 79, 119);
+	ThrustOnButton.Init( 0, 0, 39, 38, srf[SRF_SEQUENCERSWITCHES], srf[SRF_BORDER_39x38], Panel1, 79, 157);
 
 	//
 	// Electricals switches & indicators
 	//
 
-	DCIndicatorsRotaryRow.Init(AID_DCINDICATORSROTARY, MainPanel);
-	DCIndicatorsRotary.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], DCIndicatorsRotaryRow);
-
-	ACIndicatorRotaryRow.Init(AID_ACINDICATORROTARY, MainPanel);
-	ACIndicatorRotary.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], ACIndicatorRotaryRow);
-	
-	BatteryChargeRotaryRow.Init(AID_BATTERYCHARGEROTARY, MainPanel);
-	BatteryChargeRotary.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], BatteryChargeRotaryRow);
+	DCIndicatorsRotary.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], Panel3);
+	ACIndicatorRotary.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], Panel3);
+	BatteryChargeRotary.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], Panel3);
 	
 	//
 	// Docking probe switches
 	//
-	DockingProbeSwitchesRow.Init(AID_DOCKINGPROBESWITCHES, MainPanel);
-	DockingProbeExtdRelSwitch.Init(1, 23, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], DockingProbeSwitchesRow);
+	DockingProbeExtdRelSwitch.Init(1, 23, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
 	DockingProbeExtdRelSwitch.InitGuard(0, 0, 36, 69, srf[SRF_SWITCHGUARDS], 180);
-	DockingProbeRetractPrimSwitch.Init(44, 23, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], DockingProbeSwitchesRow);
-	DockingProbeRetractSecSwitch.Init(87, 23, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], DockingProbeSwitchesRow);
+	DockingProbeRetractPrimSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
+	DockingProbeRetractSecSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel2);
 
 	DockingProbeIndicatorsRow.Init(AID_DOCKINGPROBEINDICATORS, MainPanel);
 	DockingProbeAIndicator.Init(  0,  0, 23, 23, srf[SRF_INDICATOR], DockingProbeIndicatorsRow);
@@ -2521,14 +2391,9 @@ void Saturn::SetSwitches(int panel) {
 	// EMS switches
 	//
 
-	EMSFunctionSwitchRow.Init(AID_EMSFUNCTIONSWITCH, MainPanel);
-	EMSFunctionSwitch.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], EMSFunctionSwitchRow);
-
-	EMSModeRow.Init(AID_ENTRY_MODE_SWITCH, MainPanel);
-	EMSModeSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], EMSModeRow);
-	
-	GTASwitchRow.Init(AID_GTASWITCH, MainPanel);
-	GTASwitch.Init(10, 49, 34,  29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], GTASwitchRow);
+	EMSFunctionSwitch.Init(0, 0, 90, 90, srf[SRF_ROTATIONALSWITCH], srf[SRF_BORDER_90x90], Panel1);
+	EMSModeSwitch.Init(0, 0, 34, 29, srf[SRF_THREEPOSSWITCH], srf[SRF_BORDER_34x29], Panel1);
+	GTASwitch.Init(10, 49, 34,  29, srf[SRF_SWITCHUP], srf[SRF_BORDER_34x29], Panel1);
 	GTASwitch.InitGuard(0,  0, 55, 111, srf[SRF_GTACOVER], srf[SRF_BORDER_55x111]);
 	
 	EMSDvDisplayRow.Init(AID_EMSDVDISPLAY, MainPanel, &GaugePower);
@@ -3555,9 +3420,9 @@ void Saturn::SetSwitches(int panel) {
 	Dsky2SwitchEnter.Init(246 + dx, 20 + dy, 38, 38, srf[SRF_DSKYKEY], srf[SRF_BORDER_38x38], Dsky2SwitchRow, 246, 20);
 	Dsky2SwitchReset.Init(246 + dx, 60 + dy, 38, 38, srf[SRF_DSKYKEY], srf[SRF_BORDER_38x38], Dsky2SwitchRow, 246, 60);
 
-	ASCPRollSwitch.Init(GDCAlignButtonRow, this, 0); 	// dummy switch/display for checklist controller, GDCAlignButtonRow is arbitrary
-	ASCPPitchSwitch.Init(GDCAlignButtonRow, this, 1);
-	ASCPYawSwitch.Init(GDCAlignButtonRow, this, 2);
+	ASCPRollSwitch.Init(Panel1, this, 0); 	// dummy switch/display for checklist controller, Panel1 is arbitrary
+	ASCPPitchSwitch.Init(Panel1, this, 1);
+	ASCPYawSwitch.Init(Panel1, this, 2);
 
 	Altimeter.Init(srf[SRF_ALTIMETER], srf[SRF_ALTIMETER2], this);
 }
@@ -3600,8 +3465,13 @@ void DeletegParam() {
 }
 
 bool Saturn::clbkPanelMouseEvent (int id, int event, int mx, int my)
-
 {
+	if (id >= 10000)
+	{
+		PanelSwitchItem *el = MainPanel.GetPanelElement(id);
+		return el->CheckMouseClick(event, mx, my);
+	}
+
 	static int ctrl = 0;
 
 	//
@@ -4342,6 +4212,20 @@ void Saturn::RenderS1bEngineLight(bool EngineOn, SURFHANDLE dest, SURFHANDLE src
 }
 
 bool Saturn::clbkPanelRedrawEvent(int id, int event, SURFHANDLE surf)
+{
+	bool tempvar = clbkPanelRedrawEventTest(id, event, surf);
+	if (tempvar)
+	{
+		RedrawCounter++;
+	}
+	else
+	{
+		NoRedrawCounter++;
+	}
+	return tempvar;
+}
+
+bool Saturn::clbkPanelRedrawEventTest(int id, int event, SURFHANDLE surf)
 
 {
 	// Enable this to trace the redraws, but then it's running horrible slow!
@@ -4353,6 +4237,11 @@ bool Saturn::clbkPanelRedrawEvent(int id, int event, SURFHANDLE surf)
 	// Note: if you crash in this function with a NULL surf handle, odds are you screwed up
 	// the region definition so maxX < minX or maxY < minY.
 	//
+
+	if (id >= 10000)
+	{
+		return MainPanel.DrawElement(id, surf, PanelFlashOn);
+	}
 
 	//
 	// Special handling for docking panel
@@ -5458,6 +5347,7 @@ void Saturn::InitSwitches() {
 	SPSPressIndSwitch.Register(PSH, "SPSPressIndSwitch", THREEPOSSWITCH_UP);
 	
 	CMUplinkSwitch.Register(PSH, "CMUplinkSwitch", TOGGLESWITCH_DOWN);
+	CMUplinkSwitch.SetChannelData(033, 10, false);	// Down is 'Block Uplink Input'
 
 	if (!SkylabCM)
 		IUUplinkSwitch.Register(PSH, "IUUplinkSwitch", TOGGLESWITCH_DOWN);
@@ -5521,6 +5411,7 @@ void Saturn::InitSwitches() {
 
 	LVGuidanceSwitch.Register(PSH, "LVGuidanceSwitch", TOGGLESWITCH_UP, false);
 	LVGuidanceSwitch.SetGuardResetsState(false);
+	LVGuidanceSwitch.SetChannelData(030, 9, false);
 
 	if (!SkylabCM) {
 		SIISIVBSepSwitch.Register(PSH, "SIISIVBSepSwitch", false, false);
@@ -5532,6 +5423,7 @@ void Saturn::InitSwitches() {
 	ECSIndicatorsSwitch.Register(PSH, "ECSIndicatorsSwitch", 0);
 
 	CGSwitch.Register(PSH, "CGSwitch", 1);
+	CGSwitch.SetChannelData(032, 11, true);	// LM Attached flag.
 	ELSLogicSwitch.Register(PSH, "ELSLogicSwitch", 0, 0);
 	ELSAutoSwitch.Register(PSH, "ELSAutoSwitch", 1);
 	CMRCSLogicSwitch.Register(PSH, "CMRCSLogicSwitch", 0);

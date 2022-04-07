@@ -997,3 +997,31 @@ protected:
 
 	UINT animNeedle;
 };
+
+class CSMPanel : public AdvancedSwitchRow
+{
+public:
+	CSMPanel();
+	void Init(Saturn *v, PanelSwitches &panel, e_object *p = 0);
+protected:
+	Saturn *sat;
+};
+
+class CSMPanel1 :public CSMPanel
+{
+public:
+	void RegisterPanelAreas();
+};
+
+class CSMPanel2 :public CSMPanel
+{
+public:
+	void RegisterPanelAreasLeft(int offset);
+	void RegisterPanelAreasRight(int offset);
+};
+
+class CSMPanel3 :public CSMPanel
+{
+public:
+	void RegisterPanelAreas(int offset);
+};

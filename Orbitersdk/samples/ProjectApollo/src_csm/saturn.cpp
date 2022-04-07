@@ -1366,6 +1366,9 @@ void Saturn::clbkPreStep(double simt, double simdt, double mjd)
 	sprintf(buffer, "MissionTime %f, simt %f, simdt %f, time(0) %lld", MissionTime, simt, simdt, time(0)); 
 	TRACE(buffer);
 
+	sprintf(oapiDebugString(), "Redraw %d No Redraw %d Total %d", RedrawCounter, NoRedrawCounter, RedrawCounter + NoRedrawCounter);
+	RedrawCounter = NoRedrawCounter = 0;
+
 	//
 	// We die horribly if you set 100x or higher acceleration during launch.
 	//

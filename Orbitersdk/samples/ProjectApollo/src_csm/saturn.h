@@ -971,6 +971,9 @@ public:
 	void clbkDockEvent(int dock, OBJHANDLE connected);
 	bool clbkLoadGenericCockpit ();
 	bool clbkPanelMouseEvent(int id, int event, int mx, int my);
+	bool clbkPanelRedrawEventTest(int id, int event, SURFHANDLE surf);
+	int RedrawCounter;
+	int NoRedrawCounter;
 	bool clbkPanelRedrawEvent(int id, int event, SURFHANDLE surf);
 	void clbkMFDMode (int mfd, int mode);
 
@@ -1674,13 +1677,8 @@ protected:
 	MasterAlarmSwitch MasterAlarmSwitch; 
 
 	// EMS
-	SwitchRow EMSFunctionSwitchRow;
 	RotationalSwitch EMSFunctionSwitch;
-
-	SwitchRow EMSModeRow;
 	ThreePosSwitch EMSModeSwitch;
-
-	SwitchRow GTASwitchRow;
 	GuardedToggleSwitch GTASwitch;
 
 	SaturnEMSDvSetSwitch EMSDvSetSwitch;
@@ -1689,16 +1687,10 @@ protected:
 	SaturnEMSDvDisplay EMSDvDisplay;
 	SaturnEMSScrollDisplay EMSScrollDisplay;	// dummy switch/display for checklist controller
 
-	SwitchRow IMUCageSwitchRow;
-	SwitchRow CautionWarningRow;
-	SwitchRow MissionTimerSwitchesRow;
-	SwitchRow SPSRow;
-
 	SwitchRow AccelGMeterRow;
 	SaturnAccelGMeter AccelGMeter;
 	MechanicalAccelerometer mechanicalAccelerometer;
 
-	SwitchRow THCRotaryRow;
 	THCRotarySwitch THCRotary;
 
 	SaturnLiftoffNoAutoAbortSwitch LiftoffNoAutoAbortSwitch;
@@ -1778,7 +1770,6 @@ protected:
 
 	IMUCageSwitch IMUGuardedCageSwitch;
 
-	SwitchRow SMRCSHelium1Row;
 	ThreePosSwitch SMRCSHelium1ASwitch;
 	ThreePosSwitch SMRCSHelium1BSwitch;
 	ThreePosSwitch SMRCSHelium1CSwitch;
@@ -1790,7 +1781,6 @@ protected:
 	SaturnRCSValveTalkback SMRCSHelium1CTalkback;
 	SaturnRCSValveTalkback SMRCSHelium1DTalkback;
 
-	SwitchRow SMRCSHelium2Row;
 	ThreePosSwitch SMRCSHelium2ASwitch;
 	ThreePosSwitch SMRCSHelium2BSwitch;
 	ThreePosSwitch SMRCSHelium2CSwitch;
@@ -1814,7 +1804,6 @@ protected:
 	RCSHeliumPressMeter RCSHeliumPressMeter;
 	RCSTempMeter RCSTempMeter;
 
-	SwitchRow SMRCSProp1Row;
 	ThreePosSwitch SMRCSProp1ASwitch;
 	ThreePosSwitch SMRCSProp1BSwitch;
 	ThreePosSwitch SMRCSProp1CSwitch;
@@ -1831,7 +1820,6 @@ protected:
 	SaturnRCSValveTalkback SMRCSProp1CTalkback;
 	SaturnRCSValveTalkback SMRCSProp1DTalkback;
 
-	SwitchRow SMRCSProp2Row;
 	ThreePosSwitch SMRCSProp2ASwitch;
 	ThreePosSwitch SMRCSProp2BSwitch;
 	ThreePosSwitch SMRCSProp2CSwitch;
@@ -1855,10 +1843,8 @@ protected:
 	SwitchRow RCSIndicatorsSwitchRow;
 	PropellantRotationalSwitch RCSIndicatorsSwitch;
 
-	SwitchRow ECSIndicatorsSwitchRow;
 	RotationalSwitch ECSIndicatorsSwitch;
 
-	SwitchRow AttitudeControlRow;
 	ThreePosSwitch ManualAttRollSwitch;
 	ThreePosSwitch ManualAttPitchSwitch;
 	ThreePosSwitch ManualAttYawSwitch;
@@ -1867,49 +1853,38 @@ protected:
 	ToggleSwitch AttRateSwitch;
 	ToggleSwitch TransContrSwitch;
 
-	SwitchRow BMAGRow;
 	ThreePosSwitch BMAGRollSwitch;
 	ThreePosSwitch BMAGPitchSwitch;
 	ThreePosSwitch BMAGYawSwitch;
 
-	SwitchRow SCContCMCModeSwitchesRow;
 	SaturnSCContSwitch SCContSwitch;
 	CMCModeHoldFreeSwitch CMCModeSwitch;
 
-	SwitchRow SCSTvcSwitchesRow;
 	ThreePosSwitch SCSTvcPitchSwitch;
 	ThreePosSwitch SCSTvcYawSwitch;
 
-	SwitchRow SPSGimbalMotorsRow;
 	ThreePosSwitch Pitch1Switch;
 	ThreePosSwitch Pitch2Switch;
 	ThreePosSwitch Yaw1Switch;
 	ThreePosSwitch Yaw2Switch;
 
-	SwitchRow EntrySwitchesRow;
 	ToggleSwitch EMSRollSwitch;
 	ToggleSwitch GSwitch;
 
-	SwitchRow LVSPSIndSwitchesRow;
 	ToggleSwitch LVSPSPcIndicatorSwitch;
 	ToggleSwitch LVFuelTankPressIndicatorSwitch;
 
-	SwitchRow TVCGimbalDriveSwitchesRow;
 	ThreePosSwitch TVCGimbalDrivePitchSwitch;
 	ThreePosSwitch TVCGimbalDriveYawSwitch;
 
-	SwitchRow CSMLightSwitchesRow;
 	ToggleSwitch RunEVALightSwitch;
 	ThreePosSwitch RndzLightSwitch;
 	ToggleSwitch TunnelLightSwitch;
 
-	SwitchRow LMPowerSwitchRow;
 	CSMLMPowerSwitch LMPowerSwitch;
 
-	SwitchRow PostLDGVentValveLeverRow;
 	CircuitBrakerSwitch PostLDGVentValveLever;
 
-	SwitchRow GDCAlignButtonRow;
 	PushSwitch GDCAlignButton;
 	
 	//
@@ -1927,46 +1902,36 @@ protected:
 	ThreePosSwitch SBandNormalMode2Switch;
 	ToggleSwitch SBandNormalMode3Switch;
 
-	SwitchRow SBandAuxSwitchesRow;
 	ThreePosSwitch SBandAuxSwitch1;
 	ThreePosSwitch SBandAuxSwitch2;
 
-	SwitchRow UPTLMSwitchesRow;
 	ToggleSwitch   UPTLMSwitch1;
 	ThreePosSwitch UPTLMSwitch2;
 
-	SwitchRow SBandAntennaSwitchesRow;
 	ThreePosSwitch SBandAntennaSwitch1;
 	ThreePosSwitch SBandAntennaSwitch2;
 
-	SwitchRow VHFAmThumbwheelsRow;
 	ThumbwheelSwitch SquelchAThumbwheel;
 	ThumbwheelSwitch SquelchBThumbwheel;
 
-	SwitchRow VHFSwitchesRow;
 	ThreePosSwitch VHFAMASwitch;
 	ThreePosSwitch VHFAMBSwitch;
 	ThreePosSwitch RCVOnlySwitch;
 	ToggleSwitch VHFBeaconSwitch;
 	ToggleSwitch VHFRangingSwitch;
 
-	SwitchRow TapeRecorderSwitchesRow;
 	ToggleSwitch TapeRecorderPCMSwitch;
 	ThreePosSwitch TapeRecorderRecordSwitch;
 	ThreePosSwitch TapeRecorderForwardSwitch;
 
-	SwitchRow PowerSwitchesRow;
 	ThreePosSwitch SCESwitch;
 	ThreePosSwitch PMPSwitch;
-
-	SwitchRow PCMBitRateSwitchRow;
 	ToggleSwitch PCMBitRateSwitch;
 	
 	//
 	// VHF antenna rotary
 	//
 	
-	SwitchRow VHFAntennaRotaryRow;
 	RotationalSwitch VHFAntennaRotarySwitch;
 
 	//
@@ -1979,25 +1944,19 @@ protected:
 	IndicatorSwitch SPSInjectorValve3Indicator;
 	IndicatorSwitch SPSInjectorValve4Indicator;
 
-	SwitchRow SPSTestSwitchRow;
 	ThreePosSwitch SPSTestSwitch;
-
-	SwitchRow SPSOxidFlowValveSwitchesRow;
 	ThreePosSwitch SPSOxidFlowValveSwitch;
 	ToggleSwitch SPSOxidFlowValveSelectorSwitch;
 
 	SwitchRow SPSOxidFlowValveIndicatorsRow;
 	IndicatorSwitch SPSOxidFlowValveMaxIndicator;
 	IndicatorSwitch SPSOxidFlowValveMinIndicator;
-
-	SwitchRow SPSPugModeSwitchRow;
 	ThreePosSwitch SPSPugModeSwitch;
 
 	SwitchRow SPSHeliumValveIndicatorsRow;
 	IndicatorSwitch SPSHeliumValveAIndicator;
 	IndicatorSwitch SPSHeliumValveBIndicator;
 
-	SwitchRow SPSSwitchesRow;
 	ThreePosSwitch SPSHeliumValveASwitch;
 	ThreePosSwitch SPSHeliumValveBSwitch;
 	ThreePosSwitch SPSLineHTRSSwitch;
@@ -2007,16 +1966,10 @@ protected:
 	// Electricals switches & indicators
 	//
 
-	SwitchRow DCIndicatorsRotaryRow;
 	PowerStateRotationalSwitch DCIndicatorsRotary;
-
-	SwitchRow BatteryChargeRotaryRow;
 	RotationalSwitch BatteryChargeRotary;
-
-	SwitchRow ACIndicatorRotaryRow;
 	PowerStateRotationalSwitch ACIndicatorRotary;
 
-	SwitchRow ACInverterSwitchesRow;
 	TwoSourceSwitch MnA1Switch;
 	TwoSourceSwitch MnB2Switch;
 	ThreeSourceSwitch MnA3Switch;
@@ -2065,7 +2018,6 @@ protected:
 	// FDAI control switches.
 	//
 
-	SwitchRow FDAISwitchesRow;
 	ThreePosSwitch FDAIScaleSwitch;
 	ThreePosSwitch FDAISourceSwitch;
 	ThreePosSwitch FDAISelectSwitch;
@@ -2075,14 +2027,12 @@ protected:
 	// CMC Att: IMU is normal state, GDC does nothing.
 	//
 
-	SwitchRow CMCAttRow;
 	ToggleSwitch CMCAttSwitch;
 
 	//
 	// Launch vehicle switches.
 	//
 
-	SwitchRow LVRow;
 	AGCIOGuardedToggleSwitch LVGuidanceSwitch;
 	GuardedToggleSwitch SIISIVBSepSwitch;
 	XLunarSwitch TLIEnableSwitch;
@@ -2091,7 +2041,6 @@ protected:
 	// ELS and CSM propellant switches.
 	//
 
-	SwitchRow ELSRow;
 	AGCIOSwitch CGSwitch;
 	GuardedToggleSwitch ELSLogicSwitch;
 	ToggleSwitch ELSAutoSwitch;
@@ -2103,7 +2052,6 @@ protected:
 	// Event Timer switches.
 	//
 
-	SwitchRow EventTimerRow;
 	// The FSCM switches were removed in the real CSM
 	// ToggleSwitch FCSMSPSASwitch;
 	// ToggleSwitch FCSMSPSBSwitch;
@@ -2116,14 +2064,12 @@ protected:
 	// Main chute release switch.
 	//
 
-	SwitchRow MainReleaseRow;
 	GuardedToggleSwitch MainReleaseSwitch;
 
 	//
 	// Abort switches.
 	//
 
-	SwitchRow AbortRow;
 	ToggleSwitch PropDumpAutoSwitch;
 	ToggleSwitch TwoEngineOutAutoSwitch;
 	ToggleSwitch LVRateAutoSwitch;
@@ -2133,7 +2079,6 @@ protected:
 	///
 	/// \brief Rotational Controller power switches.
 	///
-	SwitchRow RotContrPowerRow;
 	ThreePosSwitch RotPowerNormal1Switch;
 	ThreePosSwitch RotPowerNormal2Switch;
 	ThreePosSwitch RotPowerDirect1Switch;
@@ -2142,7 +2087,6 @@ protected:
 	///
 	/// \brief dV Thrust switches.
 	///
-	SwitchRow dvThrustRow;
 	GuardedTwoSourceSwitch dVThrust1Switch;
 	GuardedTwoSourceSwitch dVThrust2Switch;
 
@@ -2156,7 +2100,6 @@ protected:
 	SwitchRow SPSGimbalYawThumbwheelRow;
 	ContinuousThumbwheelSwitch SPSGimbalYawThumbwheel;
 
-	SwitchRow DirectUllageThrustOnRow;
 	PushSwitch DirectUllageButton;
 	PushSwitch ThrustOnButton;
 
@@ -2258,7 +2201,6 @@ protected:
 	SwitchRow EcsRadiatorIndicatorRow;
 	IndicatorSwitch EcsRadiatorIndicator;
 
-	SwitchRow EcsRadiatorSwitchesRow;
 	ThreePosSwitch EcsRadiatorsFlowContAutoSwitch;
 	ThreePosSwitch EcsRadiatorsFlowContPwrSwitch;
 	ThreePosSwitch EcsRadiatorsManSelSwitch;
@@ -2268,7 +2210,6 @@ protected:
 	//
 	// ECS switches
 	//
-	SwitchRow EcsSwitchesRow;
 	ThreePosSwitch PotH2oHtrSwitch;
 	ThreePosSwitch SuitCircuitH2oAccumAutoSwitch;
 	ThreePosSwitch SuitCircuitH2oAccumOnSwitch;
@@ -2281,8 +2222,6 @@ protected:
 	ThreePosSwitch GlycolEvapSteamPressIncrDecrSwitch;
 	ThreePosSwitch GlycolEvapH2oFlowSwitch;
 	ToggleSwitch CabinTempAutoManSwitch;
-
-	SwitchRow CabinTempAutoControlSwitchRow;
 	ThumbwheelSwitch CabinTempAutoControlSwitch;
 
 	SwitchRow EcsGlycolPumpsSwitchRow;
@@ -2292,18 +2231,11 @@ protected:
 	// High gain antenna
 	//
 	
-	SwitchRow HighGainAntennaUpperSwitchesRow;
 	ThreePosSwitch GHATrackSwitch;
 	ThreePosSwitch GHABeamSwitch;
-
-	SwitchRow HighGainAntennaLowerSwitchesRow;
 	ThreePosSwitch GHAPowerSwitch;
 	ToggleSwitch GHAServoElecSwitch;
-	
-	SwitchRow HighGainAntennaPitchPositionSwitchRow;
 	RotationalSwitch HighGainAntennaPitchPositionSwitch;
-
-	SwitchRow HighGainAntennaYawPositionSwitchRow;
 	RotationalSwitch HighGainAntennaYawPositionSwitch;
 
 	SwitchRow HighGainAntennaMetersRow;
@@ -2314,7 +2246,6 @@ protected:
 	///
 	/// \brief Docking probe switches
 	///
-	SwitchRow DockingProbeSwitchesRow;
 	GuardedThreePosSwitch DockingProbeExtdRelSwitch;
 	ThreePosSwitch DockingProbeRetractPrimSwitch;
 	ThreePosSwitch DockingProbeRetractSecSwitch;
@@ -3138,6 +3069,11 @@ protected:
 	CircuitBrakerSwitch SIVBLMSepPyroACircuitBraker;
 	CircuitBrakerSwitch SIVBLMSepPyroBCircuitBraker;
 
+	//Panels
+	CSMPanel1 Panel1;
+	CSMPanel2 Panel2;
+	CSMPanel3 Panel3;
+
 	// Panel 278 Mission-Specific Additions
 	SaturnPanel278J *Panel278J;
 
@@ -3573,22 +3509,13 @@ protected:
 	PanelSwitchScenarioHandler PSH;
 
 	SwitchRow SequencerSwitchesRow;
-	SwitchRow SeparationSwitchesRow;
 	SwitchRow CryoTankSwitchesRow;
 	SwitchRow FuelCellPhRadTempIndicatorsRow;
 	SwitchRow FuelCellRadiatorsIndicatorsRow;
-	SwitchRow FuelCellRadiatorsSwitchesRow;
-	SwitchRow FuelCellIndicatorsSwitchRow;
-	SwitchRow FuelCellHeatersSwitchesRow;
-	SwitchRow FuelCellPurgeSwitchesRow;
 	SwitchRow FuelCellReactantsIndicatorsRow;
-	SwitchRow FuelCellReactantsSwitchesRow;
-	SwitchRow FuelCellLatchSwitchesRow;
 	SwitchRow FuelCellPumpsSwitchesRow;
 	SwitchRow SuitCompressorSwitchesRow;
 	SwitchRow MainBusAIndicatorsRow;
-
-	SwitchRow SBandNormalSwitchesRow;
 
 	///////////////////////////////////////////////////////
 	// Internal systems devices.						 //
@@ -4619,6 +4546,9 @@ protected:
 	friend class DockingTargetSwitch;
 	friend class LeftCOASPowerSwitch;
 	friend class SCE;
+	friend class CSMPanel1;
+	friend class CSMPanel2;
+	friend class CSMPanel3;
 	// Friend class the MFD too so it can steal our data
 	friend class ProjectApolloMFD;
 	friend class ARCore;
