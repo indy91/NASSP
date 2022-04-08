@@ -1775,7 +1775,6 @@ protected:
 	ThreePosSwitch SMRCSHelium1CSwitch;
 	ThreePosSwitch SMRCSHelium1DSwitch;
 
-	SwitchRow SMRCSHelium1TalkbackRow;
 	SaturnRCSValveTalkback SMRCSHelium1ATalkback;
 	SaturnRCSValveTalkback SMRCSHelium1BTalkback;
 	SaturnRCSValveTalkback SMRCSHelium1CTalkback;
@@ -1786,7 +1785,6 @@ protected:
 	ThreePosSwitch SMRCSHelium2CSwitch;
 	ThreePosSwitch SMRCSHelium2DSwitch;
 
-	SwitchRow SMRCSHelium2TalkbackRow;
 	SaturnRCSValveTalkback SMRCSHelium2ATalkback;
 	SaturnRCSValveTalkback SMRCSHelium2BTalkback;
 	SaturnRCSValveTalkback SMRCSHelium2CTalkback;
@@ -1813,7 +1811,6 @@ protected:
 	ThreeOutputSwitch SMRCSHeaterCSwitch;
 	ThreeOutputSwitch SMRCSHeaterDSwitch;
 
-	SwitchRow SMRCSProp1TalkbackRow;
 	SaturnRCSValveTalkback SMRCSProp1ATalkback;
 	SaturnRCSValveTalkback SMRCSProp1BTalkback;
 	SaturnRCSValveTalkback SMRCSProp1CTalkback;
@@ -1830,7 +1827,6 @@ protected:
 	ThreePosSwitch CMRCSProp1Switch;
 	ThreePosSwitch CMRCSProp2Switch;
 
-	SwitchRow SMRCSProp2TalkbackRow;
 	SaturnRCSValveTalkback CMRCSProp1Talkback;
 	SaturnRCSValveTalkback CMRCSProp2Talkback;
 
@@ -1839,7 +1835,6 @@ protected:
 	SaturnRCSValveTalkback SMRCSProp2CTalkback;
 	SaturnRCSValveTalkback SMRCSProp2DTalkback;
 
-	SwitchRow RCSIndicatorsSwitchRow;
 	PropellantRotationalSwitch RCSIndicatorsSwitch;
 
 	RotationalSwitch ECSIndicatorsSwitch;
@@ -1890,7 +1885,6 @@ protected:
 	// Communication switches (s-band, vhf etc.)
 	//
 
-	SwitchRow TelecomTBRow;
 	IndicatorSwitch PwrAmplTB;
 	DSEIndicatorSwitch DseTapeTB;
 
@@ -1937,7 +1931,6 @@ protected:
 	// SPS switches (panel 3)
 	//
 
-	SwitchRow SPSInjectorValveIndicatorsRow;
 	IndicatorSwitch SPSInjectorValve1Indicator;
 	IndicatorSwitch SPSInjectorValve2Indicator;
 	IndicatorSwitch SPSInjectorValve3Indicator;
@@ -1947,12 +1940,10 @@ protected:
 	ThreePosSwitch SPSOxidFlowValveSwitch;
 	ToggleSwitch SPSOxidFlowValveSelectorSwitch;
 
-	SwitchRow SPSOxidFlowValveIndicatorsRow;
 	IndicatorSwitch SPSOxidFlowValveMaxIndicator;
 	IndicatorSwitch SPSOxidFlowValveMinIndicator;
 	ThreePosSwitch SPSPugModeSwitch;
 
-	SwitchRow SPSHeliumValveIndicatorsRow;
 	IndicatorSwitch SPSHeliumValveAIndicator;
 	IndicatorSwitch SPSHeliumValveBIndicator;
 
@@ -2193,7 +2184,6 @@ protected:
 	//
 	// ECS radiator switches
 	//
-	SwitchRow EcsRadiatorIndicatorRow;
 	IndicatorSwitch EcsRadiatorIndicator;
 
 	ThreePosSwitch EcsRadiatorsFlowContAutoSwitch;
@@ -2245,7 +2235,6 @@ protected:
 	ThreePosSwitch DockingProbeRetractPrimSwitch;
 	ThreePosSwitch DockingProbeRetractSecSwitch;
 
-	SwitchRow DockingProbeIndicatorsRow;
 	IndicatorSwitch DockingProbeAIndicator;
 	IndicatorSwitch DockingProbeBIndicator;
 
@@ -3504,12 +3493,8 @@ protected:
 	PanelSwitchScenarioHandler PSH;
 
 	SwitchRow SequencerSwitchesRow;
-	SwitchRow FuelCellPhRadTempIndicatorsRow;
-	SwitchRow FuelCellRadiatorsIndicatorsRow;
-	SwitchRow FuelCellReactantsIndicatorsRow;
 	SwitchRow FuelCellPumpsSwitchesRow;
 	SwitchRow SuitCompressorSwitchesRow;
-	SwitchRow MainBusAIndicatorsRow;
 
 	///////////////////////////////////////////////////////
 	// Internal systems devices.						 //

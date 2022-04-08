@@ -3702,7 +3702,7 @@ void VolumeThumbwheelSwitch::LoadState(char *line)
 IndicatorSwitch::IndicatorSwitch() {
 
 	state = false;
-	displayState = 0.0;
+	dDisplayState = 0.0;
 	failOpen = false;
 	x = 0;
 	y = 0;
@@ -3722,9 +3722,9 @@ void IndicatorSwitch::Register(PanelSwitchScenarioHandler &scnh, char *n, int de
 	name = n;
 	state = defaultState;
 	if (state) 
-		displayState = 3.0;
+		dDisplayState = 3.0;
 	else
-		displayState = 0.0;
+		dDisplayState = 0.0;
 
 	scnh.RegisterSwitch(this);
 }
@@ -3747,51 +3747,8 @@ bool IndicatorSwitch::CheckMouseClick(int event, int mx, int my) {
 	return false;
 }
 
-void IndicatorSwitch::DrawSwitch(SURFHANDLE drawSurface) {
-
-	int drawState=0;
-	if (switchRow) {
-		if (switchRow->panelSwitches->listener) 
-			switchRow->panelSwitches->listener->PanelIndicatorSwitchStateRequested(this);
-	}
-	if (callback)
-		callback->call(this);
-
-	// Require power if wired
-	if (SRC != NULL) {
-		if (SRC->Voltage() > SP_MIN_DCVOLTAGE) {
-			drawState = GetState();
-		} else {
-			drawState = (failOpen ? 1 : 0);
-		}
-	} else {
-		drawState = GetState();
-	}
-
-	if (drawState && displayState < 3.0)
-		displayState += oapiGetSimStep() * 4.0;
-
-	if (!drawState && displayState > 0.0) 
-		displayState -= oapiGetSimStep() * 4.0;
-
-	if (displayState > 3.0) displayState = 3.0;
-	if (displayState < 0.0) displayState = 0.0;
-
-	// Cheating beyond normal saves switch subclasses and associated etcetera
-	if (displayState == 3.0 && drawState > 1) {
-		displayState += (drawState - 1);
-	}
-
-	oapiBlt(drawSurface, switchSurface, x, y, width * (int) displayState, 0, width, height);
-}
-
-void IndicatorSwitch::InitVC(SURFHANDLE surf)
+double IndicatorSwitch::GetDisplayValue()
 {
-	switchsurfacevc = surf;
-}
-
-void IndicatorSwitch::DrawSwitchVC(int id, int event, SURFHANDLE drawSurface) {
-
 	int drawState = 0;
 	if (switchRow) {
 		if (switchRow->panelSwitches->listener)
@@ -3813,21 +3770,56 @@ void IndicatorSwitch::DrawSwitchVC(int id, int event, SURFHANDLE drawSurface) {
 		drawState = GetState();
 	}
 
-	if (drawState && displayState < 3.0)
-		displayState += oapiGetSimStep() * 4.0;
+	if (drawState && dDisplayState < 3.0)
+		dDisplayState += oapiGetSimStep() * 4.0;
 
-	if (!drawState && displayState > 0.0)
-		displayState -= oapiGetSimStep() * 4.0;
+	if (!drawState && dDisplayState > 0.0)
+		dDisplayState -= oapiGetSimStep() * 4.0;
 
-	if (displayState > 3.0) displayState = 3.0;
-	if (displayState < 0.0) displayState = 0.0;
+	if (dDisplayState > 3.0) dDisplayState = 3.0;
+	if (dDisplayState < 0.0) dDisplayState = 0.0;
 
 	// Cheating beyond normal saves switch subclasses and associated etcetera
-	if (displayState == 3.0 && drawState > 1) {
-		displayState += (drawState - 1);
+	if (dDisplayState == 3.0 && drawState > 1) {
+		dDisplayState += (drawState - 1);
 	}
 
-	oapiBlt(drawSurface, switchsurfacevc, x, y, width * (int)displayState, 0, width, height);
+	return dDisplayState;
+}
+
+void IndicatorSwitch::DrawSwitch(SURFHANDLE drawSurface) {
+
+	GetDisplayValue();
+
+	oapiBlt(drawSurface, switchSurface, x, y, width * (int) dDisplayState, 0, width, height);
+}
+
+bool IndicatorSwitch::DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn)
+{
+	GetDisplayValue();
+
+	state = width * (int)dDisplayState;
+
+	if (state != DisplayState)
+	{
+		oapiBltPanelAreaBackground(ID, DrawSurface);
+		oapiBlt(DrawSurface, switchSurface, x, y, state, 0, width, height);
+		DisplayState = state;
+		return true;
+	}
+	return false;
+}
+
+void IndicatorSwitch::InitVC(SURFHANDLE surf)
+{
+	switchsurfacevc = surf;
+}
+
+void IndicatorSwitch::DrawSwitchVC(int id, int event, SURFHANDLE drawSurface) {
+
+	GetDisplayValue();
+
+	oapiBlt(drawSurface, switchsurfacevc, x, y, width * (int)dDisplayState, 0, width, height);
 }
 
 void IndicatorSwitch::SaveState(FILEHANDLE scn) {
@@ -3844,13 +3836,13 @@ void IndicatorSwitch::LoadState(char *line) {
 	if (!strnicmp(buffer, name, strlen(name))) {
 		state = st;
 		if (state != 0){
-			displayState = 3.0;
+			dDisplayState = 3.0;
 		}else{
-			displayState = 0.0;
+			dDisplayState = 0.0;
 		}
 		// Cheating beyond normal saves switch subclasses and associated etcetera
-		if (displayState == 3.0 && state > 1){
-			displayState += (state - 1);
+		if (dDisplayState == 3.0 && state > 1){
+			dDisplayState += (state - 1);
 		}
 	}
 }

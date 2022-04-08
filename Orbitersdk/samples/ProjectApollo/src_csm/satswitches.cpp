@@ -3004,6 +3004,31 @@ void CSMPanel2::RegisterPanelAreasLeft(int offset)
 	RegisterPanelArea(&sat->RCSHeliumPressMeter, _R(1444 + offset, 385, 1454 + offset, 511), PANEL_MOUSE_IGNORE); //M5
 	RegisterPanelArea(&sat->RCSFuelPressMeter, _R(1480 + offset, 385, 1490 + offset, 511), PANEL_MOUSE_IGNORE); //M5
 	RegisterPanelArea(&sat->RCSQuantityMeter, _R(1535 + offset, 385, 1545 + offset, 511), PANEL_MOUSE_IGNORE); //M5
+
+	RegisterPanelArea(&sat->SMRCSHelium1ATalkback, _R(1591 + offset, 368, 1614 + offset, 391), PANEL_MOUSE_IGNORE); //DS2
+	RegisterPanelArea(&sat->SMRCSHelium1BTalkback, _R(1633 + offset, 368, 1656 + offset, 391), PANEL_MOUSE_IGNORE); //DS3
+	RegisterPanelArea(&sat->SMRCSHelium1CTalkback, _R(1676 + offset, 368, 1699 + offset, 391), PANEL_MOUSE_IGNORE); //DS4
+	RegisterPanelArea(&sat->SMRCSHelium1DTalkback, _R(1718 + offset, 368, 1741 + offset, 391), PANEL_MOUSE_IGNORE); //DS5
+
+	RegisterPanelArea(&sat->SMRCSHelium2ATalkback, _R(1591 + offset, 526, 1614 + offset, 549), PANEL_MOUSE_IGNORE); //DS8
+	RegisterPanelArea(&sat->SMRCSHelium2BTalkback, _R(1633 + offset, 526, 1656 + offset, 549), PANEL_MOUSE_IGNORE); //DS9
+	RegisterPanelArea(&sat->SMRCSHelium2CTalkback, _R(1676 + offset, 526, 1699 + offset, 549), PANEL_MOUSE_IGNORE); //DS10
+	RegisterPanelArea(&sat->SMRCSHelium2DTalkback, _R(1718 + offset, 526, 1741 + offset, 549), PANEL_MOUSE_IGNORE); //DS11
+
+	RegisterPanelArea(&sat->SMRCSProp1ATalkback, _R(1591 + offset, 659, 1614 + offset, 682), PANEL_MOUSE_IGNORE); //DS14
+	RegisterPanelArea(&sat->SMRCSProp1BTalkback, _R(1633 + offset, 659, 1656 + offset, 682), PANEL_MOUSE_IGNORE); //DS15
+	RegisterPanelArea(&sat->SMRCSProp1CTalkback, _R(1676 + offset, 659, 1699 + offset, 682), PANEL_MOUSE_IGNORE); //DS16
+	RegisterPanelArea(&sat->SMRCSProp1DTalkback, _R(1718 + offset, 659, 1741 + offset, 682), PANEL_MOUSE_IGNORE); //DS17
+
+	RegisterPanelArea(&sat->CMRCSProp1Talkback, _R(1503 + offset, 792, 1526 + offset, 815), PANEL_MOUSE_IGNORE); //DS12
+	RegisterPanelArea(&sat->CMRCSProp2Talkback, _R(1545 + offset, 792, 1568 + offset, 815), PANEL_MOUSE_IGNORE); //DS13
+	RegisterPanelArea(&sat->SMRCSProp2ATalkback, _R(1588 + offset, 792, 1611 + offset, 815), PANEL_MOUSE_IGNORE); //DS25
+	RegisterPanelArea(&sat->SMRCSProp2BTalkback, _R(1631 + offset, 792, 1654 + offset, 815), PANEL_MOUSE_IGNORE); //DS24
+	RegisterPanelArea(&sat->SMRCSProp2CTalkback, _R(1674 + offset, 792, 1697 + offset, 815), PANEL_MOUSE_IGNORE); //DS27
+	RegisterPanelArea(&sat->SMRCSProp2DTalkback, _R(1716 + offset, 792, 1739 + offset, 815), PANEL_MOUSE_IGNORE); //DS26
+
+	RegisterPanelArea(&sat->DockingProbeAIndicator, _R(1396 + offset, 179, 1419 + offset, 202), PANEL_MOUSE_IGNORE); //DS1
+	RegisterPanelArea(&sat->DockingProbeBIndicator, _R(1396 + offset, 206, 1419 + offset, 229), PANEL_MOUSE_IGNORE); //DS21
 }
 
 void CSMPanel2::RegisterPanelAreasRight(int offset)
@@ -3079,6 +3104,10 @@ void CSMPanel2::RegisterPanelAreasRight(int offset)
 	RegisterPanelArea(&sat->SuitPressMeter, _R(2379 + offset, 593, 2389 + offset, 717), PANEL_MOUSE_IGNORE); //M14
 	RegisterPanelArea(&sat->CabinPressMeter, _R(2431 + offset, 593, 2441 + offset, 717), PANEL_MOUSE_IGNORE); //M14
 	RegisterPanelArea(&sat->PartPressCO2Meter, _R(2493 + offset, 593, 2503 + offset, 717), PANEL_MOUSE_IGNORE); //M15
+
+	RegisterPanelArea(&sat->EcsRadiatorIndicator, _R(1799 + offset, 683, 1822 + offset, 706), PANEL_MOUSE_IGNORE); //DS22
+
+	RegisterPanelArea(&sat->RCSIndicatorsSwitch, _R(1785 + offset, 445, 1875 + offset, 535), PANEL_MOUSE_DOWN); //S28
 }
 
 void CSMPanel3::RegisterPanelAreas(int offset)
@@ -3184,4 +3213,36 @@ void CSMPanel3::RegisterPanelAreas(int offset)
 	RegisterPanelArea(&sat->FuelCellO2FlowMeter, _R(2816 + offset, 319, 2826 + offset, 443), PANEL_MOUSE_IGNORE); //M3
 	RegisterPanelArea(&sat->FuelCellTempMeter, _R(2849 + offset, 319, 2859 + offset, 443), PANEL_MOUSE_IGNORE); //M4
 	RegisterPanelArea(&sat->FuelCellCondenserTempMeter, _R(2902 + offset, 319, 2912 + offset, 443), PANEL_MOUSE_IGNORE); //M4
+
+	RegisterPanelArea(&sat->PwrAmplTB, _R(3119 + offset, 1042, 3142 + offset, 1065), PANEL_MOUSE_IGNORE); //DS21
+	RegisterPanelArea(&sat->DseTapeTB, _R(3119 + offset, 1092, 3142 + offset, 1115), PANEL_MOUSE_IGNORE); //DS22
+
+	RegisterPanelArea(&sat->FuelCellPhIndicator, _R(2822 + offset, 490, 2845 + offset, 513), PANEL_MOUSE_IGNORE); //DS1
+	RegisterPanelArea(&sat->FuelCellRadTempIndicator, _R(2996 + offset, 490, 3019 + offset, 513), PANEL_MOUSE_IGNORE); //DS5
+
+	RegisterPanelArea(&sat->FuelCellRadiators1Indicator, _R(2822 + offset, 539, 2845 + offset, 562), PANEL_MOUSE_IGNORE); //DS6
+	RegisterPanelArea(&sat->FuelCellRadiators2Indicator, _R(2865 + offset, 539, 2888 + offset, 562), PANEL_MOUSE_IGNORE); //DS7
+	RegisterPanelArea(&sat->FuelCellRadiators3Indicator, _R(2908 + offset, 539, 2931 + offset, 562), PANEL_MOUSE_IGNORE); //DS8
+
+	RegisterPanelArea(&sat->FuelCellReactants1Indicator, _R(2823 + offset, 893, 2846 + offset, 917), PANEL_MOUSE_IGNORE); //DS15
+	RegisterPanelArea(&sat->FuelCellReactants2Indicator, _R(2866 + offset, 893, 2889 + offset, 917), PANEL_MOUSE_IGNORE); //DS16
+	RegisterPanelArea(&sat->FuelCellReactants3Indicator, _R(2909 + offset, 893, 2932 + offset, 917), PANEL_MOUSE_IGNORE); //DS17
+	RegisterPanelArea(&sat->MainBusBIndicator1, _R(2952 + offset, 893, 2975 + offset, 917), PANEL_MOUSE_IGNORE); //DS18
+	RegisterPanelArea(&sat->MainBusBIndicator2, _R(2995 + offset, 893, 3018 + offset, 917), PANEL_MOUSE_IGNORE); //DS19
+	RegisterPanelArea(&sat->MainBusBIndicator3, _R(3038 + offset, 893, 3061 + offset, 917), PANEL_MOUSE_IGNORE); //DS20
+
+	RegisterPanelArea(&sat->MainBusAIndicator1, _R(2953 + offset, 758, 2976 + offset, 781), PANEL_MOUSE_IGNORE); //DS10
+	RegisterPanelArea(&sat->MainBusAIndicator2, _R(2996 + offset, 758, 3019 + offset, 781), PANEL_MOUSE_IGNORE); //DS11
+	RegisterPanelArea(&sat->MainBusAIndicator3, _R(3039 + offset, 758, 3062 + offset, 781), PANEL_MOUSE_IGNORE); //DS12
+
+	RegisterPanelArea(&sat->SPSInjectorValve1Indicator, _R(2596 + offset, 523, 2630 + offset, 557), PANEL_MOUSE_IGNORE); //M5
+	RegisterPanelArea(&sat->SPSInjectorValve2Indicator, _R(2644 + offset, 523, 2678 + offset, 557), PANEL_MOUSE_IGNORE); //M6
+	RegisterPanelArea(&sat->SPSInjectorValve3Indicator, _R(2692 + offset, 523, 2726 + offset, 557), PANEL_MOUSE_IGNORE); //M7
+	RegisterPanelArea(&sat->SPSInjectorValve4Indicator, _R(2740 + offset, 523, 2774 + offset, 557), PANEL_MOUSE_IGNORE); //M8
+
+	RegisterPanelArea(&sat->SPSOxidFlowValveMaxIndicator, _R(2605 + offset, 792, 2627 + offset, 804), PANEL_MOUSE_IGNORE);
+	RegisterPanelArea(&sat->SPSOxidFlowValveMinIndicator, _R(2605 + offset, 822, 2627 + offset, 834), PANEL_MOUSE_IGNORE);
+
+	RegisterPanelArea(&sat->SPSHeliumValveAIndicator, _R(2598 + offset, 896, 2621 + offset, 919), PANEL_MOUSE_IGNORE); //DS13
+	RegisterPanelArea(&sat->SPSHeliumValveBIndicator, _R(2641 + offset, 896, 2664 + offset, 919), PANEL_MOUSE_IGNORE); //DS14
 }

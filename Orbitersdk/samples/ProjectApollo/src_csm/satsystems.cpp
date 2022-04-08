@@ -502,6 +502,31 @@ void Saturn::SystemsInit() {
 	CabinPressMeter.WireTo(&ECSPressGroups2Feeder);
 	PartPressCO2Meter.WireTo(&ECSPressGroups2Feeder);
 
+	SMRCSHelium1ATalkback.WireTo(&SMHeatersAMnBCircuitBraker);
+	SMRCSHelium1BTalkback.WireTo(&SMHeatersBMnACircuitBraker);
+	SMRCSHelium1CTalkback.WireTo(&SMHeatersAMnBCircuitBraker);
+	SMRCSHelium1DTalkback.WireTo(&SMHeatersBMnACircuitBraker);
+
+	SMRCSHelium2ATalkback.WireTo(&SMHeatersAMnBCircuitBraker);
+	SMRCSHelium2BTalkback.WireTo(&SMHeatersBMnACircuitBraker);
+	SMRCSHelium2CTalkback.WireTo(&SMHeatersAMnBCircuitBraker);
+	SMRCSHelium2DTalkback.WireTo(&SMHeatersBMnACircuitBraker);
+
+	SMRCSProp1ATalkback.WireTo(&SMHeatersAMnBCircuitBraker);
+	SMRCSProp1BTalkback.WireTo(&SMHeatersBMnACircuitBraker);
+	SMRCSProp1CTalkback.WireTo(&SMHeatersAMnBCircuitBraker);
+	SMRCSProp1DTalkback.WireTo(&SMHeatersBMnACircuitBraker);
+
+	SMRCSProp2ATalkback.WireTo(&SMHeatersAMnBCircuitBraker);
+	SMRCSProp2BTalkback.WireTo(&SMHeatersBMnACircuitBraker);
+	SMRCSProp2CTalkback.WireTo(&SMHeatersAMnBCircuitBraker);
+	SMRCSProp2DTalkback.WireTo(&SMHeatersBMnACircuitBraker);
+
+	CMRCSProp1Talkback.WireTo(&SMHeatersBMnACircuitBraker);
+	CMRCSProp2Talkback.WireTo(&SMHeatersAMnBCircuitBraker);
+
+	EcsRadiatorIndicator.WireTo(&CONTHTRSMnACircuitBraker);
+
 	// Optics initialization
 	optics.Init(this);
 

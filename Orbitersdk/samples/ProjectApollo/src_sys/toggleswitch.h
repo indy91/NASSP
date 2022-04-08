@@ -1294,7 +1294,9 @@ public:
 	void Register(PanelSwitchScenarioHandler &scnh, char *n, int defaultState);
 	void Init(int xp, int yp, int w, int h, SURFHANDLE surf, SwitchRow &row, bool failopen = false);
 	void DrawSwitch(SURFHANDLE drawSurface);
+	bool DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn);
 	void DrawSwitchVC(int id, int event, SURFHANDLE drawSurface);
+	double GetDisplayValue();
 	void InitVC(SURFHANDLE surf);
 	bool CheckMouseClick(int event, int mx, int my);
 	void SaveState(FILEHANDLE scn);
@@ -1307,7 +1309,7 @@ public:
 
 protected:
 	int state; // Changed to INT for extended capabilities hackery
-	double displayState;	//0: false, 1: moving, 2: moving, 3: true
+	double dDisplayState;	//0: false, 1: moving, 2: moving, 3: true
 	bool failOpen;
 	int	x;
 	int y;
