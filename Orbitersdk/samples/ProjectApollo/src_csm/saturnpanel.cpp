@@ -2231,7 +2231,6 @@ void Saturn::SetSwitches(int panel) {
 	SuitPressMeter.Init(srf[SRF_NEEDLE], Panel2, this);
 	CabinPressMeter.Init(srf[SRF_NEEDLE], Panel2, this);
 	PartPressCO2Meter.Init(srf[SRF_NEEDLE], Panel2, this);
-	
 
 	SuitComprDeltaPMeterRow.Init(AID_SUITCOMPRDELTAPMETER, MainPanel, &GaugePower);
 	SuitComprDeltaPMeter.Init(g_Param.pen[4], g_Param.pen[4], SuitComprDeltaPMeterRow, this);

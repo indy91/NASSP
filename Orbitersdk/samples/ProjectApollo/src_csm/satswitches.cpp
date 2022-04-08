@@ -666,7 +666,7 @@ void SaturnPartPressCO2Meter::CalculateNeedleState()
 
 void SaturnPartPressCO2Meter::DoDrawSwitch(SURFHANDLE drawSurface)
 {
-	oapiBlt(drawSurface, NeedleSurface, 215, state, 10, 0, 10, 10, SURF_PREDEF_CK);
+	oapiBlt(drawSurface, NeedleSurface, 0, state, 10, 0, 10, 10, SURF_PREDEF_CK);
 }
 
 void SaturnRoundMeter::Init(HPEN p0, HPEN p1, SwitchRow &row, Saturn *s)
