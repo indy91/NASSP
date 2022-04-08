@@ -1799,7 +1799,6 @@ void PanelSwitches::Init(int id, VESSEL *v, SoundLib *s, PanelSwitchListener *l)
 	vessel = v;
 	soundlib = s;
 	listener = l;
-	elements.clear();
 };
 
 void PanelSwitches::Reset2D()
@@ -1810,6 +1809,11 @@ void PanelSwitches::Reset2D()
 		row->Reset2D();
 		row = row->GetNext();
 	}
+}
+
+void PanelSwitches::ResetPanelAreas()
+{
+	elements.clear();
 }
 
 int PanelSwitches::AddElement(PanelSwitchItem *el)
@@ -3999,6 +4003,20 @@ CurvedMeter::~CurvedMeter()
 void CurvedMeter::SetRotationRange(const double range)
 {
 	RotationRange = range;
+}
+
+bool CurvedMeter::DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn)
+{
+	CalculateNeedleState();
+
+	if (state != DisplayState)
+	{
+		oapiBltPanelAreaBackground(ID, DrawSurface);
+		DoDrawSwitch(DrawSurface);
+		DisplayState = state;
+		return true;
+	}
+	return false;
 }
 
 const double CurvedMeter::GetRotationRange() const

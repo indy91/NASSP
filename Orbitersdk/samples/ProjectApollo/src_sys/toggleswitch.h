@@ -1335,7 +1335,8 @@ public:
 	double GetDisplayValue();
 
 	virtual double QueryValue() = 0;
-	virtual void DoDrawSwitch(double v, SURFHANDLE drawSurface) = 0;
+	virtual void DoDrawSwitch(double v, SURFHANDLE drawSurface) {};
+	virtual void DoDrawSwitch(SURFHANDLE drawSurface) {};
 
 	virtual void DefineVCAnimations(UINT vc_idx) {}
 	void DefineMeshGroup(UINT _grpIndex);
@@ -1368,6 +1369,8 @@ public:
 	void DefineVCAnimations(UINT vc_idx);
 	virtual void OnPostStep(double SimT, double DeltaT, double MJD);
 	void SetRotationRange(const double range);
+	virtual void CalculateNeedleState() {}
+	virtual bool DrawSwitch2(int ID, SURFHANDLE DrawSurface, bool FlashOn);
 
 protected:
 	const double GetRotationRange() const;
@@ -1599,6 +1602,7 @@ public:
 	PanelSwitchItem *GetPanelElement(int id);
 	bool DrawElement(int id, SURFHANDLE DrawSurface, bool FlashOn);
 	void Reset2D();
+	void ResetPanelAreas();
 
 	///
 	/// Set an item's flashing state.

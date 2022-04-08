@@ -1798,7 +1798,6 @@ protected:
 	GuardedToggleSwitch CMRCSPressSwitch;
 	ToggleSwitch SMRCSIndSwitch;
 
-	SwitchRow RCSGaugeRow;
 	RCSQuantityMeter RCSQuantityMeter;
 	RCSFuelPressMeter RCSFuelPressMeter;
 	RCSHeliumPressMeter RCSHeliumPressMeter;
@@ -2115,7 +2114,6 @@ protected:
 	SwitchRow SPSOxidUnbalMeterRow;
 	SaturnSPSOxidUnbalMeter SPSOxidUnbalMeter;
 
-	SwitchRow SPSMetersRow;
 	SaturnSPSTempMeter SPSTempMeter;
 	SaturnSPSHeliumNitrogenPressMeter SPSHeliumNitrogenPressMeter;
 	SaturnSPSPropellantPressMeter SPSFuelPressMeter;
@@ -2133,7 +2131,6 @@ protected:
 	///
 	/// \brief Cryo tank meters
 	///
-	SwitchRow CryoTankMetersRow;
 	SaturnH2PressureMeter H2Pressure1Meter;
 	SaturnH2PressureMeter H2Pressure2Meter;
 	SaturnO2PressureMeter O2Pressure1Meter;
@@ -2146,7 +2143,6 @@ protected:
 	///
 	/// \brief Fuel cell meters
 	///
-	SwitchRow FuelCellMetersRow;
 	SaturnFuelCellH2FlowMeter FuelCellH2FlowMeter;
 	SaturnFuelCellO2FlowMeter FuelCellO2FlowMeter;
 	SaturnFuelCellTempMeter FuelCellTempMeter;
@@ -2155,7 +2151,6 @@ protected:
 	///
 	/// \brief Cabin meters
 	///
-	SwitchRow CabinMetersRow;
 	SaturnSuitTempMeter SuitTempMeter;
 	SaturnCabinTempMeter CabinTempMeter;
 	SaturnSuitPressMeter SuitPressMeter; 
@@ -3509,7 +3504,6 @@ protected:
 	PanelSwitchScenarioHandler PSH;
 
 	SwitchRow SequencerSwitchesRow;
-	SwitchRow CryoTankSwitchesRow;
 	SwitchRow FuelCellPhRadTempIndicatorsRow;
 	SwitchRow FuelCellRadiatorsIndicatorsRow;
 	SwitchRow FuelCellReactantsIndicatorsRow;

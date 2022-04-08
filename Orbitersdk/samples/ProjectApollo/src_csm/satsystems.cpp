@@ -472,6 +472,36 @@ void Saturn::SystemsInit() {
 	SecRadInTempSensor.Init(&ECSSecCoolLoopRADHTRMnACircuitBraker, (h_Tank *)Panelsdk.GetPointerByString("HYDRAULIC:SECRADIATORINLET"));
 	SecRadOutTempSensor.Init(&ECSSecCoolLoopRADHTRMnACircuitBraker, (h_Tank *)Panelsdk.GetPointerByString("HYDRAULIC:SECRADIATOROUTLET"));
 
+	// Meters
+	H2Pressure1Meter.WireTo(&Panel276CB4);
+	H2Pressure2Meter.WireTo(&Panel276CB3);
+	O2Pressure1Meter.WireTo(&Panel276CB4);
+	O2Pressure2Meter.WireTo(&Panel276CB3);
+	H2Quantity1Meter.WireTo(&CryogenicQTYAmpl1CB);
+	H2Quantity2Meter.WireTo(&CryogenicQTYAmpl2CB);
+	O2Quantity1Meter.WireTo(&CryogenicQTYAmpl1CB);
+	O2Quantity2Meter.WireTo(&CryogenicQTYAmpl2CB);
+
+	RCSQuantityMeter.WireTo(&Panel276CB3);
+	RCSFuelPressMeter.WireTo(&Panel276CB3);
+	RCSHeliumPressMeter.WireTo(&Panel276CB3);
+	RCSTempMeter.WireTo(&Panel276CB3);
+
+	FuelCellH2FlowMeter.WireTo(&Panel276CB3);
+	FuelCellO2FlowMeter.WireTo(&Panel276CB3);
+	FuelCellTempMeter.WireTo(&Panel276CB3);
+	FuelCellCondenserTempMeter.WireTo(&Panel276CB3);
+
+	SPSTempMeter.WireTo(&Panel276CB3);
+	SPSFuelPressMeter.WireTo(&Panel276CB4);
+	SPSOxidPressMeter.WireTo(&Panel276CB3);
+
+	SuitTempMeter.WireTo(&ECSTempTransducerFeeder);
+	CabinTempMeter.WireTo(&ECSTempTransducerFeeder);
+	SuitPressMeter.WireTo(&ECSPressGroups1Feeder);
+	CabinPressMeter.WireTo(&ECSPressGroups2Feeder);
+	PartPressCO2Meter.WireTo(&ECSPressGroups2Feeder);
+
 	// Optics initialization
 	optics.Init(this);
 
