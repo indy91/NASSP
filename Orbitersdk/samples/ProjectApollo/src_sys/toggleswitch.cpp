@@ -2127,21 +2127,10 @@ GuardedPushSwitch::GuardedPushSwitch() {
 	guardBorder = 0;
 	guardState = 0;
 	guardResetsState = true;
-
-	lit = false;
 }
 
 GuardedPushSwitch::~GuardedPushSwitch() {
 	guardClick.done();
-}
-
-void GuardedPushSwitch::Init(int xp, int yp, int w, int h, SURFHANDLE surf, SURFHANDLE bsurf, SwitchRow &row, int xoffset, int yoffset, int lxoffset, int lyoffset)
-
-{
-	litOffsetX = lxoffset;
-	litOffsetY = lyoffset;
-
-	TwoPositionSwitch::Init(xp, yp, w, h, surf, bsurf, row, xoffset, yoffset);
 }
 
 void GuardedPushSwitch::Register(PanelSwitchScenarioHandler &scnh, char *n, int defaultState, int defaultGuardState) {
@@ -2171,17 +2160,6 @@ void GuardedPushSwitch::DefineMeshGroup(UINT _grpIndex, UINT _coverGrpIndex)
 {
 	grpIndex = _grpIndex;
 	coverGrpIndex = _coverGrpIndex;
-}
-
-void GuardedPushSwitch::DoDrawSwitch(SURFHANDLE DrawSurface)
-
-{
-	if (lit)
-	{
-		oapiBlt(DrawSurface, SwitchSurface, x, y, litOffsetX, litOffsetY, width, height, SURF_PREDEF_CK);
-	}
-	else
-		TwoPositionSwitch::DoDrawSwitch(DrawSurface);
 }
 
 void GuardedPushSwitch::DrawSwitch(SURFHANDLE DrawSurface) {
@@ -2308,25 +2286,24 @@ void GuardedPushSwitch::SaveState(FILEHANDLE scn) {
 
 	char buffer[100];
 
-	sprintf(buffer, "%i %i %d", state, guardState, lit ? 1 : 0); 
+	sprintf(buffer, "%i %i", state, guardState); 
 	oapiWriteScenario_string(scn, name, buffer);
 }
 
 void GuardedPushSwitch::LoadState(char *line) {
 	
 	char buffer[100];
-	int st, gst, l = 0;
+	int st, gst;
 
 	//
 	// Note we set l to zero before the sscanf call to allow backward
 	// compatibility with old scenarios: default to unlit if the lit
 	// state isn't saved in the file.
 	//
-	sscanf(line, "%s %i %i %d", buffer, &st, &gst, &l); 
+	sscanf(line, "%s %i %i", buffer, &st, &gst); 
 	if (!strnicmp(buffer, name, strlen(name))) {
 		state = st;
 		guardState = gst;
-		lit = (l != 0);
 	}
 }
 

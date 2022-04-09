@@ -525,8 +525,6 @@ void Saturn::SystemsInit() {
 	CMRCSProp1Talkback.WireTo(&SMHeatersBMnACircuitBraker);
 	CMRCSProp2Talkback.WireTo(&SMHeatersAMnBCircuitBraker);
 
-	EcsRadiatorIndicator.WireTo(&CONTHTRSMnACircuitBraker);
-
 	// Optics initialization
 	optics.Init(this);
 

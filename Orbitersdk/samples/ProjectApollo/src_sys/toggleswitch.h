@@ -1076,16 +1076,12 @@ public:
 	GuardedPushSwitch();
 	virtual ~GuardedPushSwitch();
 
-	void Init(int xp, int yp, int w, int h, SURFHANDLE surf, SURFHANDLE bsurf, SwitchRow &row,
-		int xoffset = 0, int yoffset = 0, int lxoffset = 0, int lyoffset = 0);
-
 	virtual void Register(PanelSwitchScenarioHandler &scnh, char *n, int defaultState, int defaultGuardState);
 	void InitGuard(int xp, int yp, int w, int h, SURFHANDLE surf, SURFHANDLE dsurf,
 				   int xOffset = 0, int yOffset = 0);
 	void DrawSwitch(SURFHANDLE DrawSurface);
 	void DrawSwitchVC(int id, int event, SURFHANDLE surf);
 	void DrawFlash(SURFHANDLE DrawSurface);
-	void DoDrawSwitch(SURFHANDLE drawSurface);
 	bool CheckMouseClick(int event, int mx, int my);
 	bool CheckMouseClickVC(int event, VECTOR3 &p);
 	void SaveState(FILEHANDLE scn);
@@ -1095,9 +1091,6 @@ public:
 	void SetGuardResetsState(bool s) { guardResetsState = s; };
 	void Unguard() { guardState = 1; };
 	void Guard();
-
-	void SetLit(bool l) { lit = l; };
-	bool IsLit() { return lit; };
 
 	void DefineVCAnimations(UINT vc_idx);
 	void SetReference(const VECTOR3& _dir, const VECTOR3& coverref, const VECTOR3& _coverdir);
@@ -1110,11 +1103,6 @@ protected:
 	int guardHeight;
 	int guardState;
 	bool guardResetsState;
-
-	int litOffsetX;
-	int litOffsetY;
-
-	bool lit;
 
 	SURFHANDLE guardSurface;
 	SURFHANDLE guardBorder;

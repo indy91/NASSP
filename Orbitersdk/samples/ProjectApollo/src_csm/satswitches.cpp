@@ -1454,13 +1454,12 @@ double SaturnSystemTestAttenuator::GetValue()
 	return (double)val;
 }
 
-void SaturnGPFPIMeter::Init(SURFHANDLE surf, SwitchRow &row, Saturn *s, int sys, int xoffset)
+void SaturnGPFPIMeter::Init(SURFHANDLE surf, SwitchRow &row, Saturn *s, int sys)
 {
 	MeterSwitch::Init(row);
 	NeedleSurface = surf;
 	Sat = s;
 	system = sys;
-	xOffset = xoffset;
 }
 
 double SaturnGPFPIMeter::AdjustForPower(double val) 
@@ -1472,10 +1471,15 @@ double SaturnGPFPIMeter::AdjustForPower(double val)
 	return 0; 
 }
 
-void SaturnGPFPIMeter::DoDrawSwitch(double v, SURFHANDLE drawSurface)
+void SaturnGPFPIMeter::DoDrawSwitch(SURFHANDLE drawSurface)
 {
-	oapiBlt(drawSurface, NeedleSurface, xOffset,      93 - (int)v, 10, 1, 7, 8, SURF_PREDEF_CK);
-	oapiBlt(drawSurface, NeedleSurface, xOffset + 12, 93 - (int)v,  3, 1, 7, 8, SURF_PREDEF_CK);
+	oapiBlt(drawSurface, NeedleSurface, 0, state, 10, 1, 7, 8, SURF_PREDEF_CK);
+	oapiBlt(drawSurface, NeedleSurface, 12, state,  3, 1, 7, 8, SURF_PREDEF_CK);
+}
+
+void SaturnGPFPIMeter::CalculateNeedleState()
+{
+	state = 93 - (int)GetDisplayValue();
 }
 
 void SaturnGPFPIMeter::OnPostStep(double SimT, double DeltaT, double MJD)
@@ -2494,9 +2498,9 @@ SaturnLiftoffNoAutoAbortSwitch::SaturnLiftoffNoAutoAbortSwitch()
 }
 
 void SaturnLiftoffNoAutoAbortSwitch::Init(int xp, int yp, int w, int h, SURFHANDLE surf, SURFHANDLE bsurf, SwitchRow &row, SECS *s,
-	int xoffset, int yoffset, int lxoffset, int lyoffset)
+	int xoffset, int yoffset)
 {
-	GuardedPushSwitch::Init(xp, yp, w, h, surf, bsurf, row, xoffset, yoffset, lxoffset, lyoffset);
+	GuardedPushSwitch::Init(xp, yp, w, h, surf, bsurf, row, xoffset, yoffset);
 
 	secs = s;
 }
@@ -2926,6 +2930,11 @@ void CSMPanel1::RegisterPanelAreas()
 	RegisterPanelArea(&sat->GTASwitch, _R(904, 291, 959, 402), PANEL_MOUSE_DOWN | PANEL_MOUSE_UP);
 
 	RegisterPanelArea(&sat->SPSswitch, _R(299, 1051, 337, 1103), PANEL_MOUSE_DOWN); //S23
+
+	RegisterPanelArea(&sat->GPFPIPitch1Meter, _R(644, 927, 663, 1032), PANEL_MOUSE_IGNORE);
+	RegisterPanelArea(&sat->GPFPIPitch2Meter, _R(682, 927, 701, 1032), PANEL_MOUSE_IGNORE);
+	RegisterPanelArea(&sat->GPFPIYaw1Meter, _R(720, 927, 739, 1032), PANEL_MOUSE_IGNORE);
+	RegisterPanelArea(&sat->GPFPIYaw2Meter, _R(758, 927, 777, 1032), PANEL_MOUSE_IGNORE);
 }
 
 void CSMPanel2::RegisterPanelAreasLeft(int offset)

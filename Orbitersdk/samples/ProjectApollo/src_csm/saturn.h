@@ -2113,7 +2113,6 @@ protected:
 	SwitchRow LVSPSPcMeterRow;
 	SaturnLVSPSPcMeter LVSPSPcMeter;
 
-	SwitchRow GPFPIMeterRow;
 	SaturnGPFPIPitchMeter GPFPIPitch1Meter;
 	SaturnGPFPIPitchMeter GPFPIPitch2Meter;
 	SaturnGPFPIYawMeter GPFPIYaw1Meter;
