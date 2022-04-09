@@ -1536,8 +1536,8 @@ void Saturn::AddLeftMainPanelAreas() {
 	oapiRegisterPanelArea (AID_ASCPYAW,										_R( 124, 1250,  142, 1287), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_PRESSED|PANEL_MOUSE_UP,PANEL_MAP_BACKGROUND);
 	// GPFPI DISPLAYS
 	//oapiRegisterPanelArea (AID_GPFPI_METERS,								_R( 629,  927,  791, 1032), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SPSGIMBALPITCHTHUMBWHEEL,					_R( 655, 1058,  672, 1094), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
-	oapiRegisterPanelArea (AID_SPSGIMBALYAWTHUMBWHEEL,						_R( 739, 1067,  775, 1084), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
+	//oapiRegisterPanelArea (AID_SPSGIMBALPITCHTHUMBWHEEL,					_R( 655, 1058,  672, 1094), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
+	//oapiRegisterPanelArea (AID_SPSGIMBALYAWTHUMBWHEEL,						_R( 739, 1067,  775, 1084), PANEL_REDRAW_ALWAYS, PANEL_MOUSE_DOWN,					PANEL_MAP_BACKGROUND);
 	// FDAI
 	fdaiLeft.RegisterMe(AID_FDAI_LEFT, 533, 612);
 	if (!hBmpFDAIRollIndicator)	hBmpFDAIRollIndicator = LoadBitmap(g_Param.hDLL, MAKEINTRESOURCE (IDB_FDAI_ROLLINDICATOR));
@@ -2113,11 +2113,8 @@ void Saturn::SetSwitches(int panel) {
 
 	SPSswitch.Init(0, 0, 38, 52, srf[SRF_SWITCHLEVER], srf[SRF_BORDER_38x52], Panel1);
 
-	SPSGimbalPitchThumbwheelRow.Init(AID_SPSGIMBALPITCHTHUMBWHEEL, MainPanel);
-	SPSGimbalPitchThumbwheel.Init(0, 0, 17, 36, srf[SRF_THUMBWHEEL_GPI_PITCH], srf[SRF_BORDER_17x36], SPSGimbalPitchThumbwheelRow);
-
-	SPSGimbalYawThumbwheelRow.Init(AID_SPSGIMBALYAWTHUMBWHEEL, MainPanel);
-	SPSGimbalYawThumbwheel.Init(0, 0, 36, 17, srf[SRF_THUMBWHEEL_GPI_YAW], srf[SRF_BORDER_36x17], SPSGimbalYawThumbwheelRow);
+	SPSGimbalPitchThumbwheel.Init(0, 0, 17, 36, srf[SRF_THUMBWHEEL_GPI_PITCH], srf[SRF_BORDER_17x36], Panel1);
+	SPSGimbalYawThumbwheel.Init(0, 0, 36, 17, srf[SRF_THUMBWHEEL_GPI_YAW], srf[SRF_BORDER_36x17], Panel1);
 
 	//
 	// Communication switches (s-band, vhf etc.)

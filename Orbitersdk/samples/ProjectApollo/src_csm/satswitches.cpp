@@ -2935,6 +2935,9 @@ void CSMPanel1::RegisterPanelAreas()
 	RegisterPanelArea(&sat->GPFPIPitch2Meter, _R(682, 927, 701, 1032), PANEL_MOUSE_IGNORE);
 	RegisterPanelArea(&sat->GPFPIYaw1Meter, _R(720, 927, 739, 1032), PANEL_MOUSE_IGNORE);
 	RegisterPanelArea(&sat->GPFPIYaw2Meter, _R(758, 927, 777, 1032), PANEL_MOUSE_IGNORE);
+
+	RegisterPanelArea(&sat->SPSGimbalPitchThumbwheel, _R(655, 1058, 672, 1094), PANEL_MOUSE_DOWN);
+	RegisterPanelArea(&sat->SPSGimbalYawThumbwheel, _R(739, 1067, 775, 1084), PANEL_MOUSE_DOWN);
 }
 
 void CSMPanel2::RegisterPanelAreasLeft(int offset)
