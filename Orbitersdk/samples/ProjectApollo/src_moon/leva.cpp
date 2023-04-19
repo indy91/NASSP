@@ -558,7 +558,6 @@ void LEVA::DoFirstTimestep()
 void LEVA::clbkPreStep (double SimT, double SimDT, double mjd)
 
 {
-	VESSELSTATUS csmV;
 	VESSELSTATUS evaV;
 	VECTOR3 rdist = {0,0,0};
 	VECTOR3 posr  = {0,0,0};
