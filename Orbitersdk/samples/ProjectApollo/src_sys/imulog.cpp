@@ -40,116 +40,39 @@
 #include "ioChannels.h"
 #include "IMU.h"
 
-static FILE *logFile = NULL;
-static long lastTime = -1;
-
 char *intToBinaryString(char *buffer, int i);
 
 
 void IMU::LogInit() 
 
 {
-#ifdef _DEBUG
-	if (!logFile)
-#ifdef SAT5_LMPKD_EXPORTS
-		logFile = fopen("ProjectApollo LM IMU.log", "w");
-#else
-		logFile = fopen("ProjectApollo IMU.log", "w");
-#endif
-#endif
+
 }
 
 void IMU::LogState(int channel, char *device, int value) 
 
 {
-#ifdef _DEBUG
-	struct _timeb tstruct;
-	char *timeline;
-	char buffer[100];	
-	char buffer1[100];
-	
-	_ftime(&tstruct);
-	timeline = ctime(&(tstruct.time));
-	strcpy(buffer, timeline + 11);
-	
-	intToBinaryString(buffer1, value);
 
-		/*fprintf(logFile, "%.8s.%03hu Ch %03o %s %s PIPA %o %o %o CDUCMD %o %o %o GYRO %o IMU %.2f %.2f %.2f\n", buffer, tstruct.millitm, channel, device, buffer1,
-		    agc.GetErasable(0, RegPIPAX), 
-		    agc.GetErasable(0, RegPIPAY), 
-			agc.GetErasable(0, RegPIPAZ), 
-			agc.GetErasable(0, RegCDUXCMD),
-			agc.GetErasable(0, RegCDUYCMD),
-			agc.GetErasable(0, RegCDUZCMD),
-			//state->Erasable[0][RegCDUX],
-			//state->Erasable[0][RegCDUY],
-			//state->Erasable[0][RegCDUZ],			
-			agc.GetErasable(0, RegGYROCTR),
-			radToDeg(Gimbal.X),
-			radToDeg(Gimbal.Y),
-			radToDeg(Gimbal.Z));*/
-			
-	fflush(logFile);
-#endif
 }
 
 void IMU::LogTimeStep(long simt) 
 
 {
-#ifdef _DEBUG
-	struct _timeb tstruct;
-	char *timeline;
-	char buffer[100];	
-	
-	_ftime(&tstruct);
-	timeline = ctime(&(tstruct.time));
-	strcpy(buffer, timeline + 11);
-		
-	fprintf(logFile, "%.8s.%03hu TimeStep                   Orbiter %.2f %.2f %.2f   IMU %.2f %.2f %.2f\n", buffer, tstruct.millitm, 
-			radToDeg(Orbiter.Attitude.X),
-			radToDeg(Orbiter.Attitude.Y),
-			radToDeg(Orbiter.Attitude.Z),
-			radToDeg(Gimbal.X),
-			radToDeg(Gimbal.Y),
-			radToDeg(Gimbal.Z));
 
-	fflush(logFile);
-#endif
+
 }
 
 
 void IMU::LogVector(char* message, VECTOR3 v) 
 
 {
-#ifdef _DEBUG
-	struct _timeb tstruct;
-	char *timeline;
-	char buffer[100];
-	
-	_ftime(&tstruct);
-	timeline = ctime(&(tstruct.time));
-	strcpy(buffer, timeline + 11);
-		
-	fprintf(logFile, "%.8s.%03hu %s Vector %f %f %f\n", buffer, tstruct.millitm, 
-			message, v.x, v.y, v.z);
-#endif
+
 }
 
 void IMU::LogMessage(char* s) 
 
 {
-#ifdef _DEBUG
-	struct _timeb tstruct;
-	char *timeline;
-	char buffer[100];	
-	
-	_ftime(&tstruct);
-	timeline = ctime(&(tstruct.time));
-	strcpy(buffer, timeline + 11);
-		
-	fprintf(logFile, "%.8s.%03hu Message %s\n", buffer, tstruct.millitm, 
-			s);	
-#endif
+
 }
 
 char *intToBinaryString(char *buffer, int i) {

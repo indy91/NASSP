@@ -131,14 +131,27 @@ void CSMcomputer::Timestep(double simt, double simdt)
 	IMUTurnOnDelayTimer.Timestep(simdt);
 
 	/*VECTOR3 RN, VN;
-	RN.x = ConvertAGCDoubleToDouble(vagc->memory[0765], vagc->memory[0766], pow(2, 25));
-	RN.y = ConvertAGCDoubleToDouble(vagc->memory[0767], vagc->memory[0770], pow(2, 25));
-	RN.z = ConvertAGCDoubleToDouble(vagc->memory[0771], vagc->memory[0772], pow(2, 25));
+	RN.x = ConvertAGCDoubleToDouble(vagc->memory[0765], vagc->memory[0766], pow(2, 24));
+	RN.y = ConvertAGCDoubleToDouble(vagc->memory[0767], vagc->memory[0770], pow(2, 24));
+	RN.z = ConvertAGCDoubleToDouble(vagc->memory[0771], vagc->memory[0772], pow(2, 24));
 	VN.x = ConvertAGCDoubleToDouble(vagc->memory[0773], vagc->memory[0774], pow(2, 7)*100.0);
 	VN.y = ConvertAGCDoubleToDouble(vagc->memory[0775], vagc->memory[0776], pow(2, 7)*100.0);
-	VN.z = ConvertAGCDoubleToDouble(vagc->memory[0777], vagc->memory[01000], pow(2, 7)*100.0);
+	VN.z = ConvertAGCDoubleToDouble(vagc->memory[0777], vagc->memory[01000], pow(2, 7)*100.0);*/
 
-	sprintf(oapiDebugString(), "RN %lf %lf %lf VN %lf %lf %lf R %lf V %lf", RN.x, RN.y, RN.z, VN.x, VN.y, VN.z, length(RN), length(VN));*/
+	//sprintf(oapiDebugString(), "RN %lf %lf %lf VN %lf %lf %lf R %lf V %lf", RN.x, RN.y, RN.z, VN.x, VN.y, VN.z, length(RN), length(VN));
+
+	//sprintf(oapiDebugString(), "LST1 %o %o %o %o %o %o", vagc->memory[0552], vagc->memory[0553], vagc->memory[0554], vagc->memory[0555], vagc->memory[0556], vagc->memory[0557]);
+	//sprintf(oapiDebugString(), "LST2 %o %o %o %o %o %o", vagc->memory[0561], vagc->memory[0562], vagc->memory[0563], vagc->memory[0564], vagc->memory[0565], vagc->memory[0566]);
+	//sprintf(oapiDebugString(), "POLYORDR %o", vagc->memory[01574]);
+	//sprintf(oapiDebugString(), "TEL? %o", vagc->memory[01350]);
+	//sprintf(oapiDebugString(), "TBASE2 %o TBASE3 %o TBASE4 %o TBASE5 %o", vagc->memory[0664], vagc->memory[0665], vagc->memory[0666], vagc->memory[0667]);
+	//sprintf(oapiDebugString(), "FLAGWRD1 %o", agc.memory[0646]);
+	//sprintf(oapiDebugString(), "Z %o BANK %o", regZ, regBank);
+	sprintf(oapiDebugString(), "TENDROLL %d", vagc->memory[01561]);
+	//sprintf(oapiDebugString(), "TIME2 %o TIME1 %o", vagc->memory[035], vagc->memory[036]);
+	//sprintf(oapiDebugString(), "TMONITOR %o %o", vagc->memory[01570], vagc->memory[01571]);
+	//sprintf(oapiDebugString(), "TIME2GR %o TIME1GR %o DTEAROT %o %o", vagc->memory[01466], vagc->memory[01467], vagc->memory[01144], vagc->memory[01145]);
+	//sprintf(oapiDebugString(), "TPACIF1 %o %o TPACIFIC %o %o", vagc->memory[01627], vagc->memory[01630], vagc->memory[01536], vagc->memory[01537]);
 
 	// DS20060302 For joystick stuff below
 	sat = (Saturn *) OurVessel;
