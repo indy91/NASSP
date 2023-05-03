@@ -331,7 +331,7 @@ static inline double sign(double x)
 #define DPS_ISP			3107
 #define DPS_DEFAULT_PROPELLANT		8375.0
 
-#define RCS_FUEL_PER_QUAD		152.5	// Apollo 11 Mission Report, AOH
+#define RCS_FUEL_PER_QUAD		93.5	// Apollo 11 Mission Report, AOH
 #define PRIM_RCS_FUEL_PER_QUAD	93.5	// AOH
 #define SM_RCS_ISP				(290.0 * G)
 #define SM_RCS_ISP_SL			50.0
