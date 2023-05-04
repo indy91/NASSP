@@ -130,6 +130,8 @@ void CSMcomputer::Timestep(double simt, double simdt)
 {
 	IMUTurnOnDelayTimer.Timestep(simdt);
 
+	//sprintf(oapiDebugString(), "CDU SHAFT %lf %lf %lf", ogcdu.GetShaftAngle()*DEG, igcdu.GetShaftAngle()*DEG, mgcdu.GetShaftAngle()*DEG);
+
 	/*VECTOR3 RN, VN;
 	RN.x = ConvertAGCDoubleToDouble(vagc->memory[0765], vagc->memory[0766], pow(2, 24));
 	RN.y = ConvertAGCDoubleToDouble(vagc->memory[0767], vagc->memory[0770], pow(2, 24));
