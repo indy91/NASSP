@@ -986,6 +986,7 @@ void GDC::Timestep(double simdt) {
 	}
 
 	//sprintf(oapiDebugString(), "Body: %f %f %f Euler: %f %f %f", sat->bmag1.GetRates().z*DEG, sat->bmag1.GetRates().x*DEG, sat->bmag1.GetRates().y*DEG, rollrate*DEG, pitchrate*DEG, yawrate*DEG);
+	//sprintf(oapiDebugString(), "GDC Attitude: %lf %lf %lf", Attitude.x*DEG, Attitude.y*DEG, Attitude.z*DEG);
 }
 
 double GDC::GetRollBodyMinusEulerError()

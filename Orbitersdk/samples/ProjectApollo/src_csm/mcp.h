@@ -99,6 +99,7 @@ public:
 	bool GetSCSDirectUllage() { return R1K31; }
 	bool GetRCSPitchChannelDisable() { return R1K9AB; }
 	bool GetRCSYawChannelDisable() { return R1K10AB; }
+	bool GetLiftingEntry() { return R1K11AB; }
 protected:
 
 	void InputReset();
@@ -326,12 +327,13 @@ protected:
 	bool R2K27;		// Pitch 2 Start
 	bool R2K28;		// Pitch 2 On
 	bool R2K29;		// 0.05g
-	bool R2K30;		// Lift Entry?
+	bool R2K30;		// Lift Entry
 	bool R2K31;		// Monitor Mode
 	bool R2K32;		// G&N Attitude Control
 	bool R2K34;		// G&N Entry Mode
 	bool R2K35;		// SCS Entry Mode
 	bool R2K36;		// G&N DV Mode
+	bool R2K37;		// Roll Rate On
 	bool R2K39;		// Gimbal Position Set
 	bool R2K40;		// Gimbal Position Set
 	bool R2K42;		// X-Translation
@@ -355,6 +357,7 @@ protected:
 	bool R2K110;	// Stable II
 	bool R2K111;	// Stable II plus 11 seconds?
 	bool R2K116;	// VHF Antenna
+	bool R2K117;	// Lift Entry
 	bool R2K119;	// Direct Thrust Off
 	bool R2K125;	// LES Abort
 	bool R2K126;	// G&N Fail

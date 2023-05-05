@@ -587,6 +587,7 @@ MCP_SCC::MCP_SCC() :
 	R2K34 = false;
 	R2K35 = false;
 	R2K36 = false;
+	R2K37 = false;
 	R2K42 = false;
 	R2K43 = false;
 	R2K44 = false;
@@ -622,6 +623,7 @@ MCP_SCC::MCP_SCC() :
 	R2K142 = false;
 	R2K131 = false;
 	R2K116 = false;
+	R2K117 = false;
 	R2K181 = false;
 	
 	R2K173 = false;
@@ -769,10 +771,14 @@ void MCP_SCC::Timestep(double simdt)
 	R2K31 = R2K57 || R2K35 || R2K32 || R2K36 || R2K34;
 
 	//0.05g
-	b005GSignal = (ads->Get005GSwitch() || (CSMSepSignal && R2K129 && Sat->dsky.GetCRelay(28)));
+	b005GSignal = CSMSepSignal && (ads->Get005GSwitch() || (R2K129 && Sat->dsky.GetCRelay(28)));
 	R2K29 = b005GSignal;
 
 	//sprintf(oapiDebugString(), "0.05g %d ADS %d CSMSep %d R2K129 %d AGC %d", b005GSignal, ads->Get005GSwitch(), CSMSepSignal, R2K129, Sat->dsky.GetCRelay(28));
+
+	//Lift entry
+	R2K30 = R2K117 = b005GSignal && !Sat->mcp_gcc.GetLiftingEntry();
+	R2K37 = R2K117 && R2K35;
 
 	//FDAI Align
 	bool R2K38AB = NoAbort && (gcc->GetFDAIAlign() || Sat->dsky.GetCRelay(30));
@@ -896,7 +902,7 @@ void MCP_SCC::Timestep(double simdt)
 		R2K17 = true;
 	}
 
-	if (CSMSepSignal && b005GSignal)
+	if (b005GSignal)
 	{
 		R2K14 = true;
 		R2K20 = true;
@@ -1189,6 +1195,21 @@ void MCP_SCC::Timestep(double simdt)
 
 	//sprintf(oapiDebugString(), "SPSArm %d GimbalMotorsOn %d GimbalTimers %lf %lf Stop %d", SPSArmSignal, GimbalMotorsOn, GimbalMotors30sTimer.GetTime(),GimbalMotors80sTimer.GetTime(), GimbalMotorsStopSignal);
 	//sprintf(oapiDebugString(), "Logic Bus %d %d Pyro Bus %d %d Oxid Dump %d %d Tower %d %d LES %d %d", R2K18AB, R2K12AB, R2K19AB, R2K13AB, R2K3AB, R2K72AB, R2K9AB, R2K15AB, R2K16AB, R2K10AB);
+
+	//SIGNALS FROM THE DSKY
+	std::string DSKYState = "AGC COMMANDS TO PROGRAMER: ";
+
+	if (Sat->dsky.GetCRelay(22)) DSKYState += "G&N ATTITUDE CONTROL MODE, ";
+	if (Sat->dsky.GetCRelay(23)) DSKYState += "G&N DV MODE, ";
+	if (Sat->dsky.GetCRelay(24)) DSKYState += "G&N ENTRY MODE, ";
+	if (Sat->dsky.GetCRelay(25)) DSKYState += "CM-SM SEPARATE ON, ";
+	if (Sat->dsky.GetCRelay(26)) DSKYState += "+X TRANSLATION, ";
+	if (Sat->dsky.GetCRelay(27)) DSKYState += "G&N FAILURE, ";
+	if (Sat->dsky.GetCRelay(28)) DSKYState += "0.05G INDICATION, ";
+	if (Sat->dsky.GetCRelay(29)) DSKYState += "GIMBAL MOTORS ON, ";
+	if (Sat->dsky.GetCRelay(30)) DSKYState += "FDAI ALIGN, ";
+
+	sprintf(oapiDebugString(), "%s", DSKYState.c_str());
 }
 
 void MCP_SCC::ProgramerReset()
