@@ -10,3 +10,5 @@
 *.scn	eol=crlf
 # Do not propagate build script into branches unless requested
 appveyor.yml merge=ours
+# Treat all meshes as binary files
+*.msh binary
