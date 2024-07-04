@@ -79,20 +79,36 @@ struct AEGBlock
 	AEGDataBlock Data;
 };
 
-class PMMAEG
+class GeneralAEG
 {
 public:
-	PMMAEG();
+protected:
+	CELEMENTS KeplerToEquinoctial(CELEMENTS kep) const;
+	CELEMENTS EquinoctialToKepler(CELEMENTS aeq) const;
+	CELEMENTS LyddaneOsculatingToMean(CELEMENTS arr_osc) const;
+	void BrouwerSecularRates(CELEMENTS coe_osc, CELEMENTS coe_mean, int body, double &l_dot, double &g_dot, double &h_dot) const;
+
+	virtual CELEMENTS LyddaneMeanToOsculating(CELEMENTS arr) const = 0;
+};
+
+class PMMAEG : public RTCCModule, public GeneralAEG
+{
+public:
+	PMMAEG(RTCC *r);
 	void CALL(AEGHeader &header, AEGDataBlock &in, AEGDataBlock &out);
 protected:
+	CELEMENTS LyddaneMeanToOsculating(CELEMENTS arr) const;
+	bool MeanElementsUpdateRoutine(AEGDataBlock &in, double dt);
+	bool DRAG(CELEMENTS coe_mean0, double KAm, double l_dot, double g_dot, double ddt, CELEMENTS &coe_mean0_apo, double &l_dot_apo) const;
 	AEGDataBlock CurrentBlock;
 };
 
-class PMMLAEG : public RTCCModule
+class PMMLAEG : public RTCCModule, public GeneralAEG
 {
 public:
 	PMMLAEG(RTCC *r);
 	void CALL(AEGHeader &header, AEGDataBlock &in, AEGDataBlock &out);
 protected:
+	CELEMENTS LyddaneMeanToOsculating(CELEMENTS arr) const;
 	AEGDataBlock CurrentBlock;
 };

@@ -397,11 +397,6 @@ namespace OrbMech {
 	double EMXINGElevSlope(VECTOR3 R, VECTOR3 V, VECTOR3 R_S, int body);
 
 	//AEG
-	CELEMENTS LyddaneMeanToOsculating(CELEMENTS arr, int body);
-	CELEMENTS LyddaneOsculatingToMean(CELEMENTS arr_osc, int body);
-	CELEMENTS KeplerToEquinoctial(CELEMENTS kep);
-	CELEMENTS EquinoctialToKepler(CELEMENTS aeq);
-	void BrouwerSecularRates(CELEMENTS coe_osc, CELEMENTS coe_mean, int body, double &l_dot, double &g_dot, double &h_dot);
 	SV PMMAEGS(int Epoch, SV sv0, int opt, double param, bool &error, double DN = 0.0);
 	SV PMMAEG(int Epoch, SV sv0, int opt, double param, bool &error, double DN = 0.0);
 	SV PMMLAEG(int Epoch, SV sv0, int opt, double param, bool &error, double DN = 0.0);

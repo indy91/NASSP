@@ -1468,6 +1468,7 @@ void SpacecraftSettingTable::LoadState(FILEHANDLE scn, char *end_str)
 }
 
 RTCC::RTCC() :
+	pmmaeg(this),
 	pmmlaeg(this)
 {
 	mcc = NULL;

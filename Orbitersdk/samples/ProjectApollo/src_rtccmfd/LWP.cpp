@@ -135,7 +135,7 @@ void LaunchWindowProcessor::LWP(const LWPInputTable &in)
 
 void LaunchWindowProcessor::UPDAT(VECTOR3 &R, VECTOR3 &V, double &T, double T_des)
 {
-	PMMAEG pmmaeg;
+	PMMAEG pmmaeg(pRTCC);
 	AEGBlock aeg;
 
 	aeg.Data.coe_osc = OrbMech::GIMIKC(R, V, GLOCON.mu);
