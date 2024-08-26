@@ -80,6 +80,12 @@ public:
 	void RecallStatus(void);
 
 	void Text(oapi::Sketchpad *skp, std::string message, int x, int y, int xmax = 1024, int ymax = 1024);
+	template <typename T>
+	void Value2Text(oapi::Sketchpad *skp, char *format, T val, int x, int y, int xmax = 1024, int ymax = 1024)
+	{
+		sprintf(Buffer, format, val);
+		Text(skp, Buffer, x, y, xmax, ymax);
+	}
 
 	void SelectPage(int page);
 
@@ -897,6 +903,7 @@ protected:
 	int marker;
 	int markermax;
 	int status; //Page dependent status, reset to 0 when new page is entered
+	char Buffer[512];
 private:
 	void SaveState();
 	void LoadState();
