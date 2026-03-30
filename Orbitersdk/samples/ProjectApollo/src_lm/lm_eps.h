@@ -334,19 +334,20 @@ class LEM_LCA
 public:
 	LEM_LCA(PanelSDK& p);
 	void Init(LEM *l, e_object *cdrcb, e_object *lmpcb, e_object *acnumcb, e_object *acintcb, h_HeatLoad *lca_h);
-	void Timestep(double dt);
 	void SystemTimestep(double simdt);
 
-	double GetCompDockVoltage();
-	double GetAnnunVoltage();
-	double GetFixedAnnunOutput();
-	double GetVariableAnnunOutput();
 	double GetNumericVoltage();
 	double GetNumericOutput();
 	double GetIntegralVoltage();
 	double GetIntegralOutput();
 
-	DCbus AnnunPower;
+	// Fixed 5.5V output
+	FixedVoltageTransformer Fixed_55V_Output;
+	// Fixed 6V output
+	PowerMerge NumDockCompLTGFeeder;
+	// Variable 2-5V output
+	RotVariableVoltageTransformer CW_DC_Dimmer_Circuit;
+
 	DCbus NumericsPower;
 	DCbus IntegralPower;
 protected:
@@ -355,7 +356,8 @@ protected:
 
 	double heat_load;
 
-	PowerMerge NumDockCompLTGFeeder;
+	FixedVoltageTransformer CDR_Bus_28V_6V_Converter;
+	FixedVoltageTransformer LMP_Bus_28V_6V_Converter;
 };
 
 class LEM_UtilLights

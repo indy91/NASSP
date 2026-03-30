@@ -1176,7 +1176,7 @@ void LEM_DockLights::Init(LEM *l, ThreePosSwitch *docksw)
 
 bool LEM_DockLights::IsPowered()
 {
-	if (lem->lca.GetCompDockVoltage() > 2.0 && DockSwitch->GetState() == THREEPOSSWITCH_UP) {
+	if (lem->lca.Fixed_55V_Output.Voltage() > 2.0 && DockSwitch->GetState() == THREEPOSSWITCH_UP) {
 		return true;
 	}
 	return false;
@@ -1202,10 +1202,13 @@ void LEM_DockLights::SystemTimestep(double simdt)
 //LIGHTING CONTROL ASSEMBLY
 
 LEM_LCA::LEM_LCA(PanelSDK& p) :
-	AnnunPower("AnnumPower",NULL),
 	NumericsPower("NumericsPower", NULL),
 	IntegralPower("IntegralPower",NULL),
-	NumDockCompLTGFeeder("NumDockCompLTGFeeder", p)
+	NumDockCompLTGFeeder("NumDockCompLTGFeeder", p),
+	CDR_Bus_28V_6V_Converter("CDR BusConverter", 6.0),
+	LMP_Bus_28V_6V_Converter("LMP Bus Converter", 6.0),
+	Fixed_55V_Output("5.5V Output Converter", 5.5),
+	CW_DC_Dimmer_Circuit("Dimmer",2.0,5.0)
 {
 	lem = NULL;
 	LCAHeat = 0;
@@ -1217,83 +1220,16 @@ void LEM_LCA::Init(LEM *l, e_object *cdrcb, e_object *lmpcb, e_object *acnumcb, 
 	lem = l;
 	LCAHeat = lca_h;
 
-	NumDockCompLTGFeeder.WireToBuses(cdrcb, lmpcb);
-	AnnunPower.WireTo(&NumDockCompLTGFeeder);
+	CDR_Bus_28V_6V_Converter.WireTo(cdrcb);
+	LMP_Bus_28V_6V_Converter.WireTo(lmpcb);
+	NumDockCompLTGFeeder.WireToBuses(&CDR_Bus_28V_6V_Converter, &LMP_Bus_28V_6V_Converter);
+	Fixed_55V_Output.WireTo(&NumDockCompLTGFeeder);
+
+	CW_DC_Dimmer_Circuit.Init(&lem->LtgAnunNumKnob);
+	CW_DC_Dimmer_Circuit.WireTo(&NumDockCompLTGFeeder);
+
 	NumericsPower.WireTo(acnumcb);
 	IntegralPower.WireTo(acintcb);
-}
-
-void LEM_LCA::Timestep(double dt)
-{
-	//Integral power draw (46 total EL strips at 1.005W per strip)
-
-	IntegralPower.DrawPower(17.078 * GetIntegralOutput());
-
-	if (lem->LtgSidePanelsSwitch.IsUp()) //CDR (13 EL Strips)
-	{
-		IntegralPower.DrawPower(13.065 * GetIntegralOutput());
-	}
-
-	if (lem->SidePanelsSwitch.IsUp()) //LMP (16 EL Strips)
-	{
-		IntegralPower.DrawPower(16.073 * GetIntegralOutput());
-	}
-
-	// TBD: All power loads available, produce heat here
-
-	sprintf(oapiDebugString(), "Integral %f Anun %lf Num %lf", IntegralPower.PowerLoad(), AnnunPower.PowerLoad(), NumericsPower.PowerLoad());
-
-	// Reset power load
-	AnnunPower.UpdateFlow(dt);
-	NumericsPower.UpdateFlow(dt);
-	IntegralPower.UpdateFlow(dt);
-}
-
-double LEM_LCA::GetCompDockVoltage()
-{
-	if (NumDockCompLTGFeeder.Voltage() > SP_MIN_DCVOLTAGE)
-	{
-		return 5.5;
-	}
-
-	return 0.0;
-}
-
-double LEM_LCA::GetAnnunVoltage() //Returns annunciator voltage (transformed 28V to 6V)
-{
-	if (NumDockCompLTGFeeder.Voltage() > SP_MIN_DCVOLTAGE)
-	{
-		if (lem->LtgORideAnunSwitch.IsUp())
-		{
-			//6V
-			return 6.0;
-		}
-		else
-		{
-			//2-5V
-			return (3.0 * lem->LtgAnunNumKnob.GetOutput() + 2.0);
-		}
-	}
-
-	return 0.0;
-}
-
-double LEM_LCA::GetFixedAnnunOutput()
-{
-	if (GetCompDockVoltage() > 2.25) //5% of total to make full dim "off" TBD: will get actual values to use soon
-	{
-		return min(1.0, GetCompDockVoltage() / 5.0);
-	}
-	return 0.0;
-}
-
-double LEM_LCA::GetVariableAnnunOutput()
-{
-	if (GetAnnunVoltage() > 2.25) //5% of total to make full dim "off" TBD: will get actual values to use soon
-	{
-		return min(1.0, GetAnnunVoltage() / 5.0);
-	}
-	return 0.0;
 }
 
 double LEM_LCA::GetNumericVoltage()
@@ -1354,7 +1290,31 @@ double LEM_LCA::GetIntegralOutput()
 
 void LEM_LCA::SystemTimestep(double simdt)
 {
+	//Integral power draw (46 total EL strips at 1.005W per strip)
+
+	IntegralPower.DrawPower(17.078 * GetIntegralOutput());
+
+	if (lem->LtgSidePanelsSwitch.IsUp()) //CDR (13 EL Strips)
+	{
+		IntegralPower.DrawPower(13.065 * GetIntegralOutput());
+	}
+
+	if (lem->SidePanelsSwitch.IsUp()) //LMP (16 EL Strips)
+	{
+		IntegralPower.DrawPower(16.073 * GetIntegralOutput());
+	}
+
 	LCAHeat->GenerateHeat(0.0); //LCA Heat
+
+	sprintf(oapiDebugString(), "Volts: Anun %lf V (nom. 5.5V), %lf V (nom. 6.0V), %lf V (variable), Power: Integral %f Anun %lf Num %lf", Fixed_55V_Output.Voltage(), NumDockCompLTGFeeder.Voltage(), CW_DC_Dimmer_Circuit.Voltage(), IntegralPower.PowerLoad(), NumDockCompLTGFeeder.PowerLoad(), NumericsPower.PowerLoad());
+
+	// Reset power load
+	CDR_Bus_28V_6V_Converter.UpdateFlow(simdt);
+	LMP_Bus_28V_6V_Converter.UpdateFlow(simdt);
+	Fixed_55V_Output.UpdateFlow(simdt);
+	CW_DC_Dimmer_Circuit.UpdateFlow(simdt);
+	NumericsPower.UpdateFlow(simdt);
+	IntegralPower.UpdateFlow(simdt);
 }
 
 //Utility Lights

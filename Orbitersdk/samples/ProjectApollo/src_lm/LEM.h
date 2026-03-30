@@ -1256,7 +1256,7 @@ protected:
 	LEMMissionTimerSwitch TimerSlewHours;
 	LEMMissionTimerSwitch TimerSlewMinutes;
 	LEMMissionTimerSwitch TimerSlewSeconds;
-	ToggleSwitch LtgORideAnunSwitch;
+	TwoSourceSwitch LtgORideAnunSwitch;
 	ToggleSwitch LtgORideNumSwitch;
 	ToggleSwitch LtgORideIntegralSwitch;
 	ToggleSwitch LtgSidePanelsSwitch;

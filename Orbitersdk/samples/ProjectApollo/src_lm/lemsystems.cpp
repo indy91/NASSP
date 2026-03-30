@@ -1603,7 +1603,6 @@ void LEM::SystemsTimestep(double simt, double simdt)
 	{
 		DockingLightSwitchConnector.WireTo(NULL);
 	}
-	lca.Timestep(simdt);
 	rjb.Timestep();
 	drb.Timestep();
 	if (stage < 2)

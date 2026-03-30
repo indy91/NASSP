@@ -660,4 +660,42 @@ private:
 	BEACONLIGHTSPEC lampBeacon;
 };
 
+class e_object_extended : public e_object
+{
+public:
+	e_object_extended(char* i_name);
+	void DrawPower(double watts);
+};
+
+class VoltageTransformer : public e_object_extended
+{
+public:
+	VoltageTransformer(char* i_name);
+
+	double Voltage();
+};
+
+class FixedVoltageTransformer : public VoltageTransformer
+{
+public:
+	FixedVoltageTransformer(char* i_name, double out_voltage);
+
+	void UpdateFlow(double dt);
+protected:
+	double output_voltage;
+};
+
+class VariableVoltageTransformer : public VoltageTransformer
+{
+public:
+	VariableVoltageTransformer(char* i_name, double MinVolt, double MaxVolt);
+
+	void UpdateFlow(double dt);
+
+	virtual double GetValue() = 0; // Should return 0-1 for MinVolt-MaxVolt
+protected:
+	double min_output_voltage;
+	double max_output_voltage;
+};
+
 #endif
